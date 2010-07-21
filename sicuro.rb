@@ -16,9 +16,9 @@ end
 module Sicuro
   class Base
     attr_reader :error
-    def initialize(interpreter=nil, *interpreter_args)
-      @interpreter = interpreter
-      @interpreter_args = interpreter_args
+    def initialize(executable=nil, *executable_args)
+      @executable = executable
+      @executable_args = executable_args
 
       if Dir.exist?(File.dirname(__FILE__))
         @chroot = File.join(File.dirname(__FILE__), "chroot")
@@ -40,7 +40,7 @@ module Sicuro
     end
 
     def run(code, filename=nil)
-      filename ||= "#{@interpreter}_#{Time.now.to_i}_#{rand}.rb"
+      filename ||= "#{@executable}_#{Time.now.to_i}_#{rand}.rb"
       filename.gsub!('/', '')
       filename.gsub!('\\', '')
       filename = File.join(@chroot, filename)
@@ -55,7 +55,7 @@ module Sicuro
       begin
         thread = Thread.new do
           random = rand
-          output = `sudo #{@interpreter} #{@interpeter_args} #{filename.inspect} #{random}`
+          output = `sudo #{@executable} #{@interpeter_args} #{filename.inspect} #{random}`
         end
       rescue Exception => e
         error = e
@@ -65,7 +65,7 @@ module Sicuro
 
       1.upto($time_limit+1).each do |i|
         id = 0
-        id_parts = `ps aux | grep -v grep | grep -i #{@interpreter} | grep -i nobody | grep -i "#{random}"`.split(' ')
+        id_parts = `ps aux | grep -v grep | grep -i #{@executable} | grep -i nobody | grep -i "#{random}"`.split(' ')
         id = id_parts[1].to_i unless id_parts.include?("<defunct>")
 
         if thread.alive? && i > $time_limit && id != 0
