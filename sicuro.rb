@@ -36,7 +36,7 @@ module Sicuro
     end
 
     def eval(code)
-      raise "NoCode", "you must provide code to #{this.class}#eval"
+      # Stub, should be defined in each language-specific class
     end
 
     def run(code, filename=nil)
