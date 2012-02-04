@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'sicuro'
+rescue LoadError
+  require 'rubygems'
+  require 'sicuro'
+end
+
+
+puts "You're silly, this doesn't work yet!"

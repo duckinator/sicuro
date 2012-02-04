@@ -1,0 +1,5 @@
+if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/ruby-1.9.2-p0@sicuro-gem" ]] ; then
+  . "$rvm_environments_path/ruby-1.9.2-p0@sicuro-gem"
+else
+  rvm --create "ruby-1.9.2-p0@sicuro-gem"
+fi

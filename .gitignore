@@ -1,1 +1,4 @@
-chroot
+*.gem
+.bundle
+Gemfile.lock
+pkg/*
