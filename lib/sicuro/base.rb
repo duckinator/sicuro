@@ -2,6 +2,7 @@ require 'timeout'
 require 'open3'
 
 module Sicuro
+  # Set the time and memory limits, define @@code_start for Sicuro.eval.
   def self.setup(timelimit=5, memlimit=10)
     @@timelimit = timelimit
     @@memlimit = memlimit
@@ -13,6 +14,8 @@ module Sicuro
       "print Sicuro._safe_eval "
   end
   
+  # Runs the specified code, returns STDOUT and STDERR as a single string.
+  # Automatically runs Sicuro.setup if needed.
   def self.eval(code)
     begin
       Timeout.timeout(5) do
@@ -26,9 +29,8 @@ module Sicuro
     end
   end
   
-  # You probablyyyyyy don't want to run this directly.
-  # It won't have as good of a time limit (it'll limit it to @@timelimit CPU time,
-  # not total runtime)
+  # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
+  # Used internally by Sicuro.eval
   def self._safe_eval(code)
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, @@memlimit*1024*1024)
