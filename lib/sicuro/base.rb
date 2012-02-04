@@ -9,8 +9,8 @@ module Sicuro
     
     @@code_start =
       "require #{__FILE__.inspect};" +
-      "#{self.class.name}.setup(#{@@timelimit.inspect}, #{@@memlimit.inspect});" +
-      "puts #{self.class.name}._safe_eval "
+      "Sicuro.setup(#{@@timelimit.inspect}, #{@@memlimit.inspect});" +
+      "print Sicuro._safe_eval "
   end
   
   def self.eval(code)
@@ -21,7 +21,7 @@ module Sicuro
     rescue Timeout::Error
       '<timeout hit>'
     rescue NameError
-      SafeEval.setup
+      Sicuro.setup
       retry
     end
   end
