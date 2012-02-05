@@ -23,7 +23,7 @@ tweaked so they are (hopefully) sane on any system capable of running ruby.
 ```ruby
 require 'sicuro'
 
-Sicuro.eval('puts "hi!") # returns "hi!\n"
+Sicuro.eval('puts "hi!"') # returns "hi!\n"
 ```
 
 ## Run code, custom limits
@@ -40,7 +40,7 @@ timelimit = 5
 memlimit  = 10
 
 Sicuro.setup(timelimit, memlimit)
-Sicuro.eval('puts "hi!") # returns "hi!\n"
+Sicuro.eval('puts "hi!"') # returns "hi!\n"
 ```
 
 # License
