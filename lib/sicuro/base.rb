@@ -28,14 +28,14 @@ module Sicuro
       5.step(memlimit_upper_bound, 5) do |i|
         if Sicuro.eval('print 1', i) == '1'
           @@memlimit = i
-          puts "Defaulting to #{i}" if $DEBUG
+          warn "[MEMLIMIT] Defaulting to #{i}MB" if $DEBUG
           break
         end
-        puts "Did not default to #{i}" if $DEBUG
+        warn "[MEMLIMIT] Did not default to #{i}MB" if $DEBUG
       end
       
       if @@memlimit.nil?
-        fail "Could not run `print 1` in #{memlimit_upper_bound}MB RAM or less."
+        fail "[MEMLIMIT] Could not run `print 1` in #{memlimit_upper_bound}MB RAM or less."
       end
     end
   end
