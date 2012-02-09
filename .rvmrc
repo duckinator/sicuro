@@ -3,3 +3,11 @@ if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/ruby-1.9.2-p0@si
 else
   rvm --create "ruby-1.9.2-p0@sicuro-gem"
 fi
+
+if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/ruby-1.8.7-p357@sicuro-gem" ]] ; then
+  . "$rvm_environments_path/ruby-1.8.7-p357@sicuro-gem"
+else
+  rvm --create "ruby-1.8.7-p357@sicuro-gem"
+fi
+
+rvm use "ruby-1.9.2-p0@sicuro-gem"
