@@ -10,14 +10,17 @@ module Sicuro
   #
   # Passing :auto (default) for the `memlimit` (second argument) will start at 5MB,
   # and try to find the lowest multiple of 5MB that `puts 1` will run under.
-  # If it fails at 100MB, it prints an error and exits.
+  # If it fails at `memlimit_upper_bound`, it prints an error and exits.
   #
   # This is needed because apparently some systems require *over 50MB* to run
   # `puts 'hi'`, while others only require 5MB. I'm not quite sure what causes
   # this. If you have any ideas, please open an issue on github and explain them!
   # URL is: http://github.com/duckinator/sicuro/issues
   #
-  # `memlimit_upper_bound` is the upper limit of memory detection
+  # `memlimit_upper_bound` is the upper limit of memory detection, default is 100MB.
+  #
+  # `default_ruby` is the executable evaluated code should run as by default.
+  # This defaults to the ruby executable that was used to run.
   def self.setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil, default_ruby=nil)
     @@timelimit = timelimit
     @@memlimit  = memlimit
@@ -40,6 +43,8 @@ module Sicuro
     end
   end
   
+  # This appends the code that actually makes the evaluation safe.
+  # Odds are, you don't want this unless you're debugging Sicuro.
   def self._code_prefix(code, memlimit = nil)
     memlimit ||= @@memlimit
     "require #{__FILE__.inspect};" +
@@ -64,7 +69,11 @@ module Sicuro
     end
   end
   
-  # Simple testing abilities
+  # Simple testing abilities.
+  #
+  # >> Sicuro.assert("print 'hi'", "hi")
+  # => true
+  #
   def self.assert(code, output, *args)
     Sicuro.eval(code, *args) == output
   end
