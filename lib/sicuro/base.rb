@@ -1,25 +1,60 @@
 require 'timeout'
 require 'open3'
+require 'rbconfig'
 
 module Sicuro
-  # Set the time and memory limits, define @@code_start for Sicuro.eval.
-  def self.setup(timelimit=5, memlimit=10)
+  # Ruby executable used .
+  RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
+
+  # Set the time and memory limits for Sicuro.eval.
+  #
+  # Passing :auto (default) for the `memlimit` (second argument) will start at 5MB,
+  # and try to find the lowest multiple of 5MB that `puts 1` will run under.
+  # If it fails at 100MB, it prints an error and exits.
+  #
+  # This is needed because apparently some systems require *over 50MB* to run
+  # `puts 'hi'`, while others only require 5MB. I'm not quite sure what causes
+  # this. If you have any ideas, please open an issue on github and explain them!
+  # URL is: http://github.com/duckinator/sicuro/issues
+  #
+  # `memlimit_upper_bound` is the upper limit of memory detection
+  def self.setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil, default_ruby=nil)
     @@timelimit = timelimit
-    @@memlimit = memlimit
-    @@memlimit = 50 # FIXME
+    @@memlimit  = memlimit
+    memlimit_upper_bound ||= 100
+    @@default_ruby = default_ruby || RUBY_USED
     
-    @@code_start =
-      "require #{__FILE__.inspect};" +
-      "Sicuro.setup(#{@@timelimit.inspect}, #{@@memlimit.inspect});" +
-      "print Sicuro._safe_eval "
+    if @@memlimit.nil?
+      5.step(memlimit_upper_bound, 5) do |i|
+        if Sicuro.eval('print 1', i) == '1'
+          @@memlimit = i
+          puts "Defaulting to #{i}" if $DEBUG
+          break
+        end
+        puts "Did not default to #{i}" if $DEBUG
+      end
+      
+      if @@memlimit.nil?
+        fail "Could not run `print 1` in #{memlimit_upper_bound}MB RAM or less."
+      end
+    end
+  end
+  
+  def self._code_prefix(code, memlimit = nil)
+    memlimit ||= @@memlimit
+    "require #{__FILE__.inspect};" +
+    "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});" +
+    "print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})"
   end
   
   # Runs the specified code, returns STDOUT and STDERR as a single string.
   # Automatically runs Sicuro.setup if needed.
-  def self.eval(code)
+  def self.eval(code, memlimit = nil, ruby_executable = nil)
     begin
+      ruby_executable ||= @@default_ruby
+      
       Timeout.timeout(5) do
-        Open3.capture2e('ruby', :stdin_data => @@code_start + code.inspect).first
+        Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit)).first
       end
     rescue Timeout::Error
       '<timeout hit>'
@@ -31,9 +66,9 @@ module Sicuro
   
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
   # Used internally by Sicuro.eval
-  def self._safe_eval(code)
+  def self._safe_eval(code, memlimit)
     # RAM limit
-    Process.setrlimit(Process::RLIMIT_AS, @@memlimit*1024*1024)
+    Process.setrlimit(Process::RLIMIT_AS, memlimit*1024*1024)
     
     # CPU time limit. 5s means 5s of CPU time.
     Process.setrlimit(Process::RLIMIT_CPU, @@timelimit)
@@ -43,7 +78,12 @@ module Sicuro
     require 'pp'
     
     # fakefs goes last, because I don't think `require` will work after it
-    require 'fakefs'
+    begin
+      require 'fakefs'
+    rescue LoadError
+      require 'rubygems'
+      retry
+    end
     
     # Undefine FakeFS
     [:FakeFS, :RealFile, :RealFileTest, :RealFileUtils, :RealDir].each do |x|
