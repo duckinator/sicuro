@@ -20,4 +20,9 @@ context 'Sicuro - ' do
     # rubino, where sicuro was pulled from.
     asserts('<timeout hit>') { Sicuro.eval('def Exception.to_s;loop{};end;loop{}') }
   end
+  
+  context 'specify executable' do
+    asserts('"1.8.7"') { Sicuro.eval('print RUBY_VERSION', nil, 'ruby-1.8.7-p357@sicuro-gem') }
+    asserts('"1.9.2"') { Sicuro.eval('print RUBY_VERSION', nil, 'ruby-1.9.2-p0@sicuro-gem')   }
+  end
 end
