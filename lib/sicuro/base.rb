@@ -64,6 +64,11 @@ module Sicuro
     end
   end
   
+  # Simple testing abilities
+  def self.assert(code, output, *args)
+    Sicuro.eval(code, *args) == output
+  end
+  
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
   # Used internally by Sicuro.eval
   def self._safe_eval(code, memlimit)
