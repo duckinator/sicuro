@@ -29,7 +29,7 @@ module Sicuro
     
     if @@memlimit.nil?
       5.step(memlimit_upper_bound, 5) do |i|
-        if Sicuro.eval('print 1', i) == '1'
+        if Sicuro.assert('print 1', '1', i)
           @@memlimit = i
           warn "[MEMLIMIT] Defaulting to #{i}MB" if $DEBUG
           break
