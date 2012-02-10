@@ -8,7 +8,7 @@ module Sicuro
 
   # Set the time and memory limits for Sicuro.eval.
   #
-  # Passing :auto (default) for the `memlimit` (second argument) will start at 5MB,
+  # Passing nil (default) for the `memlimit` (second argument) will start at 5MB,
   # and try to find the lowest multiple of 5MB that `puts 1` will run under.
   # If it fails at `memlimit_upper_bound`, it prints an error and exits.
   #
