@@ -3,7 +3,7 @@ require 'open3'
 require 'rbconfig'
 
 module Sicuro
-  # Ruby executable used .
+  # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
 
   # Set the time and memory limits for Sicuro.eval.
