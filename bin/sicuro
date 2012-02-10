@@ -7,5 +7,18 @@ rescue LoadError
   require 'sicuro'
 end
 
+if ['--help', '-h'].include?(ARGV[0]) || ARGV.length == 0
+  puts "Usage: $0 CODE [EXPECTED]"
+  puts "If EXPECTED is passed, it passes the args to Sicuro.assert,"
+  puts "otherwise it passes the first argument to Sicuro.eval."
+  # TODO: Better --help
+elsif ARGV.length > 1
+  if Sicuro.assert(ARGV[0], ARGV[1])
+    puts "Pass: #{ARGV[0]}"
+  else
+    puts "Fail: #{ARGV[0]}"
+  end
+else
+  puts Sicuro.eval(ARGV[0])
+end
 
-puts "You're silly, this doesn't work yet!"
