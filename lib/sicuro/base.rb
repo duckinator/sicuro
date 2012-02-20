@@ -45,21 +45,49 @@ module Sicuro
   
   # This appends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  def self._code_prefix(code, memlimit = nil)
+  def self._code_prefix(code, memlimit = nil, identifier = nil)
     memlimit ||= @@memlimit
-    "require #{__FILE__.inspect};" +
-    "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});" +
-    "print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})"
+    
+    prefix = ''
+    
+    current_time = Time.now.strftime("%I:%M:%S %p")
+    
+    unless $DEBUG
+      # The following makes it use "sicuro ([identifier; ]current_time)" as the
+      # process name. Likely only actually does anything on *nix systems.
+      prefix = "$0 = 'sicuro ("
+      prefix += "#{identifier}; " if identifier
+      prefix += "#{current_time})';"
+    end
+    
+    prefix +=
+      "require #{__FILE__.inspect};" +
+      "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});" +
+      "print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})"
   end
   
   # Runs the specified code, returns STDOUT and STDERR as a single string.
   # Automatically runs Sicuro.setup if needed.
-  def self.eval(code, memlimit = nil, ruby_executable = nil)
+  #
+  # `code` is the code to run.
+  #
+  # `memlimit` is the memory limit for this specific code. Default is `@@memlimit`
+  #  as determined by Sicuro.setup
+  #
+  # `ruby_executable` is the exaecutable to use. Default is `@@default_ruby`, as
+  # determined by Sicuro.setup
+  #
+  # `identifier` is a unique identifier for this code (ie, if used an irc bot,
+  # the person's nickname). When specified, it tries setting the process name to
+  # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
+  # "sicuro (#{current_time})"
+  #
+  def self.eval(code, memlimit = nil, ruby_executable = nil, identifier = nil)
     begin
       ruby_executable ||= @@default_ruby
       
       Timeout.timeout(5) do
-        Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit)).first
+        Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit, identifier)).first
       end
     rescue Timeout::Error
       '<timeout hit>'
