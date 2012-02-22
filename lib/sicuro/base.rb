@@ -86,7 +86,7 @@ module Sicuro
     begin
       ruby_executable ||= @@default_ruby
       
-      Timeout.timeout(5) do
+      Timeout.timeout(@@timelimit) do
         Thread.new do
           Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit, identifier)).first
         end.value
