@@ -87,7 +87,9 @@ module Sicuro
       ruby_executable ||= @@default_ruby
       
       Timeout.timeout(5) do
-        Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit, identifier)).first
+        Thread.new do
+          Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit, identifier)).first
+        end.value
       end
     rescue Timeout::Error
       '<timeout hit>'
