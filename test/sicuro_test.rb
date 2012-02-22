@@ -19,6 +19,11 @@ context 'Sicuro - ' do
     # The following crashed many safe eval systems, including many versions of
     # rubino, where sicuro was pulled from.
     asserts('<timeout hit>') { Sicuro.eval('def Exception.to_s;loop{};end;loop{}') }
+    
+    # The following used to create an endlessly-hanging process. Not sure how to
+    # check for that automatically, but giving '<timeout hit>' is a bit closer
+    # than hanging endlessly.
+    asserts('<timeout hit>') { Sicuro.eval('sleep') }
   end
   
   context 'specify executable' do
