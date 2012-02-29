@@ -3,12 +3,14 @@ require 'open3'
 
 module Sicuro
   # Set the time and memory limits, define @@code_start for Sicuro.eval.
-  def self.setup(timelimit=5, memlimit=10)
+  def self.setup(timelimit=5, memlimit=10, precode='')
     @@timelimit = timelimit
     @@memlimit = memlimit
     @@memlimit = 50 # FIXME
+    @@precode = precode # safe code to evaluate in the child proc
     
     @@code_start =
+      precode + "\n" +
       "require #{__FILE__.inspect};" +
       "Sicuro.setup(#{@@timelimit.inspect}, #{@@memlimit.inspect});" +
       "print Sicuro._safe_eval "

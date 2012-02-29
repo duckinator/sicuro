@@ -11,6 +11,12 @@ context 'Sicuro - ' do
     asserts('1')    { Sicuro.eval('1') }
     asserts('RuntimeError: ') { Sicuro.eval('fail') }
     asserts('RuntimeError: ') { Sicuro.eval('fail') }
+
+    asserts('2.prime?') { Sicuro.eval('2.prime?') }.matches(/^NoMethodError:/)
+    asserts('2.prime? with require "prime"') do
+      Sicuro.setup(5, 10, "require 'prime'")
+      Sicuro.eval("2.prime?")
+    end.equals("true")
   end
   
   context 'timeout' do
