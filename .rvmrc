@@ -1,13 +1,29 @@
-if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/ruby-1.9.2-p0@sicuro-gem" ]] ; then
-  . "$rvm_environments_path/ruby-1.9.2-p0@sicuro-gem"
+ruby18="ruby-1.8.7-p357"
+ruby19="ruby-1.9.2-p0"
+
+ruby18_full="${ruby18}@sicuro-gem"
+ruby19_full="${ruby19}@sicuro-gem"
+
+rvm install "${ruby18}"
+rvm install "${ruby19}"
+
+if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/${ruby19_full}" ]] ; then
+  . "$rvm_environments_path/${ruby19_full}"
 else
-  rvm --create "ruby-1.9.2-p0@sicuro-gem"
+  rvm --create "${ruby19_full}"
 fi
 
-if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/ruby-1.8.7-p357@sicuro-gem" ]] ; then
-  . "$rvm_environments_path/ruby-1.8.7-p357@sicuro-gem"
+if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/${ruby18_full}" ]] ; then
+  . "$rvm_environments_path/${ruby18_full}"
 else
-  rvm --create "ruby-1.8.7-p357@sicuro-gem"
+  rvm --create "${ruby18_full}"
 fi
 
-rvm use "ruby-1.9.2-p0@sicuro-gem"
+rvm use "${ruby18_full}"
+gem install bundler
+bundle install
+
+rvm use "${ruby19_full}"
+gem install bundler
+bundle install
+
