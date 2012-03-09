@@ -4,8 +4,18 @@ ruby19="ruby-1.9.2-p0"
 ruby18_full="${ruby18}@sicuro-gem"
 ruby19_full="${ruby19}@sicuro-gem"
 
-rvm install "${ruby18}"
-rvm install "${ruby19}"
+function find() {
+  [ -z "$(/bin/which ${1} 2>/dev/null)" ]
+}
+
+HAVE_RUBY18=true
+HAVE_RUBY19=true
+
+find "${ruby18}" || HAVE_RUBY18=false
+find "${ruby19}" || HAVE_RUBY19=false
+
+$HAVE_RUBY18 || rvm install "${ruby18}"
+$HAVE_RUBY19 || rvm install "${ruby19}"
 
 if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/${ruby19_full}" ]] ; then
   . "$rvm_environments_path/${ruby19_full}"
@@ -19,11 +29,15 @@ else
   rvm --create "${ruby18_full}"
 fi
 
-rvm use "${ruby18_full}"
-gem install bundler
-bundle install
+if [ ! $HAVE_RUBY18 ]; then
+  rvm use "${ruby18_full}"
+  gem install bundler
+  bundle install
+fi
 
 rvm use "${ruby19_full}"
-gem install bundler
-bundle install
+if [ ! $HAVE_RUBY19 ]; then
+  gem install bundler
+  bundle install
+fi
 
