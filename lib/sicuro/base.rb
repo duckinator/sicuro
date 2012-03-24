@@ -86,14 +86,27 @@ module Sicuro
     begin
       ruby_executable ||= @@default_ruby
       
+      i, oe, t, pid = nil
+      
       Timeout.timeout(@@timelimit) do
-        Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit, identifier)).first
+        #Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit, identifier)).firs
+        i, oe, t = Open3.popen2e(ruby_executable)
+        pid = t.pid
+        outerr_reader = Thread.new { oe.read }
+        i.write _code_prefix(code, memlimit, identifier)
+        i.close
+        outerr_reader.value
       end
     rescue Timeout::Error
       '<timeout hit>'
     rescue NameError
       Sicuro.setup
       retry
+    ensure
+      i.close  unless i.closed?
+      oe.close unless oe.closed?
+      t.kill   if t.alive?
+      Process.kill('KILL', pid) rescue nil # TODO: Handle this correctly
     end
   end
   
