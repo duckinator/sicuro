@@ -89,7 +89,6 @@ module Sicuro
       i, oe, t, pid = nil
       
       Timeout.timeout(@@timelimit) do
-        #Open3.capture2e(ruby_executable, :stdin_data => _code_prefix(code, memlimit, identifier)).firs
         i, oe, t = Open3.popen2e(ruby_executable)
         pid = t.pid
         outerr_reader = Thread.new { oe.read }
