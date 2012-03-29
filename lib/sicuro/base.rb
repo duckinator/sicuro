@@ -6,6 +6,31 @@ module Sicuro
   # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
 
+  # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
+  class Eval
+    attr_accessor :out, :err
+  
+    def initialize(out, err)
+      @out, @err = out, err.chomp
+    end
+    
+    def to_s
+      if @err.empty? || @err == '""'
+        @out
+      else
+        @err
+      end
+    end
+    
+    def inspect
+      if @err.empty? || @err == '""'
+        @out.inspect
+      else
+        @err.inspect
+      end
+    end
+  end
+
   # Set the time and memory limits for Sicuro.eval.
   #
   # Passing nil (default) for the `memlimit` (second argument) will start at 5MB,
@@ -86,27 +111,39 @@ module Sicuro
     begin
       ruby_executable ||= @@default_ruby
       
-      i, oe, t, pid = nil
+      i, o, e, t, pid = nil
       
       Timeout.timeout(@@timelimit) do
-        i, oe, t = Open3.popen2e(ruby_executable)
+        i, o, e, t = Open3.popen3(ruby_executable)
         pid = t.pid
-        outerr_reader = Thread.new { oe.read }
+        out_reader = Thread.new { o.read }
+        err_reader = Thread.new { e.read }
         i.write _code_prefix(code, memlimit, identifier)
         i.close
-        outerr_reader.value
+        Eval.new(out_reader.value, err_reader.value)
       end
     rescue Timeout::Error
-      '<timeout hit>'
+      Eval.new('', '<timeout hit>')
     rescue NameError
       Sicuro.setup
       retry
     ensure
-      i.close  unless i.closed?
-      oe.close unless oe.closed?
-      t.kill   if t.alive?
+      i.close unless i.closed?
+      o.close unless o.closed?
+      e.close unless e.closed?
+      t.kill  if t.alive?
       Process.kill('KILL', pid) rescue nil # TODO: Handle this correctly
     end
+  end
+  
+  # Same as eval, but get only stdout
+  def self.eval_out(*args)
+    self.eval(*args).out
+  end
+  
+  # Same as eval, but get only stderr
+  def self.eval_err(*args)
+    self.eval(*args).err
   end
   
   # Simple testing abilities.
@@ -115,7 +152,7 @@ module Sicuro
   # => true
   #
   def self.assert(code, output, *args)
-    Sicuro.eval(code, *args) == output
+    Sicuro.eval(code, *args).out == output
   end
   
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
@@ -144,10 +181,11 @@ module Sicuro
       Object.instance_eval{ remove_const x }
     end
     
-    output_io, result, error = nil
+    out_io, err_io, result, error = nil
     
     begin
-      output_io = $stdout = $stderr = StringIO.new
+      out_io = $stdout = StringIO.new
+      err_io = $stderr = StringIO.new
       code = '$SAFE = 3; BEGIN { $SAFE=3 };' + code
       
       result = ::Kernel.eval(code, TOPLEVEL_BINDING)
@@ -158,8 +196,16 @@ module Sicuro
       $stderr = STDERR
     end
     
-    output = output_io.string
+    output = out_io.string
+    error ||= err_io.string
     
+    if output.empty?
+      print result.inspect
+    else
+      print output
+    end
+    warn error
+=begin
     if output.empty?
       if error
         error
@@ -169,5 +215,6 @@ module Sicuro
     else
       output
     end
+=end
   end
 end
