@@ -162,6 +162,27 @@ module Sicuro
     Sicuro.eval(code, *args).out == output
   end
   
+  # stdout, stderr, and exception catching for unsafe Kernel#eval
+  # Used internally by Sicuro._safe_eval
+  def self._unsafe_eval(code, binding)
+    out_io, err_io, result, error, exception = nil
+    
+    begin
+      out_io = $stdout = StringIO.new
+      err_io = $stderr = StringIO.new
+      code = '$SAFE = 3; BEGIN { $SAFE=3 };' + code
+      
+      result = ::Kernel.eval(code, binding)
+    rescue Exception => e
+      exception = "#{e.class}: #{e.message}"
+    ensure
+      $stdout = STDOUT
+      $stderr = STDERR
+    end
+    
+    [out_io.string, result, err_io.string, exception]
+  end
+  
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
   # Used internally by Sicuro.eval
   def self._safe_eval(code, memlimit)
@@ -188,6 +209,7 @@ module Sicuro
       Object.instance_eval{ remove_const x }
     end
     
+=begin
     out_io, err_io, result, error = nil
     
     begin
@@ -205,12 +227,13 @@ module Sicuro
     
     output = out_io.string
     error ||= err_io.string
+=end
+    output, result, error, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
     
-    if output.empty?
-      print result.inspect
-    else
-      print output
-    end
+    output = result.inspect if output.empty?
+    error ||= exception
+    
+    print output
     warn error
   end
 end
