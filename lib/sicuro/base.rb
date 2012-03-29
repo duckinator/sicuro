@@ -75,6 +75,8 @@ module Sicuro
     libs     ||= []
     precode  ||= ''
     
+    identifier += '; ' if identifier
+    
     prefix = ''
     
     current_time = Time.now.strftime("%I:%M:%S %p")
@@ -82,20 +84,16 @@ module Sicuro
     unless $DEBUG
       # The following makes it use "sicuro ([identifier; ]current_time)" as the
       # process name. Likely only actually does anything on *nix systems.
-      prefix = "$0 = 'sicuro ("
-      prefix += "#{identifier}; " if identifier
-      prefix += "#{current_time})';"
+      prefix = "$0 = 'sicuro (#{identifier}#{current_time})';"
     end
     
-    libs.each do |x|
-      prefix += "require '#{x}';"
-    end
-    
-    prefix +=
-      "require #{__FILE__.inspect};" +
-      "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});" +
-      "#{precode};" +
-      "print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})"
+    prefix += <<-EOF
+      #{libs.inspect}.map {|x| require x }
+      require #{__FILE__.inspect}
+      Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect})
+      #{precode}
+      print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})
+    EOF
   end
   
   # Runs the specified code, returns STDOUT and STDERR as a single string.
