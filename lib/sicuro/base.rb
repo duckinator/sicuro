@@ -105,6 +105,10 @@ module Sicuro
   #
   # `code` is the code to run.
   #
+  # `libs` is an array of libraries to include before setting up the safe eval process (BE CAREFUL!),
+  #
+  # `precode` is code ran before setting up the safe eval process (BE INCREDIBLY CAREFUL!).
+  #
   # `memlimit` is the memory limit for this specific code. Default is `@@memlimit`
   #  as determined by Sicuro.setup
   #
