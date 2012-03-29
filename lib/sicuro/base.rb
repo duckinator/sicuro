@@ -209,25 +209,6 @@ module Sicuro
       Object.instance_eval{ remove_const x }
     end
     
-=begin
-    out_io, err_io, result, error = nil
-    
-    begin
-      out_io = $stdout = StringIO.new
-      err_io = $stderr = StringIO.new
-      code = '$SAFE = 3; BEGIN { $SAFE=3 };' + code
-      
-      result = ::Kernel.eval(code, TOPLEVEL_BINDING)
-    rescue Exception => e
-      error = "#{e.class}: #{e.message}"
-    ensure
-      $stdout = STDOUT
-      $stderr = STDERR
-    end
-    
-    output = out_io.string
-    error ||= err_io.string
-=end
     output, result, error, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
     
     output = result.inspect if output.empty?
