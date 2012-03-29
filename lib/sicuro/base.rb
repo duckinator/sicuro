@@ -121,32 +121,30 @@ module Sicuro
   # "sicuro (#{current_time})"
   #
   def self.eval(code, libs = nil, precode = nil, memlimit = nil, ruby_executable = nil, identifier = nil)
-    begin
-      ruby_executable ||= @@default_ruby
-      
-      i, o, e, t, pid = nil
-      
-      Timeout.timeout(@@timelimit) do
-        i, o, e, t = Open3.popen3(ruby_executable)
-        pid = t.pid
-        out_reader = Thread.new { o.read }
-        err_reader = Thread.new { e.read }
-        i.write _code_prefix(code, libs, precode, memlimit, identifier)
-        i.close
-        Eval.new(out_reader.value, err_reader.value)
-      end
-    rescue Timeout::Error
-      Eval.new('', '<timeout hit>')
-    rescue NameError
-      Sicuro.setup
-      retry
-    ensure
-      i.close unless i.closed?
-      o.close unless o.closed?
-      e.close unless e.closed?
-      t.kill  if t.alive?
-      Process.kill('KILL', pid) rescue nil # TODO: Handle this correctly
+    ruby_executable ||= @@default_ruby
+    
+    i, o, e, t, pid = nil
+    
+    Timeout.timeout(@@timelimit) do
+      i, o, e, t = Open3.popen3(ruby_executable)
+      pid = t.pid
+      out_reader = Thread.new { o.read }
+      err_reader = Thread.new { e.read }
+      i.write _code_prefix(code, libs, precode, memlimit, identifier)
+      i.close
+      Eval.new(out_reader.value, err_reader.value)
     end
+  rescue Timeout::Error
+    Eval.new('', '<timeout hit>')
+  rescue NameError
+    Sicuro.setup
+    retry
+  ensure
+    i.close unless i.closed?
+    o.close unless o.closed?
+    e.close unless e.closed?
+    t.kill  if t.alive?
+    Process.kill('KILL', pid) rescue nil # TODO: Handle this correctly
   end
   
   # Same as eval, but get only stdout
