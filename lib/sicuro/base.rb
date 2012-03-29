@@ -54,7 +54,7 @@ module Sicuro
     
     if @@memlimit.nil?
       5.step(memlimit_upper_bound, 5) do |i|
-        if Sicuro.assert('print 1', '1', i)
+        if Sicuro.assert('print 1', '1', nil, nil, i)
           @@memlimit = i
           warn "[MEMLIMIT] Defaulting to #{i}MB" if $DEBUG
           break
@@ -70,8 +70,10 @@ module Sicuro
   
   # This appends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  def self._code_prefix(code, memlimit = nil, identifier = nil)
+  def self._code_prefix(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
     memlimit ||= @@memlimit
+    libs     ||= []
+    precode  ||= ''
     
     prefix = ''
     
@@ -85,9 +87,16 @@ module Sicuro
       prefix += "#{current_time})';"
     end
     
+    libs.each do |x|
+      prefix += "require '#{x}';"
+    end
+    
     prefix +=
       "require #{__FILE__.inspect};" +
-      "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});" +
+      "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});"
+      
+    prefix +=
+      "#{precode};" +
       "print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})"
   end
   
@@ -107,7 +116,7 @@ module Sicuro
   # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
   # "sicuro (#{current_time})"
   #
-  def self.eval(code, memlimit = nil, ruby_executable = nil, identifier = nil)
+  def self.eval(code, libs = nil, precode = nil, memlimit = nil, ruby_executable = nil, identifier = nil)
     begin
       ruby_executable ||= @@default_ruby
       
@@ -118,7 +127,7 @@ module Sicuro
         pid = t.pid
         out_reader = Thread.new { o.read }
         err_reader = Thread.new { e.read }
-        i.write _code_prefix(code, memlimit, identifier)
+        i.write _code_prefix(code, libs, precode, memlimit, identifier)
         i.close
         Eval.new(out_reader.value, err_reader.value)
       end
