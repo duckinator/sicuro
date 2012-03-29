@@ -216,16 +216,5 @@ module Sicuro
       print output
     end
     warn error
-=begin
-    if output.empty?
-      if error
-        error
-      else
-        result.inspect
-      end
-    else
-      output
-    end
-=end
   end
 end
