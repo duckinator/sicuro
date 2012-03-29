@@ -50,10 +50,15 @@ context 'Sicuro - ' do
   
   context 'libs' do
     asserts(:eval_out, 'Set', ['set']).equals('Set')
-    asserts(:eval_out, 'Set', nil, 'require "set"').equals('Set')
     
     # 1.8.7 equivalents
     asserts(:eval_out, 'Set', ['set'], nil, nil,         'ruby-1.8.7-p357@sicuro-gem').equals('Set')
+  end
+  
+  context 'precode' do
+    asserts(:eval_out, 'Set', nil, 'require "set"').equals('Set')
+    
+    # 1.8.7 equivalents
     asserts(:eval_out, 'Set', nil, 'require "set"', nil, 'ruby-1.8.7-p357@sicuro-gem').equals('Set')
   end
 end
