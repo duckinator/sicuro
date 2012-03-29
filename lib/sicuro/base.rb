@@ -93,9 +93,7 @@ module Sicuro
     
     prefix +=
       "require #{__FILE__.inspect};" +
-      "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});"
-      
-    prefix +=
+      "Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect});" +
       "#{precode};" +
       "print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})"
   end
