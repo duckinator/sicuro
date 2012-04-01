@@ -136,7 +136,8 @@ module Sicuro
     
     begin
       output_io = $stdout = $stderr = StringIO.new
-      code = '$SAFE = 3; BEGIN { $SAFE=3 };' + code
+      remove_env = "Object.class_eval { remove_const :ENV };"
+      code = remove_env + '$SAFE = 3; BEGIN { $SAFE=3 };' + code
       
       result = ::Kernel.eval(code, TOPLEVEL_BINDING)
     rescue Exception => e
