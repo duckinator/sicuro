@@ -11,11 +11,21 @@ function find() {
 HAVE_RUBY18=true
 HAVE_RUBY19=true
 
-find "${ruby18}" || HAVE_RUBY18=false
-find "${ruby19}" || HAVE_RUBY19=false
+which "${ruby18}" || HAVE_RUBY18=false
+which "${ruby19}" || HAVE_RUBY19=false
 
-$HAVE_RUBY18 || rvm install "${ruby18}"
-$HAVE_RUBY19 || rvm install "${ruby19}"
+if ! $HAVE_RUBY18; then
+  rvm install "${ruby18_full}"
+  gem install bundler
+  bundle install
+fi
+
+if ! $HAVE_RUBY19; then
+  rvm install "${ruby19_full}"
+  gem install bundler
+  bundle install
+fi
+
 
 if [[ -n "$rvm_environments_path" && -s "$rvm_environments_path/${ruby19_full}" ]] ; then
   . "$rvm_environments_path/${ruby19_full}"
@@ -29,15 +39,4 @@ else
   rvm --create "${ruby18_full}"
 fi
 
-if [ ! $HAVE_RUBY18 ]; then
-  rvm use "${ruby18_full}"
-  gem install bundler
-  bundle install
-fi
-
 rvm use "${ruby19_full}"
-if [ ! $HAVE_RUBY19 ]; then
-  gem install bundler
-  bundle install
-fi
-
