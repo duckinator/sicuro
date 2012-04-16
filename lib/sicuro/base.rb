@@ -90,11 +90,11 @@ module Sicuro
     end
     
     prefix += <<-EOF
-      #{libs.inspect}.map {|x| require x }
+#      #{libs.inspect}.map {|x| require x }
       require #{__FILE__.inspect}
       Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect})
-      #{precode}
-      print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect})
+#      #{precode}
+      print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect}, #{libs.inspect}, #{precode.inspect})
     EOF
   end
   
@@ -155,6 +155,11 @@ module Sicuro
     self.eval(*args).err
   end
   
+  # Same as eval, but run #to_s on it
+  def self.eval_str(*args)
+    self.eval(*args).to_s
+  end
+  
   # Simple testing abilities.
   #
   # >> Sicuro.assert("print 'hi'", "hi")
@@ -187,7 +192,7 @@ module Sicuro
   
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
   # Used internally by Sicuro.eval
-  def self._safe_eval(code, memlimit)
+  def self._safe_eval(code, memlimit, libs, precode)
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, memlimit*1024*1024)
     
@@ -206,7 +211,18 @@ module Sicuro
       retry
     end
     
-    (Object.constants - $TRUSTED_CONSTANTS).each do |x|
+    required_for_custom_libs = [:FakeFS, :Gem]
+    (Object.constants - $TRUSTED_CONSTANTS - required_for_custom_libs).each do |x|
+      Object.instance_eval { remove_const x }
+    end
+    
+    ::Kernel.eval(precode, TOPLEVEL_BINDING)
+    
+    libs.each do |lib|
+      require lib
+    end
+    
+    required_for_custom_libs.each do |x|
       Object.instance_eval { remove_const x }
     end
     
