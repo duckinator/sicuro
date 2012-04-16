@@ -2,6 +2,8 @@ require 'timeout'
 require 'open3'
 require 'rbconfig'
 
+require File.join(File.dirname(__FILE__), 'trusted_constants.rb')
+
 module Sicuro
   # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
@@ -204,9 +206,8 @@ module Sicuro
       retry
     end
     
-    # Undefine FakeFS
-    [:FakeFS, :RealFile, :RealFileTest, :RealFileUtils, :RealDir].each do |x|
-      Object.instance_eval{ remove_const x }
+    (Object.constants - $TRUSTED_CONSTANTS).each do |x|
+      Object.instance_eval { remove_const x }
     end
     
     output, result, error, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
