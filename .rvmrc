@@ -4,10 +4,6 @@ ruby19="ruby-1.9.2-p0"
 ruby18_full="${ruby18}@sicuro-gem"
 ruby19_full="${ruby19}@sicuro-gem"
 
-function find() {
-  [ -z "$(/bin/which ${1} 2>/dev/null)" ]
-}
-
 HAVE_RUBY18=true
 HAVE_RUBY19=true
 
@@ -16,13 +12,13 @@ which "${ruby19}" || HAVE_RUBY19=false
 
 if ! $HAVE_RUBY18; then
   rvm install "${ruby18_full}"
-  gem install bundler
+  gem install bundler --version='~> 1.0.0'
   bundle install
 fi
 
 if ! $HAVE_RUBY19; then
   rvm install "${ruby19_full}"
-  gem install bundler
+  gem install bundler --version='~> 1.0.0'
   bundle install
 fi
 
