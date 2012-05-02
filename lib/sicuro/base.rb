@@ -90,10 +90,8 @@ module Sicuro
     end
     
     prefix += <<-EOF
-#      #{libs.inspect}.map {|x| require x }
       require #{__FILE__.inspect}
       Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect})
-#      #{precode}
       print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect}, #{libs.inspect}, #{precode.inspect})
     EOF
   end
