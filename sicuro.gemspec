@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'fakefs'
   #s.add_development_dependency 'rspec', '~>2.5.0'
   s.add_development_dependency 'riot', '>= 0'
-  s.add_development_dependency 'bundler', '~> 1.0.0'
+  s.add_development_dependency 'bundler', '~> 1.1.3'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
