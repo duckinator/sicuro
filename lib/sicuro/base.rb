@@ -1,6 +1,7 @@
 require 'timeout'
 require 'open3'
 require 'rbconfig'
+require 'json'
 
 require File.join(File.dirname(__FILE__), 'trusted_constants.rb')
 require File.join(File.dirname(__FILE__), 'trusted_kernel_methods.rb')
