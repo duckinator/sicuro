@@ -175,7 +175,7 @@ module Sicuro
     begin
       out_io = $stdout = StringIO.new
       err_io = $stderr = StringIO.new
-      code = '$SAFE = 3; BEGIN { $SAFE=3 };' + code
+      code = '$SAFE=2; BEGIN { $SAFE=2 };' + code
       
       result = ::Kernel.eval(code, binding)
     rescue Exception => e
