@@ -1,6 +1,6 @@
 begin
   require 'sicuro/base'
-rescue
+rescue LoadError
   require 'rubygems'
   retry
 end

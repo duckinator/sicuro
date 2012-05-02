@@ -1,4 +1,9 @@
-require 'bundler'
+begin
+  require 'bundler'
+rescue LoadError
+  require 'rubygems'
+  retry
+end
 =begin
 begin
   Bundler.setup(:default, :development)
