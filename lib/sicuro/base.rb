@@ -25,19 +25,26 @@ module Sicuro
     end
     
     def to_s
-      if @error.empty? || @error == '""'
-        @output
-      else
+      if !@exception.empty?
+        @exception
+      elsif !@error.empty? && @error != '""'
         @error
+      elsif !@return.empty? && @return != '""'
+        @return
+      else
+        @output
       end
     end
     
     def inspect
+=begin
       if @error.empty? || @error == '""'
         @output.inspect
       else
         @error.inspect
       end
+=end
+      to_s.inspect
     end
   end
 
@@ -54,13 +61,10 @@ module Sicuro
   #
   # `memlimit_upper_bound` is the upper limit of memory detection, default is 100MB.
   #
-  # `default_ruby` is the executable evaluated code should run as by default.
-  # This defaults to the ruby executable that was used to run.
-  def self.setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil, default_ruby=nil)
+  def self.setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil)
     @@timelimit = timelimit
     @@memlimit  = memlimit
     memlimit_upper_bound ||= 100
-    @@default_ruby = default_ruby || RUBY_USED
     
     if @@memlimit.nil?
       5.step(memlimit_upper_bound, 5) do |i|
@@ -116,25 +120,22 @@ module Sicuro
   # `memlimit` is the memory limit for this specific code. Default is `@@memlimit`
   #  as determined by Sicuro.setup
   #
-  # `ruby_executable` is the exaecutable to use. Default is `@@default_ruby`, as
-  # determined by Sicuro.setup
-  #
   # `identifier` is a unique identifier for this code (ie, if used an irc bot,
   # the person's nickname). When specified, it tries setting the process name to
   # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
   # "sicuro (#{current_time})"
   #
-  def self.eval(code, libs = nil, precode = nil, memlimit = nil, ruby_executable = nil, identifier = nil)
-    ruby_executable ||= @@default_ruby
+  def self.eval(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
     
     i, o, e, t, pid = nil
     
     Timeout.timeout(@@timelimit) do
-      i, o, e, t = Open3.popen3(ruby_executable)
+      i, o, e, t = Open3.popen3(RUBY_USED)
       pid = t.pid
       out_reader = Thread.new { o.read }
       err_reader = Thread.new { e.read }
       i.write _code_prefix(code, libs, precode, memlimit, identifier)
+      p i,o,e,t
       i.close
       #Eval.new(out_reader.value, err_reader.value)
       Eval.new(JSON.parse(out_reader.value))
@@ -183,13 +184,13 @@ module Sicuro
   # => true
   #
   def self.assert(code, output, *args)
-    Sicuro.eval(code, *args).out == output
+        Sicuro.eval(code, *args).out == output
   end
   
   # stdout, stderr, and exception catching for unsafe Kernel#eval
   # Used internally by Sicuro._safe_eval
   def self._unsafe_eval(code, binding)
-    out_io, err_io, result, error, exception = nil
+    out_io, err_io, result, exception = nil
     
     begin
       out_io = $stdout = StringIO.new
