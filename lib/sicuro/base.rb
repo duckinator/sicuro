@@ -3,6 +3,7 @@ require 'open3'
 require 'rbconfig'
 
 require File.join(File.dirname(__FILE__), 'trusted_constants.rb')
+require File.join(File.dirname(__FILE__), 'trusted_kernel_methods.rb')
 
 module Sicuro
   # Ruby executable used.
@@ -175,7 +176,11 @@ module Sicuro
     begin
       out_io = $stdout = StringIO.new
       err_io = $stderr = StringIO.new
-      code = '$SAFE=2; BEGIN { $SAFE=2 };' + code
+      code = "BEGIN {
+        (Kernel.methods - Object.methods - #{$TRUSTED_KERNEL_METHODS.inspect}).each do |x|
+          Kernel.send(:undef_method, x.to_sym)
+        end        
+      }; " + code
       
       result = ::Kernel.eval(code, binding)
     rescue Exception => e
