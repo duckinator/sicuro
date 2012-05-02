@@ -37,4 +37,5 @@ $TRUSTED_CONSTANTS = [
   :File,
   :FileUtils,
   :FileTest,
+  :JSON,
 ]

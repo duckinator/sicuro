@@ -25,11 +25,11 @@ module Sicuro
     end
     
     def to_s
-      if !@exception.empty?
+      if @exception && !@exception.empty?
         @exception
-      elsif !@error.empty? && @error != '""'
+      elsif @error && !@error.empty? && @error != '""'
         @error
-      elsif !@return.empty? && @return != '""'
+      elsif @return && !@return.empty? && @return != '""'
         @return
       else
         @output
@@ -135,7 +135,6 @@ module Sicuro
       out_reader = Thread.new { o.read }
       err_reader = Thread.new { e.read }
       i.write _code_prefix(code, libs, precode, memlimit, identifier)
-      p i,o,e,t
       i.close
       #Eval.new(out_reader.value, err_reader.value)
       Eval.new(JSON.parse(out_reader.value))
@@ -255,7 +254,7 @@ module Sicuro
     
     #print output
     #warn error
-    JSON.generate({
+    print JSON.generate({
       'output'    => output,
       'result'    => result,
       'error'     => error,
