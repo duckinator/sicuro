@@ -25,7 +25,7 @@ module Sicuro
     end
     
     def to_s
-      if @err.empty? || @err == '""'
+      if @error.empty? || @error == '""'
         @output
       else
         @error
