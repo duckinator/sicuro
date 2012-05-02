@@ -11,25 +11,31 @@ module Sicuro
 
   # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
   class Eval
-    attr_accessor :out, :err
+    attr_accessor :output, :return, :error, :exception
   
-    def initialize(out, err)
-      @out, @err = out, err.chomp
+    #def initialize(out, err)
+    #  @out, @err = out, err.chomp
+    #end
+    def initialize(hash)
+      @output = hash['output']
+      @return = hash['return']
+      @error  = hash['error']
+      @exception = hash['exception']
     end
     
     def to_s
       if @err.empty? || @err == '""'
-        @out
+        @output
       else
-        @err
+        @error
       end
     end
     
     def inspect
-      if @err.empty? || @err == '""'
-        @out.inspect
+      if @error.empty? || @error == '""'
+        @output.inspect
       else
-        @err.inspect
+        @error.inspect
       end
     end
   end
@@ -129,7 +135,8 @@ module Sicuro
       err_reader = Thread.new { e.read }
       i.write _code_prefix(code, libs, precode, memlimit, identifier)
       i.close
-      Eval.new(out_reader.value, err_reader.value)
+      #Eval.new(out_reader.value, err_reader.value)
+      Eval.new(JSON.parse(out_reader.value))
     end
   rescue Timeout::Error
     Eval.new('', '<timeout hit>')
@@ -145,13 +152,23 @@ module Sicuro
   end
   
   # Same as eval, but get only stdout
-  def self.eval_out(*args)
-    self.eval(*args).out
+  def self.eval_output(*args)
+    self.eval(*args).output
+  end
+  
+  # Same as eval, but get only return value
+  def self.eval_return(*args)
+    self.eval(*args).return
   end
   
   # Same as eval, but get only stderr
-  def self.eval_err(*args)
-    self.eval(*args).err
+  def self.eval_error(*args)
+    self.eval(*args).error
+  end
+  
+  # Same as eval, but get only exceptions
+  def self.eval_exception(*args)
+    self.eval(*args).error
   end
   
   # Same as eval, but run #to_s on it
@@ -231,10 +248,16 @@ module Sicuro
     
     output, result, error, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
     
-    output = result.inspect if output.empty?
-    error ||= exception
+    #output = result.inspect if output.empty?
+    #error ||= exception
     
-    print output
-    warn error
+    #print output
+    #warn error
+    JSON.generate({
+      'output'    => output,
+      'result'    => result,
+      'error'     => error,
+      'exception' => exception
+    })
   end
 end
