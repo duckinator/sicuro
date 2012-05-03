@@ -14,9 +14,6 @@ module Sicuro
   class Eval
     attr_accessor :output, :return, :error, :exception
   
-    #def initialize(out, err)
-    #  @out, @err = out, err.chomp
-    #end
     def initialize(hash)
       @output = hash['output']
       @result = hash['result']
