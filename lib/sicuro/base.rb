@@ -19,10 +19,13 @@ module Sicuro
       @result = hash['result']
       @error  = hash['error']
       @exception = hash['exception']
+      
+      @error     = nil if @error.is_a?(String) && @error.empty?
+      @exception = nil if @exception.is_a?(String) && @exception.empty?
     end
     
     def _get_return_value
-      [@result, @output, @exception, @error].each do |x|
+      [@exception, @error, @result, @output].each do |x|
         return x unless x.nil?
       end
     end
