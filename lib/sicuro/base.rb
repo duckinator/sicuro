@@ -19,32 +19,23 @@ module Sicuro
     #end
     def initialize(hash)
       @output = hash['output']
-      @return = hash['return']
+      @result = hash['result']
       @error  = hash['error']
       @exception = hash['exception']
     end
     
-    def to_s
-      if @exception && !@exception.empty?
-        @exception
-      elsif @error && !@error.empty? && @error != '""'
-        @error
-      elsif @return && !@return.empty? && @return != '""'
-        @return
-      else
-        @output
+    def _get_return_value
+      [@result, @output, @exception, @error].each do |x|
+        return x unless x.nil?
       end
     end
     
+    def to_s
+      _get_return_value.to_s
+    end
+    
     def inspect
-=begin
-      if @error.empty? || @error == '""'
-        @output.inspect
-      else
-        @error.inspect
-      end
-=end
-      to_s.inspect
+      _get_return_value.inspect
     end
   end
 
@@ -136,8 +127,14 @@ module Sicuro
       err_reader = Thread.new { e.read }
       i.write _code_prefix(code, libs, precode, memlimit, identifier)
       i.close
-      #Eval.new(out_reader.value, err_reader.value)
-      Eval.new(JSON.parse(out_reader.value))
+      str = out_reader.value
+      err = err_reader.value
+      
+      if str.empty? && !err.empty?
+        return Eval.new({'output'=>'', 'return'=>'', 'error'=>'', 'exception'=>err})
+      end
+      
+      Eval.new(JSON.parse(str))
     end
   rescue Timeout::Error
     Eval.new('', '<timeout hit>')
@@ -145,10 +142,10 @@ module Sicuro
     Sicuro.setup
     retry
   ensure
-    i.close unless i.closed?
-    o.close unless o.closed?
-    e.close unless e.closed?
-    t.kill  if t.alive?
+    #i.close unless i.closed?
+    #o.close unless o.closed?
+    #e.close unless e.closed?
+    #t.kill  if t.alive?
     Process.kill('KILL', pid) rescue nil # TODO: Handle this correctly
   end
   
@@ -183,7 +180,7 @@ module Sicuro
   # => true
   #
   def self.assert(code, output, *args)
-        Sicuro.eval(code, *args).out == output
+    Sicuro.eval(code, *args).output == output
   end
   
   # stdout, stderr, and exception catching for unsafe Kernel#eval
@@ -249,11 +246,6 @@ module Sicuro
     
     output, result, error, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
     
-    #output = result.inspect if output.empty?
-    #error ||= exception
-    
-    #print output
-    #warn error
     print JSON.generate({
       'output'    => output,
       'result'    => result,
