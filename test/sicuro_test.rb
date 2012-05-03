@@ -19,7 +19,7 @@ context 'Sicuro - ' do
     
     # The following crashed many safe eval systems, including many versions of
     # rubino, where sicuro was pulled from.
-    asserts(:eval_exception, 'def Exception.to_s;loop{};end;loop{}').equals('<timeout hit>')
+    asserts(:eval_error, 'def Exception.to_s;loop{};end;loop{}').equals('<timeout hit>')
     
     # The following used to create an endlessly-hanging process. Not sure how to
     # check for that automatically, but giving '<timeout hit>' is a bit closer

@@ -130,14 +130,20 @@ module Sicuro
       str = out_reader.value
       err = err_reader.value
       
-      if str.empty? && !err.empty?
-        return Eval.new({'output'=>'', 'return'=>'', 'error'=>'', 'exception'=>err})
+      if str.empty?
+        if !err.empty?
+          return Eval.new({'output'=>'', 'return'=>'', 'error'=>'', 'exception'=>err})
+        else
+          # This means it used @@timelimit seconds of CPU time, so it was killed off
+          # in the child process. We just pretend it was killed here, instead.
+          raise Timeout::Error
+        end
       end
       
       Eval.new(JSON.parse(str))
     end
   rescue Timeout::Error
-    Eval.new('', '<timeout hit>')
+    Eval.new({'output'=>'', 'return'=>'', 'error'=>'<timeout hit>', 'exception'=>nil})
   rescue NameError
     Sicuro.setup
     retry
@@ -166,7 +172,7 @@ module Sicuro
   
   # Same as eval, but get only exceptions
   def self.eval_exception(*args)
-    self.eval(*args).error
+    self.eval(*args).exception
   end
   
   # Same as eval, but run #to_s on it
