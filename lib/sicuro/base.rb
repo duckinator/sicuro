@@ -201,6 +201,11 @@ module Sicuro
     self.eval(*args).to_s
   end
   
+  # Same as eval, but run #value on it
+  def self.eval_value(*args)
+    self.eval(*args).value
+  end
+  
   # Simple testing abilities.
   #
   # >> Sicuro.assert("print 'hi'", "hi")

@@ -4,22 +4,22 @@ context 'Sicuro - ' do
   setup { Sicuro }
   
   context 'printing text' do
-    asserts(:eval_output, 'puts "hi"').equals("hi\n")
+    asserts(:eval_value, 'puts "hi"').equals("hi\n")
   end
   
   context 'return value' do
-    asserts(:eval_return, '"hi"').equals('hi')
-    asserts(:eval_return, "'hi'").equals('hi')
-    asserts(:eval_return, '1'   ).equals(1)
-    asserts(:eval_exception, 'fail').equals('RuntimeError: ')
+    asserts(:eval_value, '"hi"').equals('"hi"')
+    asserts(:eval_value, "'hi'").equals('"hi"')
+    asserts(:eval_value, '1'   ).equals('1')
+    asserts(:eval_value, 'fail').equals('RuntimeError: ')
   end
   
   context 'timeout' do
-    asserts(:eval_error, 'sleep 6').equals('<timeout hit>')
+    asserts(:eval_value, 'sleep 6').equals('<timeout hit>')
     
     # The following crashed many safe eval systems, including many versions of
     # rubino, where sicuro was pulled from.
-    asserts(:eval_error, 'def Exception.to_s;loop{};end;loop{}').equals('<timeout hit>')
+    asserts(:eval_value, 'def Exception.to_s;loop{};end;loop{}').equals('<timeout hit>')
     
     # The following used to create an endlessly-hanging process. Not sure how to
     # check for that automatically, but giving '<timeout hit>' is a bit closer
@@ -29,10 +29,10 @@ context 'Sicuro - ' do
   end
   
   context 'libs' do
-    asserts(:eval_return, 'Set', ['set']).equals('Set')
+    asserts(:eval_value, 'Set', ['set']).equals('"Set"')
   end
   
   context 'precode' do
-    asserts(:eval_return, 'Set', nil, 'require "set"').equals('Set')
+    asserts(:eval_value, 'Set', nil, 'require "set"').equals('"Set"')
   end
 end
