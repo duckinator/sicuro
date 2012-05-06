@@ -27,6 +27,7 @@ context 'Sicuro - ' do
     asserts(:eval_stderr, 'warn 1').equals("1\n")
     asserts(:eval_return, '1').equals(1)
     asserts(:eval_exception, 'raise').equals('RuntimeError: ')
+    asserts(:eval_inspect, '1').equals('#<Sicuro::Eval stdin="1" value="1">')
   end
   
   context 'timeouts (this *will* take a while)' do
