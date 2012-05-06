@@ -14,7 +14,22 @@ context 'Sicuro - ' do
     asserts(:eval_value, 'fail').equals('RuntimeError: ')
   end
   
-  context 'timeout' do
+  context 'libs' do
+    asserts(:eval_value, 'Set', ['set']).equals('"Set"')
+  end
+  
+  context 'precode' do
+    asserts(:eval_value, 'Set', nil, 'require "set"').equals('"Set"')
+  end
+
+  context 'wrapper functions' do
+    asserts(:eval_stdout, 'puts 1').equals("1\n")
+    asserts(:eval_stderr, 'warn 1').equals("1\n")
+    asserts(:eval_return, '1').equals(1)
+    asserts(:eval_exception, 'raise').equals('RuntimeError: ')
+  end
+  
+  context 'timeouts (this *will* take a while)' do
     asserts(:eval_value, 'sleep 6').equals('<timeout hit>')
     
     # The following crashed many safe eval systems, including many versions of
@@ -26,13 +41,5 @@ context 'Sicuro - ' do
     # than hanging endlessly.
     # FALSE POSITIVE. Disabling until I actually fix both the bug and the test.
     #asserts('<timeout hit>'), 'sleep').equals('<timeout hit>')  
-  end
-  
-  context 'libs' do
-    asserts(:eval_value, 'Set', ['set']).equals('"Set"')
-  end
-  
-  context 'precode' do
-    asserts(:eval_value, 'Set', nil, 'require "set"').equals('"Set"')
   end
 end
