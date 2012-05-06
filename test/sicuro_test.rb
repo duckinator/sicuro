@@ -8,10 +8,10 @@ context 'Sicuro - ' do
   end
   
   context 'return value' do
-    asserts(:eval_output, '"hi"').equals('"hi"')
-    asserts(:eval_output, "'hi'").equals('"hi"')
-    asserts(:eval_output, '1'   ).equals('1')
-    asserts(:eval_error, 'fail').equals('RuntimeError: ')
+    asserts(:eval, '"hi"').equals('"hi"')
+    asserts(:eval, "'hi'").equals('"hi"')
+    asserts(:eval, '1'   ).equals('1')
+    asserts(:eval_exception, 'fail').equals('RuntimeError: ')
   end
   
   context 'timeout' do
@@ -29,10 +29,10 @@ context 'Sicuro - ' do
   end
   
   context 'libs' do
-    asserts(:eval_output, 'Set', ['set']).equals('Set')
+    asserts(:eval_return, 'Set', ['set']).equals('Set')
   end
   
   context 'precode' do
-    asserts(:eval_output, 'Set', nil, 'require "set"').equals('Set')
+    asserts(:eval_return, 'Set', nil, 'require "set"').equals('Set')
   end
 end

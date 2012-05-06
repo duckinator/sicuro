@@ -16,17 +16,24 @@ module Sicuro
   
     def initialize(hash)
       @output = hash['output']
-      @result = hash['result']
+      @return = hash['return']
       @error  = hash['error']
       @exception = hash['exception']
-      
-      @error     = nil if @error.is_a?(String) && @error.empty?
-      @exception = nil if @exception.is_a?(String) && @exception.empty?
+#p hash
+#p @output,@return,@error,@exception
     end
     
     def _get_return_value
-      [@exception, @error, @result, @output].each do |x|
-        return x unless x.nil?
+      if !@error.nil? && ((!@error.is_a?(String)) || (@error.is_a?(String) && !@error.empty?))
+        # @error is not nil and is not a String, or is a non-empty String
+        @error
+      elsif (!@exception.nil? && !@exception.is_a?(String)) || (@exception.is_a?(String) && !@exception.empty?)
+        # @exception is not nil and is not a String, or is a non-empty String
+        @exception
+      elsif !@output.nil? && (!@output.is_a?(String) || !@output.empty?)
+        @output
+      else
+        @return
       end
     end
     
@@ -35,7 +42,8 @@ module Sicuro
     end
     
     def inspect
-      _get_return_value.inspect
+      puts to_s.inspect
+      to_s.inspect
     end
   end
 
@@ -254,7 +262,7 @@ module Sicuro
     
     print JSON.generate({
       'output'    => output,
-      'result'    => result,
+      'return'    => result,
       'error'     => error,
       'exception' => exception
     })
