@@ -41,6 +41,6 @@ context 'Sicuro - ' do
     # check for that automatically, but giving '<timeout hit>' is a bit closer
     # than hanging endlessly.
     # FALSE POSITIVE. Disabling until I actually fix both the bug and the test.
-    #asserts('<timeout hit>'), 'sleep').equals('<timeout hit>')  
+    #asserts(:eval_value, 'sleep').equals('<timeout hit>')  
   end
 end
