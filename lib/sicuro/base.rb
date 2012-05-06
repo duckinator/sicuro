@@ -32,6 +32,8 @@ module Sicuro
         @exception
       elsif !@output.nil? && (!@output.is_a?(String) || !@output.empty?)
         @output
+      elsif @return.is_a?(String)
+        @return.inspect
       else
         @return
       end
