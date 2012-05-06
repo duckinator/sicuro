@@ -12,26 +12,27 @@ module Sicuro
 
   # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
   class Eval
-    attr_accessor :output, :return, :error, :exception
+    attr_accessor :stdin, :stdout, :stderr, :return, :exception
   
     def initialize(hash)
       @inspect_for_value = false
-      @output = hash['output']
+      @stdin  = hash['stdin']
+      @stdout = hash['stdout']
+      @stderr = hash['stderr']
       @return = hash['return']
-      @error  = hash['error']
       @exception = hash['exception']
     end
     
     def _get_return_value
       @inspect_for_value = false
-      if !@error.nil? && ((!@error.is_a?(String)) || (@error.is_a?(String) && !@error.empty?))
-        # @error is not nil and is not a String, or is a non-empty String
-        @error
+      if !@stderr.nil? && ((!@stderr.is_a?(String)) || (@stderr.is_a?(String) && !@stderr.empty?))
+        # @stderr is not nil and is not a String, or is a non-empty String
+        @stderr
       elsif (!@exception.nil? && !@exception.is_a?(String)) || (@exception.is_a?(String) && !@exception.empty?)
         # @exception is not nil and is not a String, or is a non-empty String
         @exception
-      elsif !@output.nil? && (!@output.is_a?(String) || !@output.empty?)
-        @output
+      elsif !@stdout.nil? && (!@stdout.is_a?(String) || !@stdout.empty?)
+        @stdout
       else
         @inspect_for_value = true
         @return
@@ -51,12 +52,8 @@ module Sicuro
       end
     end
     
-    def to_s
-      _get_return_value.to_s
-    end
-    
     def inspect
-      "#<Sicuro::Eval #{_get_return_value.inspect}>"
+      "#<#{self.class} stdin=#{stdin.inspect} value=#{value.inspect}>"
     end
   end
 
@@ -153,7 +150,7 @@ module Sicuro
       
       if str.empty?
         if !err.empty?
-          return Eval.new({'output'=>'', 'return'=>'', 'error'=>'', 'exception'=>err})
+          return Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => '', 'return'=>'', 'exception'=>err})
         else
           # This means it used @@timelimit seconds of CPU time, so it was killed off
           # in the child process. We just pretend it was killed here, instead.
@@ -164,7 +161,7 @@ module Sicuro
       Eval.new(JSON.parse(str))
     end
   rescue Timeout::Error
-    Eval.new({'output'=>'', 'return'=>'', 'error'=>'<timeout hit>', 'exception'=>nil})
+    Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => '<timeout hit>', 'return'=>'', 'exception'=>nil})
   rescue NameError
     Sicuro.setup
     retry
@@ -177,8 +174,13 @@ module Sicuro
   end
   
   # Same as eval, but get only stdout
-  def self.eval_output(*args)
-    self.eval(*args).output
+  def self.eval_stdout(*args)
+    self.eval(*args).stdout
+  end
+  
+  # Same as eval, but get only stderr
+  def self.eval_stderr(*args)
+    self.eval(*args).stderr
   end
   
   # Same as eval, but get only return value
@@ -186,19 +188,9 @@ module Sicuro
     self.eval(*args).return
   end
   
-  # Same as eval, but get only stderr
-  def self.eval_error(*args)
-    self.eval(*args).error
-  end
-  
   # Same as eval, but get only exceptions
   def self.eval_exception(*args)
     self.eval(*args).exception
-  end
-  
-  # Same as eval, but run #to_s on it
-  def self.eval_str(*args)
-    self.eval(*args).to_s
   end
   
   # Same as eval, but run #value on it
@@ -212,7 +204,7 @@ module Sicuro
   # => true
   #
   def self.assert(code, output, *args)
-    Sicuro.eval(code, *args).output == output
+    Sicuro.eval(code, *args).stdout == output
   end
   
   # stdout, stderr, and exception catching for unsafe Kernel#eval
@@ -237,7 +229,7 @@ module Sicuro
       $stderr = STDERR
     end
     
-    [out_io.string, result, err_io.string, exception]
+    [out_io.string, err_io.string, result, exception]
   end
   
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
@@ -276,12 +268,13 @@ module Sicuro
       Object.instance_eval { remove_const x }
     end
     
-    output, result, error, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
+    stdout, stderr, result, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
     
     print JSON.generate({
-      'output'    => output,
+      'stdin'     => code,
+      'stdout'    => stdout,
+      'stderr'    => stderr,
       'return'    => result,
-      'error'     => error,
       'exception' => exception
     })
   end
