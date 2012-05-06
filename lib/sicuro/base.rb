@@ -15,15 +15,15 @@ module Sicuro
     attr_accessor :output, :return, :error, :exception
   
     def initialize(hash)
+      @inspect_for_value = false
       @output = hash['output']
       @return = hash['return']
       @error  = hash['error']
       @exception = hash['exception']
-#p hash
-#p @output,@return,@error,@exception
     end
     
     def _get_return_value
+      @inspect_for_value = false
       if !@error.nil? && ((!@error.is_a?(String)) || (@error.is_a?(String) && !@error.empty?))
         # @error is not nil and is not a String, or is a non-empty String
         @error
@@ -32,10 +32,22 @@ module Sicuro
         @exception
       elsif !@output.nil? && (!@output.is_a?(String) || !@output.empty?)
         @output
-      elsif @return.is_a?(String)
-        @return.inspect
       else
+        @inspect_for_value = true
         @return
+      end
+    end
+    
+    # Get a version suitable for printing.
+    # Main difference between #value and #_get_return_value: with #value, 
+    # if you get @return, it calls .inspect.
+    def value
+      ret = _get_return_value
+      
+      if @inspect_for_value
+        ret.inspect
+      else
+        ret
       end
     end
     
@@ -44,8 +56,7 @@ module Sicuro
     end
     
     def inspect
-      puts to_s.inspect
-      to_s.inspect
+      "#<Sicuro::Eval #{_get_return_value.inspect}>"
     end
   end
 

@@ -8,9 +8,9 @@ context 'Sicuro - ' do
   end
   
   context 'return value' do
-    asserts(:eval, '"hi"').equals('"hi"')
-    asserts(:eval, "'hi'").equals('"hi"')
-    asserts(:eval, '1'   ).equals('1')
+    asserts(:eval_return, '"hi"').equals('hi')
+    asserts(:eval_return, "'hi'").equals('hi')
+    asserts(:eval_return, '1'   ).equals(1)
     asserts(:eval_exception, 'fail').equals('RuntimeError: ')
   end
   
