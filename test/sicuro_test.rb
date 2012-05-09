@@ -30,6 +30,12 @@ context 'Sicuro - ' do
     asserts(:eval_inspect, '1').equals('#<Sicuro::Eval stdin="1" value="1">')
   end
   
+  context 'exceptions' do
+    asserts(:eval_exception, 'undefined').equals("NameError: undefined local variable or method `undefined' for main:Object")
+    asserts(:eval_exception, ':').equals("SyntaxError: <main>:4: syntax error, unexpected $end, expecting tSTRING_CONTENT or tSTRING_DBEG or tSTRING_DVAR or tSTRING_END\n      }; :\n          ^")
+    asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
+  end
+  
   context 'timeouts (this *will* take a while)' do
     asserts(:eval_value, 'sleep 6').equals('<timeout hit>')
     
