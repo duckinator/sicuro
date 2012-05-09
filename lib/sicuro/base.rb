@@ -175,7 +175,7 @@ module Sicuro
       
       if str.empty?
         if !err.empty?
-          return Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => '', 'return'=>'', 'exception'=>err}, pid)
+          return Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => err, 'return'=>'', 'exception'=>nil}, pid)
         else
           # This means it used @@timelimit seconds of CPU time, so it was killed off
           # in the child process. We just pretend it was killed here, instead.
