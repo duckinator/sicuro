@@ -36,7 +36,7 @@ context 'Sicuro - ' do
     asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
   end
   
-  context 'timeouts (this *will* take a while)' do
+  context 'timed-out code returns proper string' do
     asserts(:eval_value, 'sleep 6').equals('Timeout::Error: Code took longer than 5 seconds to terminate.')
     
     # The following crashed many safe eval systems, including many versions of
@@ -46,7 +46,19 @@ context 'Sicuro - ' do
     # The following used to create an endlessly-hanging process. Not sure how to
     # check for that automatically, but giving 'Timeout::Error: Code took longer than 5 seconds to terminate.' is a bit closer
     # than hanging endlessly.
-    # FALSE POSITIVE. Disabling until I actually fix both the bug and the test.
-    #asserts(:eval_value, 'sleep').equals('Timeout::Error: Code took longer than 5 seconds to terminate.')  
+    asserts(:eval_value, 'sleep').equals('Timeout::Error: Code took longer than 5 seconds to terminate.')
+  end
+  
+  context 'timed-out code properly terminated' do
+    asserts(:eval_running?, 'sleep 6').equals(false)
+    
+    # The following crashed many safe eval systems, including many versions of
+    # rubino, where sicuro was pulled from.
+    asserts(:eval_running?, 'def Exception.to_s;loop{};end;loop{}').equals(false)
+    
+    # The following used to create an endlessly-hanging process. Not sure how to
+    # check for that automatically, but giving 'Timeout::Error: Code took longer than 5 seconds to terminate.' is a bit closer
+    # than hanging endlessly.
+    asserts(:eval_running?, 'sleep').equals(false)
   end
 end

@@ -257,7 +257,13 @@ module Sicuro
   def self.eval_inspect(*args)
     self.eval(*args).inspect
   end
-    
+  
+  # Same as eval, but run #running? on it
+  # Yes, this one has NO use except testing.
+  def self.eval_running?(*args)
+    self.eval(*args).running?
+  end
+  
   # Simple testing abilities.
   #
   # >> Sicuro.assert("print 'hi'", "hi")
