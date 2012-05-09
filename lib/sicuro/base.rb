@@ -40,7 +40,7 @@ module Sicuro
       error_prefix   = '[SICURO ERROR] '
       if @running_error
         @running_error = "#{error_prefix}#{@running_error} THIS IS A BUG. Code:"
-        @running_error += @stdin.split("\n").map{|x| x.rjust(error_prefix.length + x.length)}.join("\n")
+        @running_error += "\n" + @stdin.split("\n").map{|x| x.rjust(error_prefix.length + x.length)}.join("\n")
       end
       
       warn @running_error if @running_error
