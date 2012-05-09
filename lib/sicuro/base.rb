@@ -36,9 +36,16 @@ module Sicuro
         end
       end
       
-      @running_error = "[SICURO ERROR] #{@running_error} THIS IS A BUG." if @running_error
+      # This bit is positively horrifying, but it's very useful information, so...
+      error_prefix   = '[SICURO ERROR] '
+      non_terminated = 'Non-terminated code:'
+      @running_error = "#{error_prefix}#{@running_error} THIS IS A BUG." if @running_error
       
-      warn @running_error if @running_error
+      if @running_error
+        warn @running_error
+        warn non_terminated.rjust(error_prefix.length + non_terminated.length)
+        warn @stdin.split("\n").map{|x| x.rjust(error_prefix.length + x.length + 5)}.join("\n")
+      end
       
       @running = Sicuro.process_running?(pid)
     end
