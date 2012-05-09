@@ -37,16 +37,16 @@ context 'Sicuro - ' do
   end
   
   context 'timeouts (this *will* take a while)' do
-    asserts(:eval_value, 'sleep 6').equals('<timeout hit>')
+    asserts(:eval_value, 'sleep 6').equals('Timeout::Error: Code took longer than 5 seconds to terminate.')
     
     # The following crashed many safe eval systems, including many versions of
     # rubino, where sicuro was pulled from.
-    asserts(:eval_value, 'def Exception.to_s;loop{};end;loop{}').equals('<timeout hit>')
+    asserts(:eval_value, 'def Exception.to_s;loop{};end;loop{}').equals('Timeout::Error: Code took longer than 5 seconds to terminate.')
     
     # The following used to create an endlessly-hanging process. Not sure how to
-    # check for that automatically, but giving '<timeout hit>' is a bit closer
+    # check for that automatically, but giving 'Timeout::Error: Code took longer than 5 seconds to terminate.' is a bit closer
     # than hanging endlessly.
     # FALSE POSITIVE. Disabling until I actually fix both the bug and the test.
-    #asserts(:eval_value, 'sleep').equals('<timeout hit>')  
+    #asserts(:eval_value, 'sleep').equals('Timeout::Error: Code took longer than 5 seconds to terminate.')  
   end
 end

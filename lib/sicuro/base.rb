@@ -5,6 +5,7 @@ require 'json'
 
 require File.join(File.dirname(__FILE__), 'trusted_constants.rb')
 require File.join(File.dirname(__FILE__), 'trusted_kernel_methods.rb')
+require File.join(File.dirname(__FILE__), 'monkeypatches.rb')
 
 module Sicuro
   # Ruby executable used.
@@ -14,16 +15,40 @@ module Sicuro
   class Eval
     attr_accessor :stdin, :stdout, :stderr, :return, :exception
   
-    def initialize(hash)
+    def initialize(hash, pid)
       @inspect_for_value = false
+      @running_error     = nil
+      @pid    = pid
       @stdin  = hash['stdin']
       @stdout = hash['stdout']
       @stderr = hash['stderr']
       @return = hash['return']
       @exception = hash['exception']
+      
+      if Sicuro.process_running?(pid)
+        Process.kill('KILL', pid)
+        if Sicuro.process_running?(pid)
+          @running_error = "Process ##{pid} could not be terminated."
+        else
+          @running_error = "Process ##{pid} could not be terminated in Sicuro#eval, but was killed in Sicuro::Eval#new."
+          # Should we `exit 1` if we get here?
+        end
+      end
+      
+      @running_error = "[SICURO ERROR] #{@running_error}. THIS IS A BUG." if @running_error
+      
+      warn @running_error if @running_error
+      
+      @running = Sicuro.process_running?(pid)
+    end
+    
+    def running?
+      @running
     end
     
     def _get_return_value
+      return @running_error if @running_error
+      
       @inspect_for_value = false
       if !@stderr.nil? && ((!@stderr.is_a?(String)) || (@stderr.is_a?(String) && !@stderr.empty?))
         # @stderr is not nil and is not a String, or is a non-empty String
@@ -150,7 +175,7 @@ module Sicuro
       
       if str.empty?
         if !err.empty?
-          return Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => '', 'return'=>'', 'exception'=>err})
+          return Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => '', 'return'=>'', 'exception'=>err}, pid)
         else
           # This means it used @@timelimit seconds of CPU time, so it was killed off
           # in the child process. We just pretend it was killed here, instead.
@@ -158,10 +183,15 @@ module Sicuro
         end
       end
       
-      Eval.new(JSON.parse(str))
+      Eval.new(JSON.parse(str), pid)
     end
   rescue Timeout::Error
-    Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => '<timeout hit>', 'return'=>'', 'exception'=>nil})
+    error = "Timeout::Error: Code took longer than #{@@timelimit} seconds to terminate."
+    if Sicuro.process_running?(pid)
+      Process.kill('KILL', pid)
+    end
+    
+    Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => error, 'return'=>'', 'exception'=>nil}, pid)
   rescue NameError
     Sicuro.setup
     retry
@@ -170,7 +200,13 @@ module Sicuro
     #o.close unless o.closed?
     #e.close unless e.closed?
     #t.kill  if t.alive?
-    Process.kill('KILL', pid) rescue nil # TODO: Handle this correctly
+    
+    if Sicuro.process_running?(pid)
+      Process.kill('KILL', pid)
+      if Sicuro.process_running?(pid)
+        warn "[SICURO ERROR] Could not kill process ##{pid} after 3 attempts!"
+      end
+    end
   end
   
   # Same as eval, but get only stdout
