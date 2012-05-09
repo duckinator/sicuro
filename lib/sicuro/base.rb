@@ -26,7 +26,8 @@ module Sicuro
       @exception = hash['exception']
       
       if Sicuro.process_running?(pid)
-        Process.kill('KILL', pid)
+        sleep 1
+        Process.kill('KILL', pid) rescue nil
         if Sicuro.process_running?(pid)
           @running_error = "Process ##{pid} could not be terminated."
         else
@@ -175,7 +176,13 @@ module Sicuro
       
       if str.empty?
         if !err.empty?
-          return Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => err, 'return'=>'', 'exception'=>nil}, pid)
+          return Eval.new({
+            'stdin'     => code,
+            'stdout'    => '',
+            'stderr'    => err,
+            'return'    => '',
+            'exception' => nil
+          }, pid)
         else
           # This means it used @@timelimit seconds of CPU time, so it was killed off
           # in the child process. We just pretend it was killed here, instead.
@@ -188,10 +195,16 @@ module Sicuro
   rescue Timeout::Error
     error = "Timeout::Error: Code took longer than #{@@timelimit} seconds to terminate."
     if Sicuro.process_running?(pid)
-      Process.kill('KILL', pid)
+      Process.kill('KILL', pid) rescue nil
     end
     
-    Eval.new({'stdin' => code, 'stdout' => '', 'stderr' => error, 'return'=>'', 'exception'=>nil}, pid)
+    Eval.new({
+      'stdin'     => code,
+      'stdout'    => '',
+      'stderr'    => error,
+      'return'    => '',
+      'exception' => nil
+    }, pid)
   rescue NameError
     Sicuro.setup
     retry
@@ -202,7 +215,7 @@ module Sicuro
     #t.kill  if t.alive?
     
     if Sicuro.process_running?(pid)
-      Process.kill('KILL', pid)
+      Process.kill('KILL', pid) rescue nil
       if Sicuro.process_running?(pid)
         warn "[SICURO ERROR] Could not kill process ##{pid} after 3 attempts!"
       end
