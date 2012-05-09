@@ -30,9 +30,11 @@ module Sicuro
         Process.kill('KILL', pid) rescue nil
         if Sicuro.process_running?(pid)
           @running_error = "Process ##{pid} could not be terminated."
-        else
-          @running_error = "Process ##{pid} could not be terminated in Sicuro#eval, but was killed in Sicuro::Eval#new."
           # Should we `exit 1` if we get here?
+        else
+          # Un-comment the following line if/when we figure out why
+          # Travis CI loves it so much.
+          #@running_error = "Process ##{pid} could not be terminated in Sicuro#eval, but was killed in Sicuro::Eval#new."
         end
       end
       
