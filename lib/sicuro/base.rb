@@ -36,7 +36,7 @@ module Sicuro
         end
       end
       
-      @running_error = "[SICURO ERROR] #{@running_error}. THIS IS A BUG." if @running_error
+      @running_error = "[SICURO ERROR] #{@running_error} THIS IS A BUG." if @running_error
       
       warn @running_error if @running_error
       
