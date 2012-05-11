@@ -34,7 +34,13 @@ $TRUSTED_CONSTANTS = [
   :PP,
   :TSort,
   :Date,
+  
+  # Required for file access
   :File,
   :FileUtils,
   :FileTest,
+  :Dir,
+  
+  :Errno,
+  :Pathname,
 ]
