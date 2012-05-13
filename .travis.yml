@@ -9,7 +9,8 @@ notifications:
       - "irc.freenode.org#sicuro"
       - "irc.tenthbit.net#programming"
     template:
-      - "%{repository_url} (%{commit}) : %{message} %{foo} "
+      # A shortened %{build_url} being between %{commit} and %{author} would be awesome.
+      - "%{repository_url}: %{branch} %{commit} %{author} %{message}"
       - "Build details: %{build_url}"
 #    on_success: change # default: always
 #    on_failure: change # default: always
