@@ -10,7 +10,7 @@ notifications:
       - "irc.tenthbit.net#programming"
     template:
       # A shortened %{build_url} being between %{commit} and %{author} would be awesome.
-      - "%{repository_url}: %{branch} %{commit} %{author} %{message}"
+      - "\x02%{repository_url}\x02: %{branch} %{commit} \x02%{author}\x02 %{message}"
       - "Build details: %{build_url}"
 #    on_success: change # default: always
 #    on_failure: change # default: always
