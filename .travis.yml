@@ -2,3 +2,12 @@ language: ruby
 rvm:
   - 1.9.3
 script: rake test
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#sicuro"
+      - "irc.tenthbit.net#programming"
+#    on_success: change # default: always
+#    on_failure: change # default: always
+
