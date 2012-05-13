@@ -8,6 +8,9 @@ notifications:
     channels:
       - "irc.freenode.org#sicuro"
       - "irc.tenthbit.net#programming"
+    template:
+      - "%{repository_url} (%{commit}) : %{message} %{foo} "
+      - "Build details: %{build_url}"
 #    on_success: change # default: always
 #    on_failure: change # default: always
 
