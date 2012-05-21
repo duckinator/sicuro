@@ -191,9 +191,15 @@ module Sicuro
             'exception' => nil
           }, pid)
         else
-          # This means it used @@timelimit seconds of CPU time, so it was killed off
-          # in the child process. We just pretend it was killed here, instead.
-          raise Timeout::Error
+          # Nothing at all was returned.
+          # This often happens on Kernel#exit!
+          return Eval.new({
+            'stdin'     => code,
+            'stdout'    => '',
+            'stderr'    => '',
+            'return'    => nil,
+            'exception' => nil
+          }, pid)
         end
       end
       
@@ -308,6 +314,10 @@ module Sicuro
     
     # CPU time limit. 5s means 5s of CPU time.
     Process.setrlimit(Process::RLIMIT_CPU, @@timelimit)
+    trap(:XCPU) do # I believe this is triggered when you hit RLIMIT_CPU
+      raise Timeout::Error
+      exit!
+    end
     
     # Things we want, or need to have, available in eval
     require 'stringio'
