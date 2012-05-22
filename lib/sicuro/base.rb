@@ -30,7 +30,7 @@ module Sicuro
   def self.setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil)
     @@timelimit = timelimit
     @@memlimit  = memlimit
-    memlimit_upper_bound ||= 100
+    memlimit_upper_bound ||= 150
     
     if @@memlimit.nil?
       5.step(memlimit_upper_bound, 5) do |i|
