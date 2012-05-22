@@ -1,7 +1,7 @@
 require 'teststrap'
 
 context 'Sicuro - ' do
-  setup { Sicuro.setup; Sicuro }
+  setup { s = Sicuro.new; s.setup; s }
   
   context 'printing text' do
     asserts(:eval_value, 'puts "hi"').equals("hi\n")

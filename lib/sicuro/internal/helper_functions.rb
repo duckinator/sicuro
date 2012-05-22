@@ -1,39 +1,39 @@
-module Sicuro
+class Sicuro
   # Same as eval, but get only stdout
-  def self.eval_stdout(*args)
-    self.eval(*args).stdout
+  def eval_stdout(*args)
+    eval(*args).stdout
   end
   
   # Same as eval, but get only stderr
-  def self.eval_stderr(*args)
-    self.eval(*args).stderr
+  def eval_stderr(*args)
+    eval(*args).stderr
   end
   
   # Same as eval, but get only return value
-  def self.eval_return(*args)
-    self.eval(*args).return
+  def eval_return(*args)
+    eval(*args).return
   end
   
   # Same as eval, but get only exceptions
-  def self.eval_exception(*args)
-    self.eval(*args).exception
+  def eval_exception(*args)
+    eval(*args).exception
   end
   
   # Same as eval, but run #value on it
-  def self.eval_value(*args)
-    self.eval(*args).value
+  def eval_value(*args)
+    eval(*args).value
   end
   
   # Same as eval, but run #inspect on it
   # Yes, this one has NO use except testing.
-  def self.eval_inspect(*args)
-    self.eval(*args).inspect
+  def eval_inspect(*args)
+    eval(*args).inspect
   end
   
   # Same as eval, but run #running? on it
   # Yes, this one has NO use except testing.
-  def self.eval_running?(*args)
-    self.eval(*args).running?
+  def eval_running?(*args)
+    eval(*args).running?
   end
   
   # Simple testing abilities.
@@ -41,7 +41,7 @@ module Sicuro
   # >> Sicuro.assert("print 'hi'", "hi")
   # => true
   #
-  def self.assert(code, output, *args)
-    Sicuro.eval(code, *args).stdout == output
+  def assert(code, output, *args)
+    eval(code, *args).stdout == output
   end
 end

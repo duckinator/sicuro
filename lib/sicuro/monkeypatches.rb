@@ -1,6 +1,6 @@
 # Various monkeypatches that make sicuro less fugly.
 
-module Sicuro
+class Sicuro
   def self.process_running?(pid)
     # Process.kill(0, pid) returns true if it can kill the process,
     # and raises an Errno::ESRCH exception when a process does not exist.

@@ -10,7 +10,7 @@ require File.join(File.dirname(__FILE__), 'monkeypatches.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'eval.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'helper_functions.rb')
 
-module Sicuro
+class Sicuro
   # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
   
@@ -27,14 +27,14 @@ module Sicuro
   #
   # `memlimit_upper_bound` is the upper limit of memory detection, default is 100MB.
   #
-  def self.setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil)
+  def setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil)
     @@timelimit = timelimit
     @@memlimit  = memlimit
     memlimit_upper_bound ||= 100
     
     if @@memlimit.nil?
       5.step(memlimit_upper_bound, 5) do |i|
-        if Sicuro.assert('print 1', '1', nil, nil, i)
+        if assert('print 1', '1', nil, nil, i)
           @@memlimit = i
           warn "[MEMLIMIT] Defaulting to #{i}MB" if $DEBUG
           break
@@ -50,7 +50,7 @@ module Sicuro
   
   # This appends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  def self._code_prefix(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
+  def _code_prefix(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
     memlimit ||= @@memlimit
     libs     ||= []
     precode  ||= ''
@@ -69,9 +69,14 @@ module Sicuro
     
     prefix += <<-EOF
       require #{__FILE__.inspect}
-      Sicuro.setup(#{@@timelimit.inspect}, #{memlimit.inspect})
-      print Sicuro._safe_eval(#{code.inspect}, #{memlimit.inspect}, #{libs.inspect}, #{precode.inspect})
+      s=Sicuro.new
+      s.setup(#{@@timelimit.inspect}, #{memlimit.inspect})
+      print s._safe_eval(#{code.inspect}, #{memlimit.inspect}, #{libs.inspect}, #{precode.inspect})
     EOF
+  end
+  
+  def self.eval(*args)
+    self.new.eval(*args)
   end
   
   # Runs the specified code, returns STDOUT and STDERR as a single string.
@@ -91,7 +96,7 @@ module Sicuro
   # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
   # "sicuro (#{current_time})"
   #
-  def self.eval(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
+  def eval(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
     
     i, o, e, t, pid = nil
     
@@ -143,7 +148,7 @@ module Sicuro
       'exception' => nil
     }, pid)
   rescue NameError
-    Sicuro.setup
+    setup
     retry
   ensure
     #i.close unless i.closed?
@@ -161,7 +166,7 @@ module Sicuro
   
   # stdout, stderr, and exception catching for unsafe Kernel#eval
   # Used internally by Sicuro._safe_eval
-  def self._unsafe_eval(code, binding)
+  def _unsafe_eval(code, binding)
     out_io, err_io, result, exception = nil
     
     begin
@@ -186,7 +191,7 @@ module Sicuro
   
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
   # Used internally by Sicuro.eval
-  def self._safe_eval(code, memlimit, libs, precode)
+  def _safe_eval(code, memlimit, libs, precode)
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, memlimit*1024*1024)
     
@@ -230,7 +235,7 @@ module Sicuro
       Object.instance_eval { remove_const x }
     end
     
-    stdout, stderr, result, exception = self._unsafe_eval(code, TOPLEVEL_BINDING)
+    stdout, stderr, result, exception = _unsafe_eval(code, TOPLEVEL_BINDING)
     
     print JSON.generate({
       'stdin'     => code,

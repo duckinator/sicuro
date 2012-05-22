@@ -1,4 +1,4 @@
-module Sicuro
+class Sicuro
   # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
   class Eval
     attr_accessor :stdin, :stdout, :stderr, :return, :exception
