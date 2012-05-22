@@ -30,7 +30,7 @@ module Sicuro
   def self.setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil)
     @@timelimit = timelimit
     @@memlimit  = memlimit
-    memlimit_upper_bound ||= 150
+    memlimit_upper_bound ||= 100
     
     if @@memlimit.nil?
       5.step(memlimit_upper_bound, 5) do |i|
@@ -236,6 +236,14 @@ module Sicuro
       'stderr'    => stderr,
       'return'    => result,
       'exception' => exception
+    })
+  rescue => e
+    print JSON.generate({
+      'stdin'     => '',
+      'stdout'    => '',
+      'stderr'    => '',
+      'return'    => nil,
+      'exception' => "#{e.class}: #{e.message}"
     })
   end
 end
