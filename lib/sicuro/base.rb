@@ -3,8 +3,8 @@ require 'open3'
 require 'rbconfig'
 require 'json'
 
-require File.join(File.dirname(__FILE__), 'trusted_constants.rb')
-require File.join(File.dirname(__FILE__), 'trusted_kernel_methods.rb')
+require File.join(File.dirname(__FILE__), 'trusted', 'constants.rb')
+require File.join(File.dirname(__FILE__), 'trusted', 'kernel_methods.rb')
 require File.join(File.dirname(__FILE__), 'monkeypatches.rb')
 
 module Sicuro
@@ -322,6 +322,10 @@ module Sicuro
     # Things we want, or need to have, available in eval
     require 'stringio'
     require 'pp'
+    
+    %w[constants].each do |file|
+      require File.join(File.dirname(__FILE__), 'runtime', file + '.rb')
+    end
     
     # fakefs goes last, because I don't think `require` will work after it
     begin
