@@ -201,9 +201,11 @@ module Sicuro
     require 'stringio'
     require 'pp'
     
+=begin
     %w[constants].each do |file|
       require File.join(File.dirname(__FILE__), 'runtime', file + '.rb')
     end
+=end
     
     # fakefs goes last, because I don't think `require` will work after it
     begin

@@ -4,7 +4,7 @@ $TRUSTED_CONSTANTS = [
   :Data,
   :TrueClass, :TRUE, :FalseClass, :FALSE, # Booleans
   :Encoding, :Comparable, :Enumerable,
-  :ENV, # Original is replaced in runtime/constants.rb
+  #:ENV, # Original is replaced in runtime/constants.rb
   
   # Exceptions/errors
   :Exception, :SystemExit, :SignalException, :Interrupt,
