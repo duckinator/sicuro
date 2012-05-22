@@ -30,6 +30,5 @@ matrix:
     - rvm: rbx-18mode
     - rvm: rbx-19mode
     - rvm: jruby
-    - rvm: ruby-head
     - rvm: ree
 
