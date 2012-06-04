@@ -12,6 +12,9 @@ context 'Sicuro - ' do
     asserts(:eval_value, "'hi'").equals('"hi"')
     asserts(:eval_value, '1'   ).equals('1')
     asserts(:eval_value, 'fail').equals('RuntimeError: ')
+    asserts(:eval_value,  'nil').equals('nil')
+    asserts(:eval_value,  'exit!').equals('nil')
+    asserts(:eval_return, 'puts').equals(nil)
   end
 
   context 'libs' do
@@ -64,5 +67,9 @@ context 'Sicuro - ' do
 
   context 'unsafe Kernel methods are removed' do
     asserts(:eval_exception, "Kernel.open('.')").equals("NoMethodError: undefined method `open' for Kernel:Module")
+  end
+
+  context 'usnafe constants are removed' do
+    asserts(:eval_exception, "FakeFS").equals("NameError: uninitialized constant FakeFS")
   end
 end
