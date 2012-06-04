@@ -36,12 +36,14 @@ $TRUSTED_CONSTANTS = [
   :TSort,
   :Date,
   
+  # File access may be re-enabled in the future, but for now all it does is
+  # cause the interpreter to segfault. Since I cannot test it, I won't enable it.
+
   # Required for file access
-  :File,
-  :FileUtils,
-  :FileTest,
-  :Dir,
-  
+  #:File,
+  #:FileUtils,
+  #:FileTest,
+  #:Dir,
+  #:Pathname,
   :Errno,
-  :Pathname,
 ]
