@@ -53,23 +53,30 @@ context 'Sicuro - ' do
   end
 
   context 'timed-out code properly terminated' do
-    asserts(:eval_running?, 'sleep 6').equals(false)
+    denies(:eval_running?, 'sleep 6')
 
     # The following crashed many safe eval systems, including many versions of
     # rubino, where sicuro was pulled from.
-    asserts(:eval_running?, 'def Exception.to_s;loop{};end;loop{}').equals(false)
+    denies(:eval_running?, 'def Exception.to_s;loop{};end;loop{}')
 
     # The following used to create an endlessly-hanging process. Not sure how to
     # check for that automatically, but giving 'Timeout::Error: Code took longer than 5 seconds to terminate.' is a bit closer
     # than hanging endlessly.
-    asserts(:eval_running?, 'sleep').equals(false)
+    denies(:eval_running?, 'sleep')
   end
 
   context 'unsafe Kernel methods are removed' do
     asserts(:eval_exception, "Kernel.open('.')").equals("NoMethodError: undefined method `open' for Kernel:Module")
   end
 
-  context 'usnafe constants are removed' do
-    asserts(:eval_exception, "FakeFS").equals("NameError: uninitialized constant FakeFS")
+  context 'unsafe constants are removed' do
+    asserts 'FakeFS is not defined' do
+      # I hate you, ruby 1.9.2 :(
+      valid = [
+                "NameError: uninitialized constant FakeFS",
+                "NameError: uninitialized constant Object::FakeFS"
+              ]
+      valid.include?(Sicuro.new.eval_exception('FakeFS'))
+    end
   end
 end
