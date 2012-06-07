@@ -213,15 +213,15 @@ class Sicuro
     end
 =end
 
-    # fakefs goes last, because I don't think `require` will work after it
+    # We require FakeFS here but we activate it only after resolving our external libs
     begin
-      require 'fakefs'
+      require 'fakefs/safe'
     rescue LoadError
       require 'rubygems'
       retry
     end
 
-    required_for_custom_libs = [:FakeFS, :Gem]
+    required_for_custom_libs = [:FakeFS, :Gem, :FileUtils, :File, :Pathname, :Dir, :RbConfig, :IO, :FileTest]
     (Object.constants - $TRUSTED_CONSTANTS - required_for_custom_libs).each do |x|
       Object.instance_eval { remove_const x }
     end
@@ -231,6 +231,12 @@ class Sicuro
     libs.each do |lib|
       require lib
     end
+
+    FakeFS.activate!
+
+    # Without Gem we won't require unresolved gems, therefore we restore the original require.
+    # This allows us to lazy-require other trusted components from the same $LOAD_PATH.
+    ::Kernel.module_eval { alias require gem_original_require }
 
     required_for_custom_libs.each do |x|
       Object.instance_eval { remove_const x }
