@@ -33,6 +33,9 @@ context 'Sicuro - ' do
   end
 
   context 'wrapper functions' do
+    asserts("Sicuro.eval('puts \"hi\"')") do
+      Sicuro.eval('puts "hi"').value
+    end.equals("hi\n")
     asserts(:eval_stdout, 'puts 1').equals("1\n")
     asserts(:eval_stderr, 'warn 1').equals("1\n")
     asserts(:eval_return, '1').equals(1)
@@ -42,7 +45,7 @@ context 'Sicuro - ' do
 
   context 'exceptions' do
     asserts(:eval_exception, 'undefined').equals("NameError: undefined local variable or method `undefined' for main:Object")
-    asserts(:eval_exception, ':').equals("SyntaxError: <main>:5: syntax error, unexpected $end, expecting tSTRING_CONTENT or tSTRING_DBEG or tSTRING_DVAR or tSTRING_END\n      }; :\n          ^")
+    asserts(:eval_exception, ':').equals("SyntaxError: <main>:6: syntax error, unexpected $end, expecting tSTRING_CONTENT or tSTRING_DBEG or tSTRING_DVAR or tSTRING_END\n      }; :\n          ^")
     asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
   end
 
@@ -86,4 +89,21 @@ context 'Sicuro - ' do
       valid.include?(Sicuro.new.eval_exception('FakeFS'))
     end
   end
+
+  context 'innards work as expected' do
+    asserts 'setup(5, nil, 1.0/(1024*1024))' do
+      topic.setup(5, nil, 1.0/(1024*1024)).value
+    end.raises(RuntimeError)
+
+    asserts '_unsafe_eval("1", TOPLEVEL_BINDING)' do
+      topic._unsafe_eval("1", TOPLEVEL_BINDING)[2] # [2] == returned value
+    end.equals(1)
+
+    asserts '_unsafe_eval("raise", TOPLEVEL_BINDING)' do
+      topic._unsafe_eval("raise", TOPLEVEL_BINDING)[3] # [3] == exceptions
+    end.equals("RuntimeError: ")
+
+    asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":4,"exception":5}')
+  end
+
 end

@@ -1,4 +1,4 @@
-source "http://rubygems.org"
+source :rubygems
 
 # Dependencies specified in sicuro.gemspec
 gemspec

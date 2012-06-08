@@ -13,5 +13,7 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 =end
+require 'simplecov'
+SimpleCov.start
 require 'riot'
 require 'sicuro'
