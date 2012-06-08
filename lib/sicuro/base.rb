@@ -190,15 +190,26 @@ class Sicuro
     [out_io.string, err_io.string, result, exception]
   end
 
+  def _generate_json(code, stdout, stderr, result, exception)
+    JSON.generate({
+      'stdin'     => code,
+      'stdout'    => stdout,
+      'stderr'    => stderr,
+      'return'    => result,
+      'exception' => exception
+    })
+  end
+
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
   # Used internally by Sicuro.eval
+  # TODO: Since _safe_eval itself cannot be tested, separate out what can.
   def _safe_eval(code, memlimit, libs, precode)
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, memlimit*1024*1024)
 
     # CPU time limit. 5s means 5s of CPU time.
     Process.setrlimit(Process::RLIMIT_CPU, @@timelimit)
-    trap(:XCPU) do # I believe this is triggered when you hit RLIMIT_CPU
+    ::Kernel.trap(:XCPU) do # I believe this is triggered when you hit RLIMIT_CPU
       raise Timeout::Error
       exit!
     end
@@ -238,20 +249,8 @@ class Sicuro
 
     stdout, stderr, result, exception = _unsafe_eval(code, TOPLEVEL_BINDING)
 
-    print JSON.generate({
-      'stdin'     => code,
-      'stdout'    => stdout,
-      'stderr'    => stderr,
-      'return'    => result,
-      'exception' => exception
-    })
+    print _generate_json(code, stdout, stderr, result, exception)
   rescue => e
-    print JSON.generate({
-      'stdin'     => '',
-      'stdout'    => '',
-      'stderr'    => '',
-      'return'    => nil,
-      'exception' => "#{e.class}: #{e.message}"
-    })
+    print _generate_json('', '', '', nil, "#{e.class}: #{e.message}")
   end
 end
