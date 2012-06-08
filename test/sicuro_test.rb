@@ -38,7 +38,7 @@ context 'Sicuro - ' do
 
   context 'exceptions' do
     asserts(:eval_exception, 'undefined').equals("NameError: undefined local variable or method `undefined' for main:Object")
-    asserts(:eval_exception, ':').equals("SyntaxError: <main>:5: syntax error, unexpected $end, expecting tSTRING_CONTENT or tSTRING_DBEG or tSTRING_DVAR or tSTRING_END\n      }; :\n          ^")
+    asserts(:eval_exception, ':').equals("SyntaxError: <main>:6: syntax error, unexpected $end, expecting tSTRING_CONTENT or tSTRING_DBEG or tSTRING_DVAR or tSTRING_END\n      }; :\n          ^")
     asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
   end
 
