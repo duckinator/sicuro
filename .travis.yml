@@ -9,9 +9,7 @@ rvm:
   - ruby-head
 #  - ree
 
-# When 2 tests don't fail with teststrap properly using bundler,
-# then this can be changed to just 'script: rake test'
-script: bundle install && rake test
+script: rake test
 
 notifications:
   webhooks:
