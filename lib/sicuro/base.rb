@@ -173,9 +173,10 @@ class Sicuro
       out_io = $stdout = StringIO.new
       err_io = $stderr = StringIO.new
       code = "BEGIN {
+        eigenclass = class << Kernel; self end
         (Kernel.methods - Object.methods - #{$TRUSTED_KERNEL_METHODS.inspect}).each do |x|
           Kernel.send(:remove_method, x.to_sym)
-          class << Kernel; self end.send(:remove_method, x.to_sym)
+          eigenclass.send(:remove_method, x.to_sym)
         end
       }; " + code
 
