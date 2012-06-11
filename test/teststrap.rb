@@ -13,7 +13,12 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 =end
-require 'simplecov'
-SimpleCov.start
+
+# SimpleCov only works with Ruby 1.8, so for now it's just disabled.
+# I'll look into finding another code coverage gem for 1.8.
+if RUBY_VERSION.to_f > 1.8
+  require 'simplecov'
+  SimpleCov.start
+end
 require 'riot'
 require 'sicuro'
