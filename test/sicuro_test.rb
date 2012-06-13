@@ -1,5 +1,12 @@
 require 'teststrap'
 
+context 'Sicuro (pre-#setup)' do
+  asserts 'Sicuro.new.eval("1") runs Sicuro#setup' do
+    Sicuro.new.eval("1")
+    Sicuro.class_variable_get('@@timelimit').is_a?(Fixnum) rescue false
+  end
+end
+
 context 'Sicuro - ' do
   setup { s = Sicuro.new; s.setup; s }
 
