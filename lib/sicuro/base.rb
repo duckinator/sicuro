@@ -14,6 +14,12 @@ class Sicuro
   # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
 
+  # Various defaults for all of Sicuro.
+  DEFAULT_LIBS = []
+  DEFAULT_PRECODE = ''
+  DEFAULT_TIMEOUT = 5
+  DEFAULT_MEMLIMIT_UPPER_BOUND = 100
+
   # Set the time and memory limits for Sicuro.eval.
   #
   # Passing nil (default) for the `memlimit` (second argument) will start at 5MB,
@@ -23,14 +29,14 @@ class Sicuro
   # This is needed because apparently some systems require *over 50MB* to run
   # `puts 'hi'`, while others only require 5MB. I'm not quite sure what causes
   # this. If you have any ideas, please open an issue on github and explain them!
-  # URL is: http://github.com/duckinator/sicuro/issues
+  # URL: http://github.com/duckinator/sicuro/issues
   #
-  # `memlimit_upper_bound` is the upper limit of memory detection, default is 100MB.
+  # `memlimit_upper_bound` is the upper limit of memory detection, in MegaBytes.
+  # Default is specified as DEFAULT_MEMLIMIT_UPPER_BOUND.
   #
-  def setup(timelimit=5, memlimit=nil, memlimit_upper_bound=nil)
+  def setup(timelimit=DEFAULT_TIMEOUT, memlimit=nil, memlimit_upper_bound=DEFAULT_MEMLIMIT_UPPER_BOUND)
     @@timelimit = timelimit
     @@memlimit  = memlimit
-    memlimit_upper_bound ||= 100
 
     if @@memlimit.nil?
       5.step(memlimit_upper_bound, 5) do |i|
@@ -50,21 +56,22 @@ class Sicuro
 
   # This appends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
+  # TODO: Using `def _code_prefix(code, libs=DEFAULT_LIBS, precode=DEFAULT_PRECODE, ...)
+  #       breaks to the point that 0 tests pass, due to using >100MB RAM.
+  #       Someone needs to find out why.
   def _code_prefix(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
     memlimit ||= @@memlimit
-    libs     ||= []
-    precode  ||= ''
+    libs     ||= DEFAULT_LIBS
+    precode  ||= DEFAULT_PRECODE
 
     identifier += '; ' if identifier
 
     prefix = ''
 
-    current_time = Time.now.strftime("%I:%M:%S %p")
-
     unless $DEBUG
       # The following makes it use "sicuro ([identifier; ]current_time)" as the
       # process name. Likely only actually does anything on *nix systems.
-      prefix = "$0 = 'sicuro (#{identifier}#{current_time})';"
+      prefix = "$0 = 'sicuro (#{identifier}#{Time.now.strftime("%r")})';"
     end
 
     prefix += <<-EOF
@@ -75,6 +82,9 @@ class Sicuro
     EOF
   end
 
+  # Wrapper function for Sicuro.new.eval(*args).
+  # Originally for backwards-compatibility, kept because I (@duckinator) feel it
+  # is much nicer than the full Sicuro.new.eval(*args) version.
   def self.eval(*args)
     self.new.eval(*args)
   end
@@ -151,11 +161,6 @@ class Sicuro
     setup
     retry
   ensure
-    #i.close unless i.closed?
-    #o.close unless o.closed?
-    #e.close unless e.closed?
-    #t.kill  if t.alive?
-
     if Sicuro.process_running?(pid)
       Process.kill('KILL', pid) rescue nil
       if Sicuro.process_running?(pid)
