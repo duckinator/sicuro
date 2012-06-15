@@ -14,7 +14,7 @@ rescue Bundler::BundlerError => e
 end
 =end
 
-# SimpleCov only works with Ruby 1.8, so for now it's just disabled.
+# SimpleCov only works with Ruby 1.9, so for now it's just disabled.
 # I'll look into finding another code coverage gem for 1.8.
 if RUBY_VERSION.to_f > 1.8
   require 'simplecov'
