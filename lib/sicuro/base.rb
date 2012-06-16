@@ -78,7 +78,7 @@ class Sicuro
       require #{__FILE__.inspect}
       s=Sicuro.new
       s.setup(#{@@timelimit.inspect}, #{memlimit.inspect})
-      print s._safe_eval(#{code.inspect}, #{memlimit.inspect}, #{libs.inspect}, #{precode.inspect})
+      print s._safe_eval(#{code.inspect}, #{libs.inspect}, #{precode.inspect}, #{memlimit.inspect})
     EOF
   end
 
@@ -209,7 +209,7 @@ class Sicuro
   # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
   # Used internally by Sicuro.eval
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
-  def _safe_eval(code, memlimit, libs, precode)
+  def _safe_eval(code, libs, precode, memlimit)
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, memlimit*1024*1024)
 
