@@ -8,7 +8,7 @@ context 'Sicuro (pre-#setup)' do
 end
 
 context 'Sicuro - ' do
-  setup { s = Sicuro.new; s.setup; s }
+  setup { s = Sicuro.new; s.setup(5, 20); s }
 
   context 'printing text' do
     asserts(:eval_value, 'puts "hi"').equals("hi\n")
