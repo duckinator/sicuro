@@ -20,16 +20,6 @@ class Sicuro
   DEFAULT_TIMEOUT = 5
   DEFAULT_MEMLIMIT_UPPER_BOUND = 100
 
-  # Used for replacing non-whitelisted functions, such as require() and ``.
-  def self.replace_with_security_error(function)
-    str = <<-EOF
-      def self.#{function}(*args)
-        raise ::SecurityError, "#{function} is disabled by Sicuro for security purposes."
-      end
-    EOF
-    Kernel.module_eval(str)
-  end
-
   # Set the time and memory limits for Sicuro.eval.
   #
   # Passing nil (default) for the `memlimit` (second argument) will start at 5MB,
@@ -197,7 +187,6 @@ class Sicuro
 
         ::Kernel.send(:remove_method, :require)
         eigenclass.send(:remove_method, :require)
-        Sicuro.replace_with_security_error('require')
       }; " + code
 
       result = ::Kernel.eval(code, binding)
