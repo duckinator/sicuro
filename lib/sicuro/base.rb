@@ -10,14 +10,6 @@ require File.join(File.dirname(__FILE__), 'monkeypatches.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'eval.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'helper_functions.rb')
 
-module Kernel
-  # Replace the real require() with something that raises a NotImplementedError.
-  # This way we can avoid removing it entirely.
-  def dummy_require(*args)
-    raise ::NotImplementedError
-  end
-end
-
 class Sicuro
   # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
@@ -27,6 +19,16 @@ class Sicuro
   DEFAULT_PRECODE = ''
   DEFAULT_TIMEOUT = 5
   DEFAULT_MEMLIMIT_UPPER_BOUND = 100
+
+  # Used for replacing non-whitelisted functions, such as require() and ``.
+  def self.replace_with_security_error(function)
+    str = <<-EOF
+      def self.#{function}(*args)
+        raise ::SecurityError, "#{function} is disabled by Sicuro for security purposes."
+      end
+    EOF
+    Kernel.module_eval(str)
+  end
 
   # Set the time and memory limits for Sicuro.eval.
   #
@@ -190,8 +192,12 @@ class Sicuro
         (::Kernel.methods - ::Object.methods - #{$TRUSTED_KERNEL_METHODS.inspect}).each do |x|
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
+          Sicuro.replace_with_security_error(x)
         end
-        ::Kernel.module_eval { alias require dummy_require }
+
+        ::Kernel.send(:remove_method, :require)
+        eigenclass.send(:remove_method, :require)
+        Sicuro.replace_with_security_error('require')
       }; " + code
 
       result = ::Kernel.eval(code, binding)
