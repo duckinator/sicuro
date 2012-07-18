@@ -113,4 +113,11 @@ context 'Sicuro - ' do
     asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":4,"exception":5}')
   end
 
+  context 'DL can not be used' do
+    # http://duckinator.net/blog/
+    asserts 'Cannot kill entire process group' do
+      topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)")
+    end.equals("LoadError: cannot load such file -- dl")
+  end
+
 end
