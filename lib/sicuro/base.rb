@@ -182,7 +182,6 @@ class Sicuro
         (::Kernel.methods - ::Object.methods - #{$TRUSTED_KERNEL_METHODS.inspect}).each do |x|
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
-          Sicuro.replace_with_security_error(x)
         end
 
         ::Kernel.send(:remove_method, :require)
