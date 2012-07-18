@@ -18,9 +18,9 @@ $TRUSTED_CONSTANTS = [
   # Commonly used classes that should be safe
   :String, :Symbol, :Numeric, :Integer, :Fixnum, :Float, :Bignum, :Array, :Hash,
   :Struct, :Regexp, :MatchData, :Marshal, :Range, :Rational, :Complex,
-  :Time, :Random, :Signal, :Process, :Proc, :Method, :UnboundMethod,
-  :Binding, :Math, :GC, :ObjectSpace, :Enumerator, :StopIteration,
-  :Thread, :ThreadGroup, :TOPLEVEL_BINDING, :Mutex, :Fiber,
+  :Time, :Random, :Process, :Proc, :Method, :UnboundMethod, :Binding, :Math,
+  :Enumerator, :StopIteration, :Thread, :ThreadGroup, :TOPLEVEL_BINDING, :Mutex,
+  :Fiber,
   #RubyVM?
   
   # Commonly used constants that should be safe
