@@ -10,6 +10,14 @@ require File.join(File.dirname(__FILE__), 'monkeypatches.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'eval.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'helper_functions.rb')
 
+module Kernel
+  # Replace the real require() with something that raises a NotImplementedError.
+  # This way we can avoid removing it entirely.
+  def dummy_require(*args)
+    raise ::NotImplementedError
+  end
+end
+
 class Sicuro
   # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
@@ -19,12 +27,6 @@ class Sicuro
   DEFAULT_PRECODE = ''
   DEFAULT_TIMEOUT = 5
   DEFAULT_MEMLIMIT_UPPER_BOUND = 100
-
-  # Replace the real require() with something that raises a NotImplementedError.
-  # This way we can avoid removing it entirely.
-  def dummy_require(*args)
-    raise ::NotImplementedError
-  end
 
   # Set the time and memory limits for Sicuro.eval.
   #
@@ -189,7 +191,7 @@ class Sicuro
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
         end
-        ::Kernel.module_eval { alias require Sicuro.dummy_require }
+        ::Kernel.module_eval { alias require dummy_require }
       }; " + code
 
       result = ::Kernel.eval(code, binding)
@@ -260,7 +262,7 @@ class Sicuro
 
     # Without Gem we won't require unresolved gems, therefore we restore the original require.
     # This allows us to lazy-require other trusted components from the same $LOAD_PATH.
-    # NOTE: This is replaced with Sicuro.dummy_require by Sicuro#_code_prefix.
+    # NOTE: This is replaced with Sicuro.dummy_require by Sicuro#_unsafe_eval.
     ::Kernel.module_eval { alias require gem_original_require }
 
     required_for_custom_libs.each do |x|
