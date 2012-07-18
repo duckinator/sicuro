@@ -184,8 +184,10 @@ class Sicuro
           eigenclass.send(:remove_method, x.to_sym)
         end
 
-        ::Kernel.send(:remove_method, :require)
-        eigenclass.send(:remove_method, :require)
+        if ::Kernel.respond_to?(:require)
+          ::Kernel.send(:remove_method, :require)
+          eigenclass.send(:remove_method, :require)
+        end
       }; " + code
 
       result = ::Kernel.eval(code, binding)
