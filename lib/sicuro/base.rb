@@ -183,11 +183,6 @@ class Sicuro
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
         end
-
-        if ::Kernel.respond_to?(:require)
-          ::Kernel.send(:remove_method, :require)
-          eigenclass.send(:remove_method, :require)
-        end
       }; " + code
 
       result = ::Kernel.eval(code, binding)
@@ -258,7 +253,6 @@ class Sicuro
 
     # Without Gem we won't require unresolved gems, therefore we restore the original require.
     # This allows us to lazy-require other trusted components from the same $LOAD_PATH.
-    # NOTE: This is replaced with Sicuro.dummy_require by Sicuro#_unsafe_eval.
     ::Kernel.module_eval { alias require gem_original_require }
 
     required_for_custom_libs.each do |x|
