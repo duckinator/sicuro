@@ -10,6 +10,8 @@ require File.join(File.dirname(__FILE__), 'monkeypatches.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'eval.rb')
 require File.join(File.dirname(__FILE__), 'internal', 'helper_functions.rb')
 
+require File.join(File.dirname(__FILE__), 'internal', 'gist.rb')
+
 class Sicuro
   # Ruby executable used.
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
