@@ -14,7 +14,7 @@ $TRUSTED_KERNEL_METHODS = [
   :printf, :print, :putc, :puts,
   :select, :p, :srand, :rand, :exit!, :exit, :sleep, :abort,
   
-  :load, :require, :require_relative, :autoload, :autoload?,
+  #:load, :require, :require_relative, :autoload, :autoload?,
   
   :proc, :lambda, :binding,
 
