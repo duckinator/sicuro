@@ -82,20 +82,6 @@ class Sicuro
     EOF
   end
 
-=begin
-  # load() hack
-  def self.__replacement_load(file)
-    raise ::NotImplementedError
-  end
-
-  # require() hack
-  def self.__replacement_require(file)
-    return false if $LOADED_FEATURES.include?(file)
-
-    Sicuro.__replacement_load(file)
-  end
-=end
-
   # Wrapper function for Sicuro.new.eval(*args).
   # Originally for backwards-compatibility, kept because I (@duckinator) feel it
   # is much nicer than the full Sicuro.new.eval(*args) version.
@@ -196,6 +182,11 @@ class Sicuro
         (::Kernel.methods - ::Object.methods - #{$TRUSTED_KERNEL_METHODS.inspect}).each do |x|
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
+        end
+
+        ::Kernel.module_eval do
+          alias load    __replacement_load
+          alias require __replacement_require
         end
       }; " + code
 
