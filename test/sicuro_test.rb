@@ -7,8 +7,23 @@ context 'Sicuro (pre-#setup)' do
   end
 end
 
+#cannot_require_error = "LoadError: cannot load such file -- " # You must append the filename.
+cannot_require_error = "NotImplementedError: a sandboxed version of `require' has not been implemented yet."
+
 context 'Sicuro - ' do
   setup { s = Sicuro.new; s.setup(5, 100); s }
+
+  context 'sandbox integrity' do
+    # http://duckinator.net/blog/sicuro-untrusted-code-execution/
+
+    asserts 'cannot load DL' do
+      topic.eval("require 'dl'").value
+    end.equals(cannot_require_error) #+ "dl")
+
+    asserts 'DL cannot be used to kill entire process group' do
+      topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)").value
+    end.equals(cannot_require_error) #+ "dl")
+  end
 
   context 'printing text' do
     asserts(:eval_value, 'puts "hi"').equals("hi\n")
@@ -113,13 +128,6 @@ context 'Sicuro - ' do
     end.equals("RuntimeError: ")
 
     asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":4,"exception":5}')
-  end
-
-  context 'DL can not be used' do
-    # http://duckinator.net/blog/
-    asserts 'Cannot kill entire process group' do
-      topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)")
-    end.equals("LoadError: cannot load such file -- dl")
   end
 
 end
