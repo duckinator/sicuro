@@ -76,5 +76,10 @@ class Sicuro
     def inspect
       "#<#{self.class} stdin=#{stdin.inspect} value=#{value.inspect}>"
     end
+
+
+    def gist(stdin, stdout_err, limit)
+    end
+
   end
 end
