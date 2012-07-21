@@ -46,8 +46,8 @@ context 'Sicuro - ' do
     asserts(:eval_value, 'Riot', ['riot']).equals('"Riot"')
 
     # Requiring from resolved paths without Gem
-    asserts(:eval_return, "require 'riot/version'", ['riot']).equals(true)
-    asserts(:eval_return, "require 'set'").equals(true)
+    asserts(:eval_value, "require 'riot/version'", ['riot']).equals(true)
+    asserts(:eval_value, "require 'set'").equals(true)
   end
 
   context 'precode' do
