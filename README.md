@@ -11,37 +11,74 @@ Safe execution environment for untrusted ruby code.
 Sicuro safely executes untrusted ruby code without any complex configuration,
 unjustifiable permissions (such as passwordless sudo), or chroots/BSD Jails.
 
-It returns both STDOUT and STDERR as a single string. In the future, it may offer
-a method that returns [stdout, stderr] instead.
+If you've not ran into any problems, you probably want (the section on Sicuro::Eval)[#sicuro--eval].
 
+## Configuration
 
-## Run code, default limits
+You can run `Sicuro#setup(timelimit, memlimit, memlimit_upper_bound)` to configure it.
 
-The preferred option is to run code using the default limits. These are being
-tweaked so they are (hopefully) sane on any system capable of running ruby.
+All arguments are optional.
+
+The defaults are:
+
+`Sicuro#setup(Sicuro::DEFAULT_TIMEOUT, Sicuro::DEFAULT_MEMLIMIT, Sicuro::DEFAULT_MEMLIMIT_UPPER_BOUND)`
+
+Once you run `Sicuro#setup`, the config stays the same unless you run it a second time.
+
+Using `Sicuro#eval` or `Sicuro.eval` (an alias to the former) will call `Sicuro#setup`
+if it has not already been called.
+
+There is no way to alter the strength of the sandbox.
+
+## Running code in the sandbox
+
+`Sicuro.eval(code)` returns a `Sicuro::Eval` instance.
+
+### Sicuro::Eval
+
+`Sicuro::Eval#stdin` is the code passed to `Sicuro#eval`.
+
+`Sicuro::Eval#stdout` is anything printed to stdout by the evaluated code (`puts`, `print`, etc).
+
+`Sicuro::Eval#stderr` is anything printed to stderr by the evaluated code (`warn`).
+
+`Sicuro::Eval#return` is the returned value of the last statement.
+
+`Sicuro::Eval#exception` is the value of any exception. There's been some cases where exceptions appear in `#stderr` instead.
+
+`Sicuro::Eval#value` intelligently returns one of `#stdout`, `#stderr`, `#return`, or `#exception`. If it uses `#return`, it will call `#inspect` on the result. Otherwise, it returns the result directly.
+
+## Examples
+
+Example 1:
 
 ```ruby
 require 'sicuro'
 
-Sicuro.eval('puts "hi!"') # returns "hi!\n"
+s = Sicuro.eval('puts "hi!"')
+s.stdin     # returns "puts \"hi!\""
+s.stdout    # returns "hi!\n"
+s.stderr    # returns ""
+s.return    # returns nil, because that's the result of the last statement.
+s.exception # returns nil
+s.value     # returns "hi!\n", because it uses #stdout
 ```
 
-## Run code, custom limits
-
-You may, optionally, specify a timelimit and memory limit.
-
-The following example shows what I would like the defaults to be, but something
-seems to like eating RAM when I'm not looking.
+Example 2:
 
 ```ruby
 require 'sicuro'
 
-timelimit = 5
-memlimit  = 10
-
-Sicuro.setup(timelimit, memlimit)
-Sicuro.eval('puts "hi!"') # returns "hi!\n"
+s = Sicuro.eval('"hi!"')
+s.stdin     # returns "\"hi!\""
+s.stdout    # returns ""
+s.stderr    # returns ""
+s.return    # returns "hi!" because that was the result of the last statement.
+s.exception # returns nil
+s.value     # returns "hi!\n", because it uses #stdout
 ```
+
+I may make `#exception` default to an empty string, depending on feedback I get regarding that.
 
 # License
 
