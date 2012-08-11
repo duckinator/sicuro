@@ -208,7 +208,7 @@ class Sicuro
       'stdin'     => code,
       'stdout'    => stdout,
       'stderr'    => stderr,
-      'return'    => result,
+      'return'    => result.inspect,
       'exception' => exception
     })
   end

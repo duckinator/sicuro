@@ -41,11 +41,13 @@ class Sicuro
     def running?
       @running
     end
-    
-    def _get_return_value
+
+    # Get a version suitable for printing.
+    # Main difference between #value and #_get_return_value: with #value, 
+    # if you get @return, it called .inspect in base.rb.
+    def value
       return @running_error if @running_error
       
-      @inspect_for_value = false
       if !@stderr.nil? && ((!@stderr.is_a?(String)) || (@stderr.is_a?(String) && !@stderr.empty?))
         # @stderr is not nil and is not a String, or is a non-empty String
         @stderr
@@ -55,21 +57,7 @@ class Sicuro
       elsif !@stdout.nil? && (!@stdout.is_a?(String) || !@stdout.empty?)
         @stdout
       else
-        @inspect_for_value = true
         @return
-      end
-    end
-    
-    # Get a version suitable for printing.
-    # Main difference between #value and #_get_return_value: with #value, 
-    # if you get @return, it calls .inspect.
-    def value
-      ret = _get_return_value
-      
-      if @inspect_for_value
-        ret.inspect
-      else
-        ret
       end
     end
     

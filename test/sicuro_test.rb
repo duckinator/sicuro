@@ -36,14 +36,14 @@ context 'Sicuro - ' do
     asserts(:eval_value, 'fail').equals('RuntimeError: ')
     asserts(:eval_value,  'nil').equals('nil')
     asserts(:eval_value,  'exit!').equals('nil')
-    asserts(:eval_return, 'puts').equals(nil)
+    asserts(:eval_return, 'puts').equals('nil')
   end
 
   context 'libs' do
-    asserts(:eval_value, 'Set', ['set']).equals('"Set"')
+    asserts(:eval_value, 'Set', ['set']).equals('Set')
 
     # Requiring an external gem from the filesystem
-    asserts(:eval_value, 'Riot', ['riot']).equals('"Riot"')
+    asserts(:eval_value, 'Riot', ['riot']).equals('Riot')
 
     # I'm not entirely sure we want the next two tests to pass, so commenting them out for now.
 
@@ -53,7 +53,7 @@ context 'Sicuro - ' do
   end
 
   context 'precode' do
-    asserts(:eval_value, 'Set', nil, 'require "set"').equals('"Set"')
+    asserts(:eval_value, 'Set', nil, 'require "set"').equals('Set')
   end
 
   context 'wrapper functions' do
@@ -62,7 +62,7 @@ context 'Sicuro - ' do
     end.equals("hi\n")
     asserts(:eval_stdout, 'puts 1').equals("1\n")
     asserts(:eval_stderr, 'warn 1').equals("1\n")
-    asserts(:eval_return, '1').equals(1)
+    asserts(:eval_return, '1').equals('1')
     asserts(:eval_exception, 'raise').equals('RuntimeError: ')
     asserts(:eval_inspect, '1').equals('#<Sicuro::Eval stdin="1" value="1">')
   end
@@ -129,7 +129,7 @@ context 'Sicuro - ' do
       topic._unsafe_eval("raise", TOPLEVEL_BINDING)[3] # [3] == exceptions
     end.equals("RuntimeError: ")
 
-    asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":4,"exception":5}')
+    asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":"4","exception":5}')
   end
 
 end
