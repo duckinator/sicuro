@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   #s.add_development_dependency 'rspec', '~>2.5.0'
   s.add_development_dependency 'riot', '>= 0'
   s.add_development_dependency 'bundler', '~> 1.2.0'
-  s.add_development_dependency 'simplecov', '~> 0.7.1'
+  #s.add_development_dependency 'simplecov', '~> 0.7.1'
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
