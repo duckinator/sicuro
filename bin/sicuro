@@ -7,8 +7,6 @@ rescue LoadError
   require 'sicuro'
 end
 
-require 'sicuro/internal/helper_functions.rb'
-
 if ['--help', '-h'].include?(ARGV[0]) || ARGV.length == 0
   puts "Usage: #{$0} CODE [EXPECTED]"
   puts "If EXPECTED is passed, it passes the args to Sicuro.assert,"

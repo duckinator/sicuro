@@ -42,6 +42,10 @@ class Sicuro
   # => true
   #
   def assert(code, output, *args)
-    eval(code, *args).stdout == output
+    eval(code, *args).value == output
+  end
+
+  def self.assert(*args)
+    Sicuro.new.assert(*args)
   end
 end
