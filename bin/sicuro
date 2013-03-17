@@ -19,7 +19,7 @@ elsif ARGV.length > 1
   else
     puts "Fail: #{ARGV[0]}"
   end
-  exit (ret ? 1 : 0)
+  exit (ret ? 0 : 1)
 else
   puts Sicuro.eval(ARGV[0]).value
 end
