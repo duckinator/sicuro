@@ -70,8 +70,12 @@ context 'Sicuro - ' do
   context 'exceptions' do
     asserts(:eval_exception, 'undefined').equals("NameError: undefined local variable or method `undefined' for main:Object")
 
-    # Appaers this has to be changed every time you update Sicuro#_unsafe_eval or Sicuro#_code_prefix.
-    asserts(:eval_exception, ':').equals("SyntaxError: <main>:11: syntax error, unexpected $end, expecting tSTRING_CONTENT or tSTRING_DBEG or tSTRING_DVAR or tSTRING_END\n      }; :\n          ^")
+    # Verify if there is a syntax error. Don't check more than the first word,
+    # given that it varies with ruby version and possibly interpreter.
+    asserts("eval(':') raises a SyntaxError") do
+        Sicuro.new.eval_exception(':').split(' ')[0]
+    end.equals("SyntaxError:")
+
     asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
   end
 
