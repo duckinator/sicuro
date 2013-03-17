@@ -136,7 +136,7 @@ class Sicuro
             'stdin'     => code,
             'stdout'    => '',
             'stderr'    => '',
-            'return'    => nil,
+            'return'    => 'nil',
             'exception' => nil
           }, pid)
         end
