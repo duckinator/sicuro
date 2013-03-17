@@ -19,7 +19,7 @@ module Kernel
     function = "load"
     function = "require" if req
 
-    raise ::NotImplementedError, "a sandboxed version of \`#{function}\' has not been implemented yet."
+    raise ::NotImplementedError, "a sandboxed version of \`#{function}\' has not been implemented yet. Could not #{function} #{file.inspect}."
   end
 
   # require() hack

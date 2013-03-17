@@ -7,8 +7,8 @@ context 'Sicuro (pre-#setup)' do
   end
 end
 
-#cannot_require_error = "LoadError: cannot load such file -- " # You must append the filename.
-cannot_require_error = "NotImplementedError: a sandboxed version of `require' has not been implemented yet."
+cannot_load_error    = "NotImplementedError: a sandboxed version of `load' has not been implemented yet. Could not load %s." # Use: cannot_load_error % filename
+cannot_require_error = "NotImplementedError: a sandboxed version of `require' has not been implemented yet. Could not require %s." # Use: cannot_require_error % filename
 
 context 'Sicuro - ' do
   setup { s = Sicuro.new; s.setup(5, 100); s }
@@ -18,11 +18,11 @@ context 'Sicuro - ' do
 
     asserts 'cannot load DL' do
       topic.eval("require 'dl'").value
-    end.equals(cannot_require_error) #+ "dl")
+    end.equals(cannot_require_error % 'dl'.inspect)
 
     asserts 'DL cannot be used to kill entire process group' do
       topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)").value
-    end.equals(cannot_require_error) #+ "dl")
+    end.equals(cannot_require_error % 'dl'.inspect)
   end
 
   context 'printing text' do
