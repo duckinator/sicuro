@@ -13,11 +13,13 @@ if ['--help', '-h'].include?(ARGV[0]) || ARGV.length == 0
   puts "otherwise it passes CODE to Sicuro.eval."
   # TODO: Better --help
 elsif ARGV.length > 1
-  if Sicuro.assert(ARGV[0], ARGV[1])
+  ret = Sicuro.assert(ARGV[0], ARGV[1])
+  if ret
     puts "Pass: #{ARGV[0]}"
   else
     puts "Fail: #{ARGV[0]}"
   end
+  exit (ret ? 1 : 0)
 else
   puts Sicuro.eval(ARGV[0]).value
 end
