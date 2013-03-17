@@ -15,4 +15,5 @@ end
 =end
 
 require 'riot'
+require 'stringio'
 require 'sicuro'

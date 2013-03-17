@@ -58,13 +58,15 @@ context 'Sicuro - ' do
 
   context 'wrapper functions' do
     asserts("Sicuro.eval('puts \"hi\"')") do
-      Sicuro.eval('puts "hi"').value
+      topic.eval('puts "hi"').value
     end.equals("hi\n")
     asserts(:eval_stdout, 'puts 1').equals("1\n")
     asserts(:eval_stderr, 'warn 1').equals("1\n")
     asserts(:eval_return, '1').equals('1')
     asserts(:eval_exception, 'raise').equals('RuntimeError: ')
-    asserts(:eval_inspect, '1').equals('#<Sicuro::Eval stdin="1" value="1">')
+    asserts("eval('1').inspect") do
+      topic.eval('1').inspect
+    end.equals('#<Sicuro::Eval stdin="1" value="1">')
   end
 
   context 'exceptions' do
@@ -72,8 +74,8 @@ context 'Sicuro - ' do
 
     # Verify if there is a syntax error. Don't check more than the first word,
     # given that it varies with ruby version and possibly interpreter.
-    asserts("eval(':') raises a SyntaxError") do
-        Sicuro.new.eval_exception(':').split(' ')[0]
+    asserts("eval(':')") do
+        topic.eval_exception(':').split(' ')[0]
     end.equals("SyntaxError:")
 
     asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
@@ -116,7 +118,7 @@ context 'Sicuro - ' do
                 "NameError: uninitialized constant FakeFS",
                 "NameError: uninitialized constant Object::FakeFS"
               ]
-      valid.include?(Sicuro.new.eval_exception('FakeFS'))
+      valid.include?(topic.eval_exception('FakeFS'))
     end
   end
 
