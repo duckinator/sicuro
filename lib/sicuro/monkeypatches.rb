@@ -12,7 +12,7 @@ class Sicuro
   end
 end
 
-# The following are to replace load/require, since they aren't replaced by FakeFS
+# Methods to replace load/require, since they aren't replaced by FakeFS
 module Kernel
   # load() hack
   def __replacement_load(file, wrap = false, req = false)

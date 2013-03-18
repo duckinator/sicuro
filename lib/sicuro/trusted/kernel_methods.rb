@@ -1,38 +1,38 @@
 $TRUSTED_KERNEL_METHODS = [
   :sprintf, :format,
-  
+
   # Classes/Modules
-  :Integer, :Float, :String, :Array, :Rational, :Complex, 
+  :Integer, :Float, :String, :Array, :Rational, :Complex,
   :warn, :raise, :fail,
   :global_variables, :__method__, :__callee__,
   :eval, :local_variables, :iterator?, :block_given?,
   :catch, :throw, :loop, :caller,
-  
+
   # Tracing
   :trace_var, :untrace_var, :set_trace_func,
-  
+
   :printf, :print, :putc, :puts,
   :select, :p, :srand, :rand, :exit!, :exit, :sleep, :abort,
-  
+
   #:load, :require, :require_relative, :autoload, :autoload?,
-  
+
   :proc, :lambda, :binding,
 
   # Comparison
   :===, :==, :<=>, :<, :<=, :>, :>=, :nil?, :=~, :!~, :eql?,
-  
+
   # Conversion
   :to_s, :to_enum,
-  
+
   :included_modules, :include?, :name, :ancestors,
   :instance_methods, :public_instance_methods, :protected_instance_methods,
   :private_instance_methods, :constants, :const_get, :const_set, :const_defined?,
   :const_missing, :class_variables, :remove_class_variable, :class_variable_get,
   :class_variable_set, :class_variable_defined?, :public_constant,
   :private_constant,
-  
+
   :module_exec, :class_exec, :module_eval, :class_eval,
-  
+
   :method_defined?, :public_method_defined?, :private_method_defined?,
   :protected_method_defined?, :public_class_method, :private_class_method,
   :instance_method, :public_instance_method,

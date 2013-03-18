@@ -14,7 +14,8 @@ require File.join(File.dirname(__FILE__), 'runtime', 'constants.rb')
 
 class Sicuro
   # Ruby executable used.
-  RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
+  RUBY_USED = File.join(RbConfig::CONFIG['bindir'],
+                        RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
 
   # Various defaults for all of Sicuro.
   DEFAULT_LIBS = []
@@ -24,19 +25,20 @@ class Sicuro
 
   # Set the time and memory limits for Sicuro.eval.
   #
-  # Passing nil (default) for the `memlimit` (second argument) will start at 5MB,
+  # Passing nil (default) for the `memlimit` (second argument) will start at 5MB
   # and try to find the lowest multiple of 5MB that `puts 1` will run under.
   # If it fails at `memlimit_upper_bound`, it prints an error and exits.
   #
   # This is needed because apparently some systems require *over 50MB* to run
   # `puts 'hi'`, while others only require 5MB. I'm not quite sure what causes
-  # this. If you have any ideas, please open an issue on github and explain them!
+  # this. If you have any ideas please open an issue on github and explain them!
   # URL: http://github.com/duckinator/sicuro/issues
   #
   # `memlimit_upper_bound` is the upper limit of memory detection, in MegaBytes.
   # Default is specified as DEFAULT_MEMLIMIT_UPPER_BOUND.
   #
-  def setup(timelimit=DEFAULT_TIMEOUT, memlimit=nil, memlimit_upper_bound=DEFAULT_MEMLIMIT_UPPER_BOUND)
+  def setup(timelimit = DEFAULT_TIMEOUT, memlimit = nil,
+            memlimit_upper_bound = DEFAULT_MEMLIMIT_UPPER_BOUND)
     @@timelimit = timelimit
     @@memlimit  = memlimit
 
@@ -58,10 +60,11 @@ class Sicuro
 
   # This appends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  # TODO: Using `def _code_prefix(code, libs=DEFAULT_LIBS, precode=DEFAULT_PRECODE, ...)
+  # TODO: def _code_prefix(code, libs=DEFAULT_LIBS, precode=DEFAULT_PRECODE, ..)
   #       breaks to the point that 0 tests pass, due to using >100MB RAM.
   #       Someone needs to find out why.
-  def _code_prefix(code, libs = nil, precode = nil, memlimit = nil, identifier = nil)
+  def _code_prefix(code, libs = nil, precode = nil, memlimit = nil,
+                   identifier = nil)
     memlimit ||= @@memlimit
     libs     ||= DEFAULT_LIBS
     precode  ||= DEFAULT_PRECODE
@@ -80,7 +83,8 @@ class Sicuro
       require #{__FILE__.inspect}
       s=Sicuro.new
       s.setup(#{@@timelimit.inspect}, #{memlimit.inspect})
-      print s._safe_eval(#{code.inspect}, #{libs.inspect}, #{precode.inspect}, #{memlimit.inspect})
+      print s._safe_eval(#{code.inspect}, #{libs.inspect}, #{precode.inspect},
+                         #{memlimit.inspect})
     EOF
   end
 
@@ -94,16 +98,16 @@ class Sicuro
   # Runs the specified code, returns STDOUT and STDERR as a single string.
   # Automatically runs Sicuro.setup if needed.
   #
-  # `code` is the code to run.
+  # `code`: the code to run.
   #
-  # `libs` is an array of libraries to include before setting up the safe eval process (BE CAREFUL!),
+  # `libs`: array of libs to include before setting up the safe eval process.
   #
-  # `precode` is code ran before setting up the safe eval process (BE INCREDIBLY CAREFUL!).
+  # `precode`: code ran before setting up the safe eval process.
   #
-  # `memlimit` is the memory limit for this specific code. Default is `@@memlimit`
+  # `memlimit`: the memory limit for this specific code. Default is @@memlimit
   #  as determined by Sicuro.setup
   #
-  # `identifier` is a unique identifier for this code (ie, if used an irc bot,
+  # `identifier`: a unique identifier for this code (ie, if used an irc bot,
   # the person's nickname). When specified, it tries setting the process name to
   # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
   # "sicuro (#{current_time})"
@@ -181,7 +185,10 @@ class Sicuro
       err_io = $stderr = StringIO.new
       code = "BEGIN {
         eigenclass = class << Kernel; self end
-        (::Kernel.methods - ::Object.methods - #{$TRUSTED_KERNEL_METHODS.inspect}).each do |x|
+
+        unsafe_methods = ::Kernel.methods - ::Object.methods -
+                         #{$TRUSTED_KERNEL_METHODS.inspect}
+        unsafe_methods.each do |x|
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
         end
