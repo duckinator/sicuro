@@ -13,6 +13,10 @@ cannot_require_error = "NotImplementedError: a sandboxed version of `require' ha
 context 'Sicuro - ' do
   setup { s = Sicuro.new; s.setup(5, 100); s }
 
+  context 'replaced constants' do
+    asserts(:eval_return, 'ENV').equals(Sicuro::Runtime::Constants::ENV.inspect)
+  end
+
   context 'sandbox integrity' do
     # http://duckinator.net/blog/sicuro-untrusted-code-execution/
 
