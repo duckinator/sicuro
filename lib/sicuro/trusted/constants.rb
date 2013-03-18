@@ -8,11 +8,12 @@ $TRUSTED_CONSTANTS = [
 
   # Exceptions/errors
   :Exception, :SystemExit, :SignalException, :Interrupt,
-  :StandardError, :TypeError, :ArgumentError, :IndexError, :KeyError, :RangeError,
-  :ScriptError, :SyntaxError, :LoadError, :NotImplementedError, :NameError,
-  :NoMethodError, :RuntimeError, :SecurityError, :NoMemoryError, :EncodingError,
-  :SystemCallError, :ZeroDivisionError, :FloatDomainError, :RegexpError,
-  :IOError, :EOFError, :LocalJumpError, :SystemStackError, :TimeoutError,
+  :StandardError, :TypeError, :ArgumentError, :IndexError, :KeyError,
+  :RangeError, :ScriptError, :SyntaxError, :LoadError, :NotImplementedError,
+  :NameError, :NoMethodError, :RuntimeError, :SecurityError, :NoMemoryError,
+  :EncodingError, :SystemCallError, :ZeroDivisionError, :FloatDomainError,
+  :RegexpError, :IOError, :EOFError, :LocalJumpError, :SystemStackError,
+  :TimeoutError,
   :ThreadError, :FiberError,
 
   # Commonly used classes that should be safe
@@ -37,7 +38,7 @@ $TRUSTED_CONSTANTS = [
   :Date,
 
   # File access may be re-enabled in the future, but for now all it does is
-  # cause the interpreter to segfault. Since I cannot test it, I won't enable it.
+  # cause the interpreter to segfault. Since I can't test it, I won't enable it.
 
   # Required for file access
   #:File,
