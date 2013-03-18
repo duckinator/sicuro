@@ -2,6 +2,8 @@
 
 Safe execution environment for untrusted ruby code.
 
+[![Build Status](https://travis-ci.org/duckinator/sicuro.png?branch=master)](https://travis-ci.org/duckinator/sicuro)
+
 # Installation
 
     gem install sicuro
