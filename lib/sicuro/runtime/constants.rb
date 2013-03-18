@@ -16,12 +16,14 @@ class Sicuro
 
 
 
-      # This removes a constant (to aovid "already initialized constant" warning), then
+      # This removes a constant (to avoid "already initialized constant"), then
       # defines it to the value specified in Sicuro::Runtime::Constants.
       def self.reset
         ::Sicuro::Runtime::Constants.constants.each do |x|
-          Object.instance_eval { remove_const x }
-          Object.instance_eval { const_set(x, ::Sicuro::Runtime::Constants.const_get(x)) }
+          Object.instance_eval do
+            remove_const x
+            const_set(x, ::Sicuro::Runtime::Constants.const_get(x))
+          end
         end
       end
 

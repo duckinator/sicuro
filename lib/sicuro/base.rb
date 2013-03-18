@@ -14,8 +14,8 @@ require File.join(File.dirname(__FILE__), 'runtime', 'constants.rb')
 
 class Sicuro
   # Ruby executable used.
-  RUBY_USED = File.join(RbConfig::CONFIG['bindir'],
-                        RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT'])
+  RUBY_EXE = RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT']
+  RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RUBY_EXE)
 
   # Various defaults for all of Sicuro.
   DEFAULT_LIBS = []
@@ -46,14 +46,14 @@ class Sicuro
       5.step(memlimit_upper_bound, 5) do |i|
         if assert('print 1', '1', nil, nil, i)
           @@memlimit = i
-          warn "[MEMLIMIT] Defaulting to #{i}MB" if $DEBUG
+          warn "[MEMLIMIT] Defaulting to #{i}MB." if $DEBUG
           break
         end
-        warn "[MEMLIMIT] Did not default to #{i}MB" if $DEBUG
+        warn "[MEMLIMIT] Did not default to #{i}MB." if $DEBUG
       end
 
       if @@memlimit.nil?
-        fail "[MEMLIMIT] Could not run `print 1` in #{memlimit_upper_bound}MB RAM or less."
+        fail "[MEMLIMIT] Could not print 1 in under #{memlimit_upper_bound}MB."
       end
     end
   end
@@ -151,7 +151,9 @@ class Sicuro
       Eval.new(JSON.parse(str), pid)
     end
   rescue Timeout::Error
-    error = "Timeout::Error: Code took longer than #{@@timelimit} seconds to terminate."
+    error = "Timeout::Error: Code took longer than %i seconds to terminate." %
+                @@timelimit
+
     if Sicuro.process_running?(pid)
       Process.kill('KILL', pid) rescue nil
     end
@@ -220,8 +222,8 @@ class Sicuro
     })
   end
 
-  # Use Sicuro.eval instead. This does not provide a strict time limit or call Sicuro.setup.
-  # Used internally by Sicuro.eval
+  # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
+  # This does not provide a strict time limit or call Sicuro.setup.
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
   def _safe_eval(code, libs, precode, memlimit)
     # RAM limit
@@ -229,12 +231,12 @@ class Sicuro
 
     # CPU time limit. 5s means 5s of CPU time.
     Process.setrlimit(Process::RLIMIT_CPU, @@timelimit)
-    ::Kernel.trap(:XCPU) do # I believe this is triggered when you hit RLIMIT_CPU
+    ::Kernel.trap(:XCPU) do # This should be triggered when you hit RLIMIT_CPU.
       raise Timeout::Error
       exit!
     end
 
-    # Things we want, or need to have, available in eval
+    # Things we want, or need to have, available in eval.
     require 'stringio'
     require 'pp'
 
@@ -244,7 +246,7 @@ class Sicuro
     end
 =end
 
-    # We require FakeFS here but we activate it only after resolving our external libs
+    # Require FakeFS here, but wait to resolve external libs before activating.
     begin
       require 'fakefs/safe'
     rescue LoadError
@@ -254,8 +256,13 @@ class Sicuro
 
     ::Sicuro::Runtime::Constants.reset
 
-    required_for_custom_libs = [:FakeFS, :Gem, :FileUtils, :File, :Pathname, :Dir, :RbConfig, :IO, :FileTest]
-    (Object.constants - $TRUSTED_CONSTANTS - required_for_custom_libs).each do |x|
+    required_for_custom_libs = [:FakeFS, :Gem, :FileUtils, :File, :Pathname,
+                                :Dir, :RbConfig, :IO, :FileTest]
+
+    unsafe_constants = Object.constants - $TRUSTED_CONSTANTS -
+                       required_for_custom_libs
+
+    unsafe_constants.each do |x|
       Object.instance_eval { remove_const x }
     end
 
@@ -266,10 +273,6 @@ class Sicuro
     end
 
     FakeFS.activate!
-
-    # Without Gem we won't require unresolved gems, therefore we restore the original require.
-    # This allows us to lazy-require other trusted components from the same $LOAD_PATH.
-    #::Kernel.module_eval { alias require gem_original_require }
 
     required_for_custom_libs.each do |x|
       Object.instance_eval { remove_const x }

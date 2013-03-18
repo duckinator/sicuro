@@ -26,11 +26,13 @@ class Sicuro
         end
       end
 
-      # This bit is positively horrifying, but it's very useful information, so...
-      error_prefix   = '[SICURO ERROR] '
       if @running_error
-        @running_error = "#{error_prefix}#{@running_error} THIS IS A BUG. Code:"
-        @running_error += "\n" + @stdin.split("\n").map{|x| x.rjust(error_prefix.length + x.length)}.join("\n")
+        @running_error = "[SICURO ERROR] #{@running_error} THIS IS A BUG. Code:"
+
+        lines = @stdin.split("\n").map do |x|
+          x.rjust(error_prefix.length + x.length)
+        end
+        @running_error += "\n" + lines.join("\n")
       end
 
       warn @running_error if @running_error
@@ -48,10 +50,13 @@ class Sicuro
     def value
       return @running_error if @running_error
 
-      if !@stderr.nil? && ((!@stderr.is_a?(String)) || (@stderr.is_a?(String) && !@stderr.empty?))
+      if !@stderr.nil? && ((!@stderr.is_a?(String)) ||
+         (@stderr.is_a?(String) && !@stderr.empty?))
+
         # @stderr is not nil and is not a String, or is a non-empty String
         @stderr
-      elsif (!@exception.nil? && !@exception.is_a?(String)) || (@exception.is_a?(String) && !@exception.empty?)
+      elsif (!@exception.nil? && !@exception.is_a?(String)) ||
+            (@exception.is_a?(String) && !@exception.empty?)
         # @exception is not nil and is not a String, or is a non-empty String
         @exception
       elsif !@stdout.nil? && (!@stdout.is_a?(String) || !@stdout.empty?)
