@@ -180,11 +180,9 @@ class Sicuro
   # stdout, stderr, and exception catching for unsafe Kernel#eval
   # Used internally by Sicuro._safe_eval
   def _unsafe_eval(code, binding)
-    out_io, err_io, result, exception = nil
+    result, exception = nil
 
     begin
-      out_io = $stdout = StringIO.new
-      err_io = $stderr = StringIO.new
       code = "BEGIN {
         eigenclass = class << Kernel; self end
 
@@ -204,12 +202,9 @@ class Sicuro
       result = ::Kernel.eval(code, binding)
     rescue Exception => e
       exception = "#{e.class}: #{e.message}"
-    ensure
-      $stdout = STDOUT
-      $stderr = STDERR
     end
 
-    [out_io.string, err_io.string, result, exception]
+    [result, exception]
   end
 
   def _generate_json(code, stdout, stderr, result, exception)
@@ -278,7 +273,37 @@ class Sicuro
       Object.instance_eval { remove_const x }
     end
 
-    stdout, stderr, result, exception = _unsafe_eval(code, TOPLEVEL_BINDING)
+    old_stdout = $stdout
+    old_stderr = $stderr
+    old_stdin  = $stdin
+
+    $stdout = StringIO.new
+    $stderr = StringIO.new
+    $stdin  = StringIO.new
+
+    Object.instance_eval do
+      [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
+    end
+    Object.const_set(:STDOUT, $stdout)
+    Object.const_set(:STDERR, $stderr)
+    Object.const_set(:STDIN,  $stdin)
+
+    result, exception = _unsafe_eval(code, TOPLEVEL_BINDING)
+
+    stdout = $stdout.string
+    stderr = $stderr.string
+    stdin  = $stdin.string
+
+    $stdout = old_stdout
+    $stderr = old_stderr
+    $stdin  = old_stdin
+
+    Object.instance_eval do
+      [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
+    end
+    Object.const_set(:STDOUT, $stdout)
+    Object.const_set(:STDERR, $stderr)
+    Object.const_set(:STDIN,  $stdin)
 
     print _generate_json(code, stdout, stderr, result, exception)
   rescue => e
