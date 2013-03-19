@@ -126,6 +126,12 @@ context 'Sicuro - ' do
     end
   end
 
+  context "STDIN, STDOUT, STDERR and friends are StringIO instances" do
+    %w[STDIN STDOUT STDERR $stdin $stdout $stderr].each do |x|
+      asserts(:eval_value, "#{x}.class").equals('StringIO')
+    end
+  end
+
   context 'innards work as expected' do
     asserts 'setup(5, nil, 1.0/(1024*1024))' do
       topic.setup(5, nil, 1.0/(1024*1024)).value
