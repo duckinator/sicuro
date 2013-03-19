@@ -132,11 +132,11 @@ context 'Sicuro - ' do
     end.raises(RuntimeError)
 
     asserts '_unsafe_eval("1", TOPLEVEL_BINDING)' do
-      topic._unsafe_eval("1", TOPLEVEL_BINDING)[2] # [2] == returned value
+      topic._unsafe_eval("1", TOPLEVEL_BINDING)[0] # [0] == returned value
     end.equals(1)
 
     asserts '_unsafe_eval("raise", TOPLEVEL_BINDING)' do
-      topic._unsafe_eval("raise", TOPLEVEL_BINDING)[3] # [3] == exceptions
+      topic._unsafe_eval("raise", TOPLEVEL_BINDING)[1] # [1] == exceptions
     end.equals("RuntimeError: ")
 
     asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":"4","exception":5}')
