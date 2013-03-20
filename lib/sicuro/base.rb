@@ -3,8 +3,10 @@ require 'open3'
 require 'rbconfig'
 require 'json'
 
-require File.join(File.dirname(__FILE__), 'trusted', 'constants.rb')
-require File.join(File.dirname(__FILE__), 'trusted', 'kernel_methods.rb')
+%w[constants kernel_methods globals].each do |x|
+    require File.join(File.dirname(__FILE__), 'trusted', "#{x}.rb")
+end
+
 require File.join(File.dirname(__FILE__), 'monkeypatches.rb')
 
 require File.join(File.dirname(__FILE__), 'internal', 'eval.rb')
@@ -191,6 +193,10 @@ class Sicuro
         unsafe_methods.each do |x|
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
+        end
+
+        (global_variables - #{$TRUSTED_GLOBALS}).each do |x|
+            eval(x.to_s).freeze
         end
 
         ::Kernel.module_eval do
