@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.description = %q{Safe ruby code execution in a standard ruby environment. Does not use a chroot, jail, etc. No special permissions required.}
 
   s.add_runtime_dependency 'fakefs'
+  s.add_runtime_dependency 'httparty'
   #s.add_development_dependency 'rspec', '~>2.5.0'
   s.add_development_dependency 'riot', '>= 0'
   s.add_development_dependency 'bundler', '~> 1.3.0'
