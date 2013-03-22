@@ -22,13 +22,12 @@ $TRUSTED_CONSTANTS = [
   :Time, :Random, :Proc, :Method, :UnboundMethod, :Binding, :Math,
   :Enumerator, :StopIteration, :Thread, :ThreadGroup, :TOPLEVEL_BINDING, :Mutex,
   :Fiber,
-  #RubyVM?
 
   # Commonly used constants that should be safe
   :STDIN, :STDOUT, :STDERR,
   :RUBY_VERSION, :RUBY_RELEASE_DATE, :RUBY_PLATFORM, :RUBY_PATCHLEVEL,
   :RUBY_REVISION, :RUBY_DESCRIPTION, :RUBY_COPYRIGHT, :RUBY_ENGINE,
-  :ARGV, :JSON,
+  :JSON,
 
   :Timeout,
   :StringIO,
