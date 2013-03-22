@@ -70,14 +70,5 @@ class Sicuro
       "#<#{self.class} stdin=#{stdin.inspect} value=#{value.inspect}>"
     end
 
-
-    def gist(limit)
-      if limit && value.length >= limit
-        Gist.new.paste(@stdin, @stdout, @stderr || @exception).value
-      else
-        value
-      end
-    end
-
   end
 end
