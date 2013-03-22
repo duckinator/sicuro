@@ -8,6 +8,10 @@ class Sicuro
 
   class Eval < Struct.new(:hash, :pid)
     def method_missing(name); hash[name.to_s]; end
+
+    def url
+      Sicuro.base_uri + path
+    end
   end
 
   # Unnecessary, but exists for compatibility reasons.
