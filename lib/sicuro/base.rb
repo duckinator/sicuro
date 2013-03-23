@@ -3,7 +3,7 @@ require 'open3'
 require 'rbconfig'
 require 'json'
 
-%w[constants kernel_methods globals].each do |x|
+%w[constants kernel_methods object_private_methods globals].each do |x|
     require File.join(File.dirname(__FILE__), 'trusted', "#{x}.rb")
 end
 
@@ -194,6 +194,10 @@ class Sicuro
           ::Kernel.send(:remove_method, x.to_sym)
           eigenclass.send(:remove_method, x.to_sym)
         end
+
+        unsafe_private_methods = ::Object.private_methods -
+                                 #{$TRUSTED_OBJECT_PRIVATE_METHODS.inspect}
+        # TODO: Remove private Object methods.
 
         (global_variables - #{$TRUSTED_GLOBALS}).each do |x|
             eval(x.to_s).freeze
