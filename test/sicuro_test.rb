@@ -148,7 +148,7 @@ context 'Sicuro - ' do
   end
 
   context 'unsafe private Object methods are removed' do
-    (::Kernel.methods - ::Object.private_methods - $TRUSTED_OBJECT_PRIVATE_METHODS).each do |meth|
+    (::Object.private_methods - $TRUSTED_OBJECT_PRIVATE_METHODS).each do |meth|
       asserts "Object.#{meth} is removed" do
         topic.eval("Object.#{meth}").exception == "NoMethodError: undefined method `#{meth}' for Object:Class"
       end
