@@ -139,7 +139,7 @@ context 'Sicuro - ' do
   end
 
   context 'unsafe Kernel methods are removed' do
-    manually_overridden = %w[load require require_relative]
+    manually_overridden = [:load, :require, :require_relative]
     (::Kernel.methods - ::Object.methods - $TRUSTED_KERNEL_METHODS - manually_overridden).each do |meth|
       asserts "Kernel.#{meth} is removed" do
         topic.eval("Kernel.#{meth}").exception == "NoMethodError: undefined method `#{meth}' for Kernel:Module"
