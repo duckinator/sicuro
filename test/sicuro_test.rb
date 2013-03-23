@@ -147,6 +147,14 @@ context 'Sicuro - ' do
     end
   end
 
+  context 'unsafe private Object methods are removed' do
+    (::Kernel.methods - ::Object.private_methods - $TRUSTED_OBJECT_PRIVATE_METHODS).each do |meth|
+      asserts "Object.#{meth} is removed" do
+        topic.eval("Object.#{meth}").exception == "NoMethodError: undefined method `#{meth}' for Object:Class"
+      end
+    end
+  end
+
   context 'innards work as expected' do
     asserts 'setup(5, nil, 1.0/(1024*1024))' do
       topic.setup(5, nil, 1.0/(1024*1024)).value
