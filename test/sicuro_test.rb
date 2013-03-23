@@ -85,6 +85,33 @@ context 'Sicuro - ' do
     asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
   end
 
+  context 'unsafe constants are removed' do
+    # I hate you, ruby 1.9.2 :(
+    valid = [
+              "NameError: uninitialized constant %s",
+              "NameError: uninitialized constant Object::%s"
+            ]
+    (Object.constants - $TRUSTED_CONSTANTS).each do |constant|
+      asserts "#{constant} is not defined" do
+        valid.map{|x| x % constant }.include?(topic.eval_exception(constant.to_s))
+      end
+    end
+  end
+
+  context 'unsafe globals are removed' do
+    (global_variables - $TRUSTED_GLOBALS).each do |var|
+      asserts "#{var.to_s} is frozen." do
+        topic.eval_return "eval(#{var.to_s.inspect}).frozen?"
+      end
+    end
+  end
+
+  context "STDIN, STDOUT, STDERR and friends are StringIO instances" do
+    %w[STDIN STDOUT STDERR $stdin $stdout $stderr].each do |x|
+      asserts(:eval_value, "#{x}.class").equals('StringIO')
+    end
+  end
+
   context 'timed-out code returns proper string' do
     asserts(:eval_value, 'sleep 6').equals('Timeout::Error: Code took longer than 5 seconds to terminate.')
 
@@ -112,23 +139,11 @@ context 'Sicuro - ' do
   end
 
   context 'unsafe Kernel methods are removed' do
-    asserts(:eval_exception, "Kernel.open('.')").equals("NoMethodError: undefined method `open' for Kernel:Module")
-  end
-
-  context 'unsafe constants are removed' do
-    asserts 'FakeFS is not defined' do
-      # I hate you, ruby 1.9.2 :(
-      valid = [
-                "NameError: uninitialized constant FakeFS",
-                "NameError: uninitialized constant Object::FakeFS"
-              ]
-      valid.include?(topic.eval_exception('FakeFS'))
-    end
-  end
-
-  context "STDIN, STDOUT, STDERR and friends are StringIO instances" do
-    %w[STDIN STDOUT STDERR $stdin $stdout $stderr].each do |x|
-      asserts(:eval_value, "#{x}.class").equals('StringIO')
+    manually_overridden = %w[load require require_relative]
+    (::Kernel.methods - ::Object.methods - $TRUSTED_KERNEL_METHODS - manually_overridden).each do |meth|
+      asserts "Kernel.#{meth} is removed" do
+        topic.eval("Kernel.#{meth}").exception == "NoMethodError: undefined method `#{meth}' for Kernel:Module"
+      end
     end
   end
 
