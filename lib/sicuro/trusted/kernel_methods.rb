@@ -14,8 +14,6 @@ $TRUSTED_KERNEL_METHODS = [
   :printf, :print, :putc, :puts,
   :select, :p, :srand, :rand, :exit!, :exit, :sleep, :abort,
 
-  #:load, :require, :require_relative, :autoload, :autoload?,
-
   :proc, :lambda, :binding,
 
   # Comparison
@@ -45,7 +43,4 @@ $TRUSTED_KERNEL_METHODS = [
   :respond_to_missing?, :extend, :display, :method, :public_method,
   :define_singleton_method, :object_id, :enum_for, :equal?, :!, :!=,
   :instance_eval, :instance_exec, :__send__, :__id__,
-
-  #:at_exit, :syscall, :open, :gets, :readline, :readlines, :`, :test, :trap,
-  #:exec, :fork, :system, :spawn, :freeze, :taint, :untaint, :untrust, :trust,
 ]
