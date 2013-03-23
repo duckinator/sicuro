@@ -200,8 +200,9 @@ class Sicuro
         end
 
         ::Kernel.module_eval do
-          alias load    __replacement_load
-          alias require __replacement_require
+          alias load             __replacement_load
+          alias require          __replacement_require
+          alias require_relative __replacement_require_relative
         end
       }; " + code
 
