@@ -30,8 +30,8 @@ class Sicuro
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RUBY_EXE)
 
   # Set the memory (in MBs) and time (in seconds) limits for Sicuro.
-  # Defaults are 100MB and 5 seconds.
-  def initialize(memlimit = 100, timelimit = 5)
+  # Defaults are 50MB and 5 seconds.
+  def initialize(memlimit = 50, timelimit = 5)
     @memlimit  = memlimit
     @timelimit = timelimit
   end
