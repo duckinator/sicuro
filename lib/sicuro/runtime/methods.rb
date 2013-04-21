@@ -15,13 +15,21 @@ class Sicuro
         end
       end
       
-      def self.replace_all
+      def self.replace_all!
         replace(Kernel, :load) do |file, wrap = false|
           raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'require'
         end
         
         replace(Kernel, :require) do |file|
-          raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'require'
+          $:.each do |dir|
+            f = File.join(dir, file)
+            if File.file?(f)
+              DummyFS.get_file(f)
+              return true
+            end
+          end
+
+          raise ::LoadError, "cannot load such file -- #{file}"
         end
         
         replace(Kernel, :require_relative) do |file|

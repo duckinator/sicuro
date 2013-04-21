@@ -2,7 +2,8 @@ require 'timeout'
 require 'open3'
 require 'rbconfig'
 require 'json'
-
+require 'stringio'
+require 'pp'
 
 %w[
     trusted/constants
@@ -16,6 +17,7 @@ require 'json'
 
     runtime/constants
     runtime/methods
+    runtime/dummyfs
 ].each do |x|
   require File.join(File.dirname(__FILE__), "#{x}.rb")
 end
@@ -144,34 +146,17 @@ class Sicuro
       exit!
     end
 
-    # Things we want, or need to have, available in eval.
-    require 'stringio'
-    require 'pp'
+    ::Sicuro::Runtime::Constants.reset!
+    ::Sicuro::Runtime::Constants::DummyFS.activate!
+    ::Sicuro::Runtime::Methods.replace_all!
 
-=begin
-    %w[constants].each do |file|
-      require File.join(File.dirname(__FILE__), 'runtime', file + '.rb')
-    end
-=end
-
-    # Require FakeFS here, but wait to resolve external libs before activating.
-    begin
-      require 'fakefs/safe'
-    rescue LoadError
-      require 'rubygems'
-      retry
+    %w[constants methods dummyfs].each do |file|
+      require "sicuro/runtime/#{file}"
     end
 
-    ::Sicuro::Runtime::Constants.reset
-
-    required_for_custom_libs = [:FakeFS, :Gem, :FileUtils, :File, :Pathname,
-                                :Dir, :RbConfig, :IO, :FileTest]
-
-    unsafe_constants = Object.constants - $TRUSTED_CONSTANTS -
-                       required_for_custom_libs
+    unsafe_constants = Object.constants - $TRUSTED_CONSTANTS
 
     unsafe_constants.each do |x|
-      next unless Object.const_defined?(x)
       Object.instance_eval { remove_const x }
     end
 
@@ -179,13 +164,6 @@ class Sicuro
 
     libs.each do |lib|
       require lib
-    end
-
-    FakeFS.activate!
-
-    required_for_custom_libs.each do |x|
-      next unless Object.const_defined?(x)
-      Object.instance_eval { remove_const x }
     end
 
     old_stdout = $stdout
