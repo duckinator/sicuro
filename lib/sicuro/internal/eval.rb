@@ -1,16 +1,18 @@
 class Sicuro
   # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
   class Eval
-    attr_accessor :code, :stdout, :stderr, :return, :exception
+    attr_accessor :code, :stdout, :stderr, :return, :wall_time
 
-    def initialize(hash, pid)
+    def initialize(code, stdout, stderr, _return, wall_time, pid)
       @inspect_for_value = false
       @running_error     = nil
-      @pid    = pid
 
-      hash.keys.each do |key|
-        instance_variable_set("@#{key}", hash[key])
-      end
+      @code   = code
+      @stdout = stdout
+      @stderr = stderr
+      @pid    = pid
+      @return = _return
+      @wall_time = wall_time
 
       if Sicuro.process_running?(pid)
         warn "[SICURO] Process ##{pid} still running in Eval#new."
@@ -30,7 +32,7 @@ class Sicuro
     end
 
     # Get a version suitable for printing.
-    def value
+    def to_s
       return @running_error if @running_error
 
       if !@stderr.nil? && ((!@stderr.is_a?(String)) ||
@@ -38,10 +40,6 @@ class Sicuro
 
         # @stderr is not nil and is not a String, or is a non-empty String
         @stderr
-      elsif (!@exception.nil? && !@exception.is_a?(String)) ||
-            (@exception.is_a?(String) && !@exception.empty?)
-        # @exception is not nil and is not a String, or is a non-empty String
-        @exception
       elsif !@stdout.nil? && (!@stdout.is_a?(String) || !@stdout.empty?)
         @stdout
       else
@@ -50,7 +48,7 @@ class Sicuro
     end
 
     def inspect
-      "#<#{self.class} code=#{code.inspect} value=#{value.inspect}>"
+      "#<#{self.class} code=#{code.inspect} stdout=#{stdout.inspect} stderr=#{stderr.inspect} return=#{self.return.inspect} wall_time=#{wall_time.inspect}>"
     end
 
   end

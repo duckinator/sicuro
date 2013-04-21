@@ -62,6 +62,9 @@ class Sicuro
   #
   def eval(code, identifier = nil)
     i, o, e, t, pid = nil
+    out_reader, err_reader = nil
+
+    start = Time.now
 
     Timeout.timeout(@timelimit) do
       i, o, e, t = Open3.popen3(RUBY_USED)
@@ -70,21 +73,28 @@ class Sicuro
       err_reader = Thread.new { e.read }
       i.write _code_prefix(code, identifier)
       i.close
-      str = out_reader.value
-      err = err_reader.value
 
-      if str.empty?
-        if !err.empty?
-          str = _generate_json(code, '', err, '', nil)
-        else
-          # Nothing at all was returned.
-          # This often happens on Kernel#exit!
-          str = _generate_json(code, '', '', nil, nil)
-        end
-      end
-
-      Eval.new(JSON.parse(str), pid)
+      # Wait for stdout and stderr to close.
+      out_reader.join
+      err_reader.join
     end
+
+    duration = Time.now - start
+    # We aim to be API-compatible with eval.so, so we want to return the
+    # wall time as milliseconds. Time-Time yields seconds, so multiply by 1000.
+    # We then call .to_i because we want an int, not a float.
+    wall_time = (duration * 1000).to_i
+
+    # Get the value of out_reader.
+    # The last line is the return value, rest is stdout.
+    lines   = out_reader.value.split("\n")
+    stdout  = lines[0..-2].join("\n")
+    _return = lines[-1]
+
+    # Get the value of err_reader. This is all stderr, unlike with stdout.
+    stderr  = err_reader.value
+
+    Eval.new(code, stdout, stderr, _return, wall_time, pid)
   rescue Timeout::Error
     error = "Timeout::Error: Code took longer than %i seconds to terminate." %
                 @timelimit
@@ -93,46 +103,20 @@ class Sicuro
       Process.kill('KILL', pid) rescue nil
     end
 
-    Eval.new(JSON.parse(_generate_json(code, '', error, '', nil)), pid)
-  ensure
-    if Sicuro.process_running?(pid)
-      Process.kill('KILL', pid) rescue nil
-      if Sicuro.process_running?(pid)
-        Sicuro.sandbox_error("Could not kill process ##{pid} after 3 attempts!", true)
-      end
-    end
-  end
-
-  # stdout, stderr, and exception catching for unsafe Kernel#eval
-  # Used internally by Sicuro._safe_eval
-  def _unsafe_eval(code, binding)
-    result, exception = nil
-
-    begin
-      result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", binding)
-    rescue Exception => e
-      exception = "#{e.class}: #{e.message}"
-    end
-
-    [result, exception]
-  end
-
-  def _generate_json(code, stdout, stderr, result, exception)
-    JSON.generate({
-      'code'      => code,
-      'stdout'    => stdout,
-      'stderr'    => stderr,
-      'return'    => result.inspect,
-      'exception' => exception
-    })
+    Eval.new(code, '', error, nil, wall_time, pid)
   end
 
   # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
   # This does not provide a strict time limit.
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
   def _safe_eval(code)
+    result = nil
+    old_stdout = $stdout
+    old_stderr = $stderr
+    old_stdin  = $stdin
+
     # RAM limit
-    Process.setrlimit(Process::RLIMIT_AS, @memlimit*1024*1024)
+    Process.setrlimit(Process::RLIMIT_AS, @memlimit * 1024 * 1024)
 
     # CPU time limit. 5s means 5s of CPU time.
     Process.setrlimit(Process::RLIMIT_CPU, @timelimit)
@@ -155,10 +139,6 @@ class Sicuro
       Object.instance_eval { remove_const x }
     end
 
-    old_stdout = $stdout
-    old_stderr = $stderr
-    old_stdin  = $stdin
-
     $stdout = StringIO.new
     $stderr = StringIO.new
     $stdin  = StringIO.new
@@ -170,26 +150,16 @@ class Sicuro
     Object.const_set(:STDERR, $stderr)
     Object.const_set(:STDIN,  $stdin)
 
-    result, exception = _unsafe_eval(code, TOPLEVEL_BINDING)
-
-    stdout = $stdout.string
-    stderr = $stderr.string
-    stdin  = $stdin.string
-
-    $stdout = old_stdout
-    $stderr = old_stderr
-    $stdin  = old_stdin
-
-    Object.instance_eval do
-      [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
+    begin
+      result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING)
+    rescue Exception => e
+      warn "#{e.class}: #{e.message}"
+      warn e.backtrace.join("\n")
     end
-    Object.const_set(:STDOUT, $stdout)
-    Object.const_set(:STDERR, $stderr)
-    Object.const_set(:STDIN,  $stdin)
-
-    print _generate_json(code, stdout, stderr, result, exception)
-  rescue => e
-    print _generate_json('', '', '', nil, "#{e.class}: #{e.message}")
+  ensure
+    old_stdout.puts  $stdout.string
+    old_stdout.puts  result.inspect
+    old_stderr.print $stderr.string
   end
 
   def inspect
