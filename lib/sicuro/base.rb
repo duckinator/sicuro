@@ -98,7 +98,7 @@ class Sicuro
       Process.kill('KILL', pid) rescue nil
     end
 
-    Eval.new(_generate_json(code, '', error, '', nil), pid)
+    Eval.new(JSON.parse(_generate_json(code, '', error, '', nil)), pid)
   ensure
     if Sicuro.process_running?(pid)
       Process.kill('KILL', pid) rescue nil
