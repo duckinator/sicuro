@@ -51,16 +51,12 @@ class Sicuro
   end
 
   # Runs the specified code, returns STDOUT and STDERR as a single string.
-  # Automatically runs Sicuro.setup if needed.
   #
   # `code`: the code to run.
   #
   # `libs`: array of libs to include before setting up the safe eval process.
   #
   # `precode`: code ran before setting up the safe eval process.
-  #
-  # `memlimit`: the memory limit for this specific code. Default is @@memlimit
-  #  as determined by Sicuro.setup
   #
   # `identifier`: a unique identifier for this code (ie, if used an irc bot,
   # the person's nickname). When specified, it tries setting the process name to
