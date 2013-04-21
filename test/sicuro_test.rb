@@ -1,16 +1,9 @@
 require 'teststrap'
 
-context 'Sicuro (pre-#setup)' do
-  asserts 'Sicuro.new.eval("1") runs Sicuro#setup' do
-    s = Sicuro.new.eval("1")
-    stimelimit.is_a?(Fixnum) rescue false
-  end
-end
-
 no_sandbox_impl = Sicuro::Runtime::Methods::NO_SANDBOXED_IMPL
 
 context 'Sicuro - ' do
-  setup { s = Sicuro.new; s.setup(5, 100); s }
+  setup { Sicuro.new }
 
   context 'replaced constants' do
     asserts(:eval_return, 'ENV').equals(Sicuro::Runtime::Constants::ENV.inspect)
@@ -69,7 +62,7 @@ context 'Sicuro - ' do
     asserts(:eval_exception, 'raise').equals('RuntimeError: ')
     asserts("eval('1').inspect") do
       topic.eval('1').inspect
-    end.equals('#<Sicuro::Eval stdin="1" value="1">')
+    end.equals('#<Sicuro::Eval code="1" value="1">')
   end
 
   context 'exceptions' do
