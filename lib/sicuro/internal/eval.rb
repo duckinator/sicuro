@@ -1,7 +1,7 @@
 class Sicuro
   # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
   class Eval
-    attr_accessor :code, :stdout, :stderr, :return, :wall_time
+    attr_reader :code, :stdout, :stderr, :return, :wall_time
 
     def initialize(code, stdout, stderr, _return, wall_time, pid)
       @inspect_for_value = false
