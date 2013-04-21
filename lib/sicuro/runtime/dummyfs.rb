@@ -12,7 +12,8 @@ class Sicuro
         end
 
         def self.has_file?(file)
-          !!self.find_file(file)
+          ret = self.find_file(file)
+          ret && !ret.empty?
         end
 
         def self.find_file(file)
@@ -30,7 +31,7 @@ class Sicuro
         end
 
         Dir[File.join(File.dirname(__FILE__), '..', '**', '*.rb')].each do |filename|
-          fake_filename = filename.gsub(File.dirname(__FILE__), '').gsub(%r[^/..], File.join(FAKE_GEM_DIR, 'sicuro', 'lib'))
+          fake_filename = filename.gsub(File.dirname(__FILE__), '').gsub(%r[^/..], File.join(FAKE_GEM_DIR, 'sicuro', 'lib', 'sicuro'))
           DummyFS.add_file(filename, fake_filename)
         end
       end
