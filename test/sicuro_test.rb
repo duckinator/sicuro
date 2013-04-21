@@ -166,7 +166,7 @@ context 'Sicuro - ' do
   end
 
   context 'innards work as expected' do
-    asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":"4","exception":5}')
+    asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"code":1,"stdout":2,"stderr":3,"return":"4","exception":5}')
   end
 
 end
