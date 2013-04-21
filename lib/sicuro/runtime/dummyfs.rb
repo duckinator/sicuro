@@ -20,10 +20,14 @@ class Sicuro
           @@files.keys.grep(%r[#{file}(\..*)?$])
         end
 
-        def self.add_file(file, name = nil)
-          name ||= file
+        def self.add_file(name, contents)
           @@files ||= {}
-          @@files[name] = open(file).read
+          @@files[name] = contents
+        end
+
+        def self.add_real_file(file, name = nil)
+          name ||= file
+          DummyFS.add_file(name, open(file).read)
         end
 
         def self.get_file(file)
@@ -32,7 +36,7 @@ class Sicuro
 
         Dir[File.join(File.dirname(__FILE__), '..', '**', '*.rb')].each do |filename|
           fake_filename = filename.gsub(File.dirname(__FILE__), '').gsub(%r[^/..], File.join(FAKE_GEM_DIR, 'sicuro', 'lib', 'sicuro'))
-          DummyFS.add_file(filename, fake_filename)
+          DummyFS.add_real_file(filename, fake_filename)
         end
       end
 
