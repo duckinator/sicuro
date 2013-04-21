@@ -166,18 +166,6 @@ context 'Sicuro - ' do
   end
 
   context 'innards work as expected' do
-    asserts 'setup(5, nil, 1.0/(1024*1024))' do
-      topic.setup(5, nil, 1.0/(1024*1024)).value
-    end.raises(RuntimeError)
-
-    asserts '_unsafe_eval("1", TOPLEVEL_BINDING)' do
-      topic._unsafe_eval("1", TOPLEVEL_BINDING)[0] # [0] == returned value
-    end.equals(1)
-
-    asserts '_unsafe_eval("raise", TOPLEVEL_BINDING)' do
-      topic._unsafe_eval("raise", TOPLEVEL_BINDING)[1] # [1] == exceptions
-    end.equals("RuntimeError: ")
-
     asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"stdin":1,"stdout":2,"stderr":3,"return":"4","exception":5}')
   end
 
