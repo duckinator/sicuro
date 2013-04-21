@@ -17,3 +17,4 @@ end
 require 'riot'
 require 'stringio'
 require 'sicuro'
+require File.join(File.dirname(__FILE__), 'helper_functions.rb')

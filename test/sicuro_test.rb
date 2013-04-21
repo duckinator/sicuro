@@ -2,13 +2,12 @@ require 'teststrap'
 
 context 'Sicuro (pre-#setup)' do
   asserts 'Sicuro.new.eval("1") runs Sicuro#setup' do
-    Sicuro.new.eval("1")
-    Sicuro.class_variable_get('@@timelimit').is_a?(Fixnum) rescue false
+    s = Sicuro.new.eval("1")
+    stimelimit.is_a?(Fixnum) rescue false
   end
 end
 
-cannot_load_error    = "NotImplementedError: a sandboxed version of `load' has not been implemented yet. Could not load %s." # Use: cannot_load_error % filename
-cannot_require_error = "NotImplementedError: a sandboxed version of `require' has not been implemented yet. Could not require %s." # Use: cannot_require_error % filename
+no_sandbox_impl = Sicuro::Runtime::Methods::NO_SANDBOXED_IMPL
 
 context 'Sicuro - ' do
   setup { s = Sicuro.new; s.setup(5, 100); s }
@@ -22,11 +21,11 @@ context 'Sicuro - ' do
 
     asserts 'cannot load DL' do
       topic.eval("require 'dl'").value
-    end.equals(cannot_require_error % 'dl'.inspect)
+    end.equals(no_sandbox_impl % 'dl')
 
     asserts 'DL cannot be used to kill entire process group' do
       topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)").value
-    end.equals(cannot_require_error % 'dl'.inspect)
+    end.equals(no_sandbox_impl % 'dl')
   end
 
   context 'printing text' do
@@ -138,19 +137,36 @@ context 'Sicuro - ' do
     denies(:eval_running?, 'sleep')
   end
 
-  context 'unsafe Kernel methods are removed' do
-    manually_overridden = [:load, :require, :require_relative]
-    (::Kernel.methods - ::Object.methods - $TRUSTED_KERNEL_METHODS - manually_overridden).each do |meth|
-      asserts "Kernel.#{meth} is removed" do
-        topic.eval("Kernel.#{meth}").exception == "NoMethodError: undefined method `#{meth}' for Kernel:Module"
+  context 'unsafe public methods are removed' do
+    manually_overridden = {
+      :Kernel => [:load, :require, :require_relative],
+    }
+
+    $TRUSTED_PUBLIC_METHODS.each do |const, methods|
+      methods_to_check =  ::Kernel.methods - ::Object.methods -
+                          methods - (manually_overridden[const] || [])
+
+      methods_to_check.each do |meth|
+        asserts "#{const.to_s}.#{meth} is removed" do
+          topic.eval("#{const.to_s}.#{meth}").exception =~ /^NoMethodError: undefined method `#{meth}' for #{const.to_s}:(Class|Module|Object)/
+        end
       end
     end
   end
 
-  context 'unsafe private Object methods are removed' do
-    (::Object.private_methods - $TRUSTED_OBJECT_PRIVATE_METHODS).each do |meth|
-      asserts "Object.#{meth} is removed" do
-        topic.eval("Object.#{meth}").exception == "NoMethodError: undefined method `#{meth}' for Object:Class"
+  context 'unsafe private methods are removed' do
+    manually_overridden = {
+      # None.
+    }
+
+    $TRUSTED_PRIVATE_METHODS.each do |const, methods|
+      methods_to_check =  ::Kernel.methods - ::Object.methods -
+                          methods - (manually_overridden[const] || [])
+
+      methods_to_check.each do |meth|
+        asserts "#{const.to_s}.#{meth} is removed" do
+          topic.eval("#{const.to_s}.#{meth}").exception =~ /^NoMethodError: undefined method `#{meth}' for #{const.to_s}:(Class|Module|Object)/
+        end
       end
     end
   end
