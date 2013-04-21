@@ -124,7 +124,7 @@ class Sicuro
 
   def _generate_json(code, stdout, stderr, result, exception)
     JSON.generate({
-      'stdin'     => code,
+      'code'      => code,
       'stdout'    => stdout,
       'stderr'    => stderr,
       'return'    => result.inspect,
