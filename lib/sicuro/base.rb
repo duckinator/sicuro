@@ -89,7 +89,7 @@ class Sicuro
     # The last line is the return value, rest is stdout.
     lines   = out_reader.value.split("\n")
     stdout  = lines[0..-2].join("\n")
-    _return = lines[-1]
+    _return = lines[-1] || 'nil'
 
     # Get the value of err_reader. This is all stderr, unlike with stdout.
     stderr  = err_reader.value
@@ -157,7 +157,9 @@ class Sicuro
       warn e.backtrace.join("\n")
     end
   ensure
-    old_stdout.puts  $stdout.string
+    out = $stdout.string
+    old_stdout.print out
+    old_stdout.puts
     old_stdout.puts  result.inspect
     old_stderr.print $stderr.string
   end
