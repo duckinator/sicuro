@@ -36,23 +36,6 @@ context 'Sicuro - ' do
     asserts(:eval_return, 'puts').equals('nil')
   end
 
-  context 'libs' do
-    asserts(:eval_value, 'Set', ['set']).equals('Set')
-
-    # Requiring an external gem from the filesystem
-    asserts(:eval_value, 'Riot', ['riot']).equals('Riot')
-
-    # I'm not entirely sure we want the next two tests to pass, so commenting them out for now.
-
-    # Requiring from resolved paths without Gem
-#    asserts(:eval_value, "require 'riot/version'", ['riot']).equals(true)
-#    asserts(:eval_value, "require 'set'").equals(true)
-  end
-
-  context 'precode' do
-    asserts(:eval_value, 'Set', nil, 'require "set"').equals('Set')
-  end
-
   context 'wrapper functions' do
     asserts("Sicuro.eval('puts \"hi\"')") do
       topic.eval('puts "hi"').value

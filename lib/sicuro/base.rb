@@ -36,17 +36,9 @@ class Sicuro
     @timelimit = timelimit
   end
 
-  def self.add_file(file, contents)
-    Sicuro::Runtime::Constants::DummyFS.add_file(file, contents)
-  end
-
-  def self.add_real_file(file, name)
-    Sicuro::Runtime::Constants::DummyFS.add_real_file(file, name)
-  end
-
   # This prepends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  def _code_prefix(code, libs, precode, identifier)
+  def _code_prefix(code, identifier)
     identifier += '; ' if identifier
 
     <<-EOF
@@ -55,8 +47,7 @@ class Sicuro
 
       require #{__FILE__.inspect}
       s=Sicuro.new(#{@timelimit}, #{@memlimit})
-      print s._safe_eval(#{code.inspect}, #{libs.inspect}, #{precode.inspect},
-                         #{memlimit.inspect})
+      print s._safe_eval(#{code.inspect})
     EOF
   end
 
@@ -64,16 +55,12 @@ class Sicuro
   #
   # `code`: the code to run.
   #
-  # `libs`: array of libs to include before setting up the safe eval process.
-  #
-  # `precode`: code ran before setting up the safe eval process.
-  #
   # `identifier`: a unique identifier for this code (ie, if used an irc bot,
   # the person's nickname). When specified, it tries setting the process name to
   # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
   # "sicuro (#{current_time})"
   #
-  def eval(code, libs = [], precode = '', identifier = nil)
+  def eval(code, identifier = nil)
     i, o, e, t, pid = nil
 
     Timeout.timeout(@timelimit) do
@@ -81,7 +68,7 @@ class Sicuro
       pid = t.pid
       out_reader = Thread.new { o.read }
       err_reader = Thread.new { e.read }
-      i.write _code_prefix(code, libs, precode, identifier)
+      i.write _code_prefix(code, identifier)
       i.close
       str = out_reader.value
       err = err_reader.value
@@ -143,9 +130,9 @@ class Sicuro
   # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
   # This does not provide a strict time limit.
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
-  def _safe_eval(code, libs, precode, memlimit)
+  def _safe_eval(code)
     # RAM limit
-    Process.setrlimit(Process::RLIMIT_AS, memlimit*1024*1024)
+    Process.setrlimit(Process::RLIMIT_AS, @memlimit*1024*1024)
 
     # CPU time limit. 5s means 5s of CPU time.
     Process.setrlimit(Process::RLIMIT_CPU, @timelimit)
@@ -166,12 +153,6 @@ class Sicuro
 
     unsafe_constants.each do |x|
       Object.instance_eval { remove_const x }
-    end
-
-    ::Kernel.eval(precode, TOPLEVEL_BINDING)
-
-    libs.each do |lib|
-      require lib
     end
 
     old_stdout = $stdout
