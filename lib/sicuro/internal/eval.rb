@@ -5,7 +5,7 @@ class Sicuro
 
     def initialize(hash, pid)
       @inspect_for_value = false
-      running_error     = nil
+      @running_error     = nil
       @pid    = pid
 
       hash.keys.each do |key|
