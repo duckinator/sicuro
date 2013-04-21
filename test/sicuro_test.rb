@@ -1,6 +1,7 @@
 require 'teststrap'
 
 no_sandbox_impl = Sicuro::Runtime::Methods::NO_SANDBOXED_IMPL
+load_error = "LoadError: cannot load such file -- dl"
 
 context 'Sicuro - ' do
   setup { Sicuro.new }
@@ -14,11 +15,11 @@ context 'Sicuro - ' do
 
     asserts 'cannot load DL' do
       topic.eval("require 'dl'").value
-    end.equals(no_sandbox_impl % 'dl')
+    end.equals(load_error % 'dl')
 
     asserts 'DL cannot be used to kill entire process group' do
       topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)").value
-    end.equals(no_sandbox_impl % 'dl')
+    end.equals(load_error % 'dl')
   end
 
   context 'printing text' do
