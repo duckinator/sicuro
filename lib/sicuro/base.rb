@@ -184,6 +184,7 @@ class Sicuro
     FakeFS.activate!
 
     required_for_custom_libs.each do |x|
+      next unless Object.const_defined?(x)
       Object.instance_eval { remove_const x }
     end
 
