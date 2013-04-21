@@ -14,14 +14,9 @@ class Sicuro
     eval(*args).return
   end
 
-  # Same as eval, but get only exceptions.
-  def eval_exception(*args)
-    eval(*args).exception
-  end
-
   # Same as eval, but run #value on it.
   def eval_value(*args)
-    eval(*args).value
+    eval(*args).to_s
   end
 
   # Same as eval, but run #inspect on it.

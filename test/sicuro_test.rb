@@ -14,66 +14,90 @@ context 'Sicuro - ' do
     # http://duckinator.net/blog/sicuro-untrusted-code-execution/
 
     asserts 'cannot load DL' do
-      topic.eval("require 'dl'").value
+      topic.eval("require 'dl'").to_s
     end.equals(load_error % 'dl')
 
     asserts 'DL cannot be used to kill entire process group' do
-      topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)").value
+      topic.eval("require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)").to_s
     end.equals(load_error % 'dl')
   end
 
   context 'printing text' do
-    asserts(:eval_value, 'puts "hi"').equals("hi\n")
+    asserts(:eval_stdout, 'puts "hi"').equals("hi\n")
+    asserts(:eval_stdout, 'print "hi"').equals("hi")
+
+    asserts("warn() does not print to stdout") do
+      topic.eval('warn "hi"').stdout == ''
+    end
+
+    asserts(:eval_stderr, 'warn "hi"').equals("hi\n")
   end
 
-  context 'return value' do
+  context 'string representations' do
     asserts(:eval_value, '"hi"').equals('"hi"')
     asserts(:eval_value, "'hi'").equals('"hi"')
     asserts(:eval_value, '1'   ).equals('1')
-    asserts(:eval_value, 'fail').equals('RuntimeError: ')
-    asserts(:eval_value,  'nil').equals('nil')
-    asserts(:eval_value,  'exit!').equals('nil')
-    asserts(:eval_return, 'puts').equals('nil')
+
+    asserts("fail() raises a RuntimeError") do
+      topic.eval('fail').to_s =~ /^RuntimeError: /
+    end
+
+    asserts(:eval_value, 'nil').equals('nil')
+    asserts(:eval_value, 'exit!').equals('nil')
+    asserts(:eval_value, 'puts').equals("\n")
+  end
+
+  context 'return values' do
+    asserts(:eval_return, 'nil'   ).equals('nil')
+    asserts(:eval_return, 'exit!' ).equals('nil')
+    asserts(:eval_return, 'puts'  ).equals('nil')
+    asserts(:eval_return, 'puts 1').equals('nil')
+    asserts(:eval_return, '1'     ).equals('1')
   end
 
   context 'wrapper functions' do
-    asserts("Sicuro.eval('puts \"hi\"')") do
-      topic.eval('puts "hi"').value
+    asserts("eval('puts \"hi\"')") do
+      topic.eval('puts "hi"').to_s
     end.equals("hi\n")
+
     asserts(:eval_stdout, 'puts 1').equals("1\n")
     asserts(:eval_stderr, 'warn 1').equals("1\n")
     asserts(:eval_return, '1').equals('1')
-    asserts(:eval_exception, 'raise').equals('RuntimeError: ')
+
+    asserts("raise prints to stderr") do
+      topic.eval('raise').stderr =~ /^RuntimeError: /
+    end
+
     asserts("eval('1').inspect") do
-      topic.eval('1').inspect
-    end.equals('#<Sicuro::Eval code="1" value="1">')
+      topic.eval('1').inspect =~ /#<Sicuro::Eval code="1" stdout="" stderr="" return="1" wall_time=\d+>/
+    end
   end
 
   context 'exceptions' do
-    asserts(:eval_exception, 'undefined').equals("NameError: undefined local variable or method `undefined' for main:Object")
+    asserts("referencing undefined variable raises NameError") do
+      topic.eval('undefined').stderr =~ /^NameError: undefined local variable or method `undefined' for main:Object/
+    end
 
     # Verify if there is a syntax error. Don't check more than the first word,
     # given that it varies with ruby version and possibly interpreter.
-    asserts("eval(':')") do
-        topic.eval_exception(':').split(' ')[0]
-    end.equals("SyntaxError:")
+    asserts "eval(':') raises a syntax error" do
+      topic.eval(':').stderr =~ /^SyntaxError: /
+    end
 
-    asserts(:eval_exception, 'a=[];loop{a<<a}').equals("NoMemoryError: failed to allocate memory")
+    asserts "a=[];loop{a<<a} runs out of memory" do
+      topic.eval('a=[];loop{a<<a}').stderr =~ /^NoMemoryError: failed to allocate memory/
+    end
   end
 
   context 'unsafe constants are removed' do
-    # I hate you, ruby 1.9.2 :(
-    valid = [
-              "NameError: uninitialized constant %s",
-              "NameError: uninitialized constant Object::%s"
-            ]
     (Object.constants - $TRUSTED_CONSTANTS).each do |constant|
       asserts "#{constant} is not defined" do
-        valid.map{|x| x % constant }.include?(topic.eval_exception(constant.to_s))
+        topic.eval(constant.to_s).stderr =~ /^NameError: uninitialized constant /
       end
     end
   end
 
+  # TODO: This test doesn't seem very good. $: is frozen, but its contents are not.
   context 'unsafe globals are removed' do
     (global_variables - $TRUSTED_GLOBALS).each do |var|
       asserts "#{var.to_s} is frozen." do
@@ -125,7 +149,7 @@ context 'Sicuro - ' do
 
       methods_to_check.each do |meth|
         asserts "#{const.to_s}.#{meth} is removed" do
-          topic.eval("#{const.to_s}.#{meth}").exception =~ /^NoMethodError: undefined method `#{meth}' for #{const.to_s}:(Class|Module|Object)/
+          topic.eval("#{const.to_s}.#{meth}").stderr =~ /^NoMethodError: undefined method `#{meth}' for #{const.to_s}:(Class|Module|Object)/
         end
       end
     end
@@ -142,14 +166,10 @@ context 'Sicuro - ' do
 
       methods_to_check.each do |meth|
         asserts "#{const.to_s}.#{meth} is removed" do
-          topic.eval("#{const.to_s}.#{meth}").exception =~ /^NoMethodError: undefined method `#{meth}' for #{const.to_s}:(Class|Module|Object)/
+          topic.eval("#{const.to_s}.#{meth}").stderr =~ /^NoMethodError: undefined method `#{meth}' for #{const.to_s}:(Class|Module|Object)/
         end
       end
     end
-  end
-
-  context 'innards work as expected' do
-    asserts(:_generate_json, 1, 2, 3, 4, 5).equals('{"code":1,"stdout":2,"stderr":3,"return":"4","exception":5}')
   end
 
 end
