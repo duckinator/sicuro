@@ -36,6 +36,14 @@ class Sicuro
     @timelimit = timelimit
   end
 
+  def self.add_file(file, contents)
+    Sicuro::Runtime::Constants::DummyFS.add_file(file, contents)
+  end
+
+  def self.add_real_file(file, name)
+    Sicuro::Runtime::Constants::DummyFS.add_real_file(file, name)
+  end
+
   # This prepends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
   def _code_prefix(code, libs, precode, identifier)
