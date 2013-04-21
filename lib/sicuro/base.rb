@@ -84,7 +84,7 @@ class Sicuro
         else
           # Nothing at all was returned.
           # This often happens on Kernel#exit!
-          str = _generate_json(code, '', '', 'nil', nil)
+          str = _generate_json(code, '', '', nil, nil)
         end
       end
 
