@@ -39,7 +39,7 @@ context 'Sicuro - ' do
     asserts(:eval_value, '1'   ).equals('1')
 
     asserts("fail() raises a RuntimeError") do
-      topic.eval('fail').to_s =~ /^RuntimeError: /
+      topic.eval('fail').to_s.start_with? "RuntimeError: "
     end
 
     asserts(:eval_value, 'nil').equals('nil')
@@ -65,7 +65,7 @@ context 'Sicuro - ' do
     asserts(:eval_return, '1').equals('1')
 
     asserts("raise prints to stderr") do
-      topic.eval('raise').stderr =~ /^RuntimeError: /
+      topic.eval('raise').stderr.start_with? "RuntimeError: "
     end
 
     asserts("eval('1').inspect") do
@@ -75,33 +75,47 @@ context 'Sicuro - ' do
 
   context 'exceptions' do
     asserts("referencing undefined variable raises NameError") do
-      topic.eval('undefined').stderr =~ /^NameError: undefined local variable or method `undefined' for main:Object/
+      topic.eval('undefined').stderr.start_with? "NameError: undefined local variable or method `undefined' for main:Object"
     end
 
     # Verify if there is a syntax error. Don't check more than the first word,
     # given that it varies with ruby version and possibly interpreter.
     asserts "eval(':') raises a syntax error" do
-      topic.eval(':').stderr =~ /^SyntaxError: /
+      topic.eval(':').stderr.start_with? "SyntaxError: "
     end
 
     asserts "a=[];loop{a<<a} runs out of memory" do
-      topic.eval('a=[];loop{a<<a}').stderr =~ /^NoMemoryError: failed to allocate memory/
+      topic.eval('a=[];loop{a<<a}').stderr.start_with? "NoMemoryError: failed to allocate memory"
     end
   end
 
   context 'unsafe constants are removed' do
     (Object.constants - $TRUSTED_CONSTANTS).each do |constant|
       asserts "#{constant} is not defined" do
-        topic.eval(constant.to_s).stderr =~ /^NameError: uninitialized constant /
+        topic.eval(constant.to_s).stderr.start_with? "NameError: uninitialized constant "
       end
     end
   end
 
-  # TODO: This test doesn't seem very good. $: is frozen, but its contents are not.
   context 'unsafe globals are removed' do
     (global_variables - $TRUSTED_GLOBALS).each do |var|
-      asserts "#{var.to_s} is frozen." do
-        topic.eval_return "eval(#{var.to_s.inspect}).frozen?"
+      valid_outputs = [
+        "NameError: #{var.to_s} is a read-only variable",
+        "SyntaxError: <main>: Can't set variable #{var.to_s}"
+      ]
+
+      asserts "#{var.to_s} cannot set" do
+        ret = topic.eval("#{var.to_s} = nil").stderr.split("\n")[0]
+        valid_outputs.each do |x|
+          valid_outputs.any? { |output| ret.start_with? output }
+        end
+      end
+
+      asserts "#{var.to_s} cannot be appended to" do
+        ret = topic.eval("#{var.to_s} << #{var.to_s}").stderr.split("\n")[0]
+        valid_outputs.each do |x|
+          valid_outputs.any? { |output| ret.start_with? output }
+        end
       end
     end
   end
