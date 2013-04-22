@@ -14,8 +14,8 @@ script: rake test
 
 notifications:
   webhooks:
-    - http://rcmp.programble.co.cc/irc.tenthbit.net/programming
-    - http://rcmp.programble.co.cc/irc.freenode.net/sicuro
+    - http://rcmp.tenthbit.net
+    - http://rcmp.tenthbit.net/irc.freenode.net/sicuro
   
   email:
     on_success: change # default: change
