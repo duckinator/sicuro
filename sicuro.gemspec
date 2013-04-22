@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Safe ruby code execution.}
   s.description = %q{Safe ruby code execution in a standard ruby environment. Does not use a chroot, jail, etc. No special permissions required.}
 
+  s.add_development_dependency "rake",      '~> 10.0.3'
   s.add_development_dependency 'rspec',     '~> 2.13.0'
   s.add_development_dependency 'simplecov', '~> 0.7.1'
   s.add_development_dependency 'bundler',   '~> 1.3.0'
