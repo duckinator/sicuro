@@ -166,8 +166,8 @@ class Sicuro
     begin
       result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING)
     rescue Exception => e
-      warn "#{e.class}: #{e.message}"
-      warn e.backtrace.join("\n")
+      $stderr.puts "#{e.class}: #{e.message}"
+      $stderr.puts e.backtrace.join("\n")
     end
   ensure
     out = $stdout.string
