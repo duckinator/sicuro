@@ -171,10 +171,15 @@ class Sicuro
     end
   ensure
     out = $stdout.string
-    old_stdout.print out
-    old_stdout.puts
-    old_stdout.puts  result.inspect
-    old_stderr.print $stderr.string
+    err = $stderr.string
+
+    $stdout = old_stdout
+    $stderr = old_stderr
+
+    print out
+    puts
+    puts  result.inspect
+    $stderr.print err
   end
 
   def inspect
