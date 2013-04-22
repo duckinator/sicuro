@@ -3,6 +3,8 @@ require 'open3'
 require 'rbconfig'
 require 'stringio'
 
+require 'enc/trans/single_byte'
+
 %w[
     trusted/constants
     trusted/methods
