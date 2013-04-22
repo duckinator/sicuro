@@ -1,14 +1,11 @@
 require 'timeout'
 require 'open3'
 require 'rbconfig'
-require 'json'
 require 'stringio'
-require 'pp'
 
 %w[
     trusted/constants
-    trusted/public_methods
-    trusted/private_methods
+    trusted/methods
     trusted/globals
 
     internal/eval
@@ -137,6 +134,22 @@ class Sicuro
 
     unsafe_constants.each do |x|
       Object.instance_eval { remove_const x }
+    end
+
+    $TRUSTED_METHODS.each do |constant, methods|
+      next unless Object.const_defined?(constant)
+
+      const = Object.const_get(constant)
+
+      const.instance_eval do
+        (const.methods - methods).each do |meth|
+          define_method(meth) {}
+
+          eval("undef #{meth.to_sym}")
+          #puts "Removing #{constant}.#{meth}"
+          #undef_method meth if respond_to?(meth)
+        end
+      end
     end
 
     $stdout = StringIO.new

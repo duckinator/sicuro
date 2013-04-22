@@ -152,31 +152,9 @@ context 'Sicuro - ' do
     denies(:eval_running?, 'sleep')
   end
 
-  context 'unsafe public methods are removed' do
-    manually_overridden = {
-      :Kernel => [:load, :require, :require_relative],
-    }
-
-    $TRUSTED_PUBLIC_METHODS.each do |const, methods|
-      methods_to_check =  ::Kernel.methods - ::Object.methods -
-                          methods - (manually_overridden[const] || [])
-
-      methods_to_check.each do |meth|
-        asserts "#{const.to_s}.#{meth} is removed" do
-          topic.eval("#{const.to_s}.#{meth}").stderr =~ /^NoMethodError: undefined method `#{meth}' for #{const.to_s}:(Class|Module|Object)/
-        end
-      end
-    end
-  end
-
-  context 'unsafe private methods are removed' do
-    manually_overridden = {
-      # None.
-    }
-
-    $TRUSTED_PRIVATE_METHODS.each do |const, methods|
-      methods_to_check =  ::Kernel.methods - ::Object.methods -
-                          methods - (manually_overridden[const] || [])
+  context 'unsafe methods are removed' do
+    $TRUSTED_METHODS.each do |const, methods|
+      methods_to_check =  ::Kernel.methods - ::Object.methods - methods
 
       methods_to_check.each do |meth|
         asserts "#{const.to_s}.#{meth} is removed" do
