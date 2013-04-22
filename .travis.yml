@@ -10,7 +10,7 @@ rvm:
 #  - ruby-head
 #  - ree
 
-script: rake test
+script: rake spec
 
 notifications:
   webhooks:
