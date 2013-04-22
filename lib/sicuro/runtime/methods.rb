@@ -23,7 +23,7 @@ class Sicuro
         replace(Kernel, :require) do |file|
           $:.each do |dir|
             f = File.join(dir, file)
-            return true if $LOADED_FEATURES.include?(f)
+            return false if $LOADED_FEATURES.include?(f)
 
             if File.file?(f)
               $LOADED_FEATURES << f
