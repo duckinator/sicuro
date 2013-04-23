@@ -3,7 +3,7 @@ require 'open3'
 require 'rbconfig'
 require 'stringio'
 
-require 'enc/trans/single_byte'
+require 'enc/trans/single_byte' if RUBY_ENGINE == 'ruby'
 
 %w[
     trusted/constants
