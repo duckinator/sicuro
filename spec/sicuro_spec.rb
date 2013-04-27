@@ -1,5 +1,6 @@
 describe 'Sicuro' do
   no_sandbox_impl = Sicuro::NO_SANDBOXED_IMPL
+  frozen_array_error = "RuntimeError: can't modify frozen Array"
   load_error = "LoadError: cannot load such file -- dl"
   timeout_error = 'Timeout::Error: Code took longer than 5 seconds to terminate.'
 
@@ -17,6 +18,10 @@ describe 'Sicuro' do
     it 'cannot use DL to kill entire process group' do
       code = "require 'dl'; require 'dl/import'; module KillDashNine; extend DL::Importer; dlload '/lib/libc.so.6'; extern 'int kill(int, int)'; end; KillDashNine.kill(0, 9)"
       Sicuro.eval(code).to_s.should start_with(load_error % 'dl')
+    end
+
+    it 'cannot append a filename to $* (ARGV) and read the contents from $< (ARGF)' do
+      Sicuro.eval('$* << "Gemfile"; puts $<.read').to_s.should start_with(frozen_array_error)
     end
   end
 
