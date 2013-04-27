@@ -17,6 +17,8 @@ class Sicuro
         end
 
         def self.find_file(file)
+          return [] unless file # find_file(nil) => everything.
+
           @@files.keys.grep(%r[#{file}(\..*)?$])
         end
 
@@ -31,7 +33,8 @@ class Sicuro
         end
 
         def self.get_file(file)
-          @@files[name]
+          return @@files[file] if @@files.keys.include?(file)
+          raise ::Errno::ENOENT, "No such file or directory - #{file}"
         end
 
         Dir[File.join(File.dirname(__FILE__), '..', '**', '*.rb')].each do |filename|
@@ -42,7 +45,12 @@ class Sicuro
 
       class File
         def self.exist?(file)
-          ::DummyFS::has_file?(file)
+          ::DummyFS.has_file?(file)
+        end
+
+        def self.open(filename, mode = 'r', opt = nil)
+          raise ::NotImplementedError, "Sandboxed File.open() only supports reading files."
+          ::DummyFS.get_file(file)
         end
 
         def self.file?(file)

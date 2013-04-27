@@ -1,8 +1,6 @@
 class Sicuro
   class Runtime
     class Methods
-      NO_SANDBOXED_IMPL = "a sandboxed version of \`%s' has not been implemented yet."
-
       def self.replace(klass, method, &block)
         method = method.to_sym
 
@@ -17,16 +15,16 @@ class Sicuro
       
       def self.replace_all!
         replace(Kernel, :load) do |file, wrap = false|
-          raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'require'
+          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'require'
         end
         
         replace(Kernel, :require) do |file|
           $:.each do |dir|
-            f = File.join(dir, file)
+            f = DummyFS.find_file(File.join(dir, file))[0]
 
             return false if $LOADED_FEATURES.include?(f)
 
-            if File.file?(f)
+            if f && File.file?(f)
               $LOADED_FEATURES << f
               DummyFS.get_file(f)
               return true
@@ -37,7 +35,7 @@ class Sicuro
         end
         
         replace(Kernel, :require_relative) do |file|
-          raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'require'
+          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'require'
         end
       end
 

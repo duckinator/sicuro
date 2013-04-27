@@ -6,6 +6,8 @@ require 'stringio'
 require 'enc/trans/single_byte' if RUBY_ENGINE == 'ruby'
 
 %w[
+    constants
+
     trusted/constants
     trusted/methods
     trusted/globals
@@ -23,10 +25,6 @@ end
 
 class Sicuro
   attr_accessor :memlimit, :timelimit
-
-  # Ruby executable used.
-  RUBY_EXE = RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT']
-  RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RUBY_EXE)
 
   # Set the memory (in MBs) and time (in seconds) limits for Sicuro.
   # Defaults are 50MB and 5 seconds.

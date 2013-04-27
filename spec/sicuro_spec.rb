@@ -1,5 +1,5 @@
 describe 'Sicuro' do
-  no_sandbox_impl = Sicuro::Runtime::Methods::NO_SANDBOXED_IMPL
+  no_sandbox_impl = Sicuro::NO_SANDBOXED_IMPL
   load_error = "LoadError: cannot load such file -- dl"
   timeout_error = 'Timeout::Error: Code took longer than 5 seconds to terminate.'
 
