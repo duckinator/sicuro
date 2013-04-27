@@ -23,6 +23,19 @@ describe 'Sicuro' do
     it 'cannot append a filename to $* (ARGV) and read the contents from $< (ARGF)' do
       Sicuro.eval('$* << "Gemfile"; puts $<.read').to_s.should start_with(frozen_array_error)
     end
+
+    it 'cannot use $stdout to reference IO' do
+      code = 'Object.new.tap{|o|o.define_singleton_method(:inspect){ $stdout.class.read("/etc/passwd") } }'
+      Sicuro.eval(code).to_s.should_not start_with("root:")
+    end
+
+    it 'cannot get a reference to (original) File using $* (ARGV) and $< (ARGF)' do
+      # If $<.to_io.class.ancestors[0] should return something from within Sicuro
+      # (such as Sicuro::Runtime::Constants::File) or error, not return File.
+
+      code = '$* << "/etc/passwd"; $<.to_io.class.ancestors[0]'
+      Sicuro.eval(code).to_s.should_not == 'File'
+    end
   end
 
   context 'printing text' do
