@@ -12,34 +12,30 @@ Safe execution environment for untrusted ruby code.
 # Usage
 
 Sicuro safely executes untrusted ruby code without any complex configuration,
-unjustifiable permissions (such as passwordless sudo), or chroots/BSD Jails.
-
-If you've not ran into any problems, you probably want (the section on Sicuro::Eval)[#sicuro--eval].
+unjustifiable permissions (such as passwordless sudo), chroots, or BSD Jails.
 
 ## Configuration
 
-You can run `Sicuro#setup(timelimit, memlimit, memlimit_upper_bound)` to configure it.
+If you wish to set the memory or time limits, you will need to manually create a `Sicuro` instance:
 
-All arguments are optional.
+```ruby
+s = Sicuro.new(memlimit, timelimit)
+s.eval(code)
+s.eval(more_code)
+```
 
-The defaults are:
-
-`Sicuro#setup(Sicuro::DEFAULT_TIMEOUT, Sicuro::DEFAULT_MEMLIMIT, Sicuro::DEFAULT_MEMLIMIT_UPPER_BOUND)`
-
-Once you run `Sicuro#setup`, the config stays the same unless you run it a second time.
-
-Using `Sicuro#eval` or `Sicuro.eval` (an alias to the former) will call `Sicuro#setup`
-if it has not already been called.
+`memlimit` is in megabytes, and `timelimit` is in seconds.
+The defaults are 50MB RAM and 5 seconds.
 
 There is no way to alter the strength of the sandbox.
 
 ## Running code in the sandbox
 
-`Sicuro.eval(code)` returns a `Sicuro::Eval` instance.
+`Sicuro.eval(code)` is an alias for `Sicuro.new.eval(code)`, and returns a `Sicuro::Eval` instance.
 
 ### Sicuro::Eval
 
-`Sicuro::Eval#stdin` is the code passed to `Sicuro#eval`.
+`Sicuro::Eval#code` is the code passed to `Sicuro#eval`.
 
 `Sicuro::Eval#stdout` is anything printed to stdout by the evaluated code (`puts`, `print`, etc).
 
@@ -47,9 +43,7 @@ There is no way to alter the strength of the sandbox.
 
 `Sicuro::Eval#return` is the returned value of the last statement.
 
-`Sicuro::Eval#exception` is the value of any exception. There's been some cases where exceptions appear in `#stderr` instead.
-
-`Sicuro::Eval#value` intelligently returns one of `#stdout`, `#stderr`, `#return`, or `#exception`. If it uses `#return`, it will call `#inspect` on the result. Otherwise, it returns the result directly.
+`Sicuro::Eval#to_s` intelligently returns one of `#stdout`, `#stderr`, or `#return`. If it uses `#return`, it will call `#inspect` on the result. Otherwise, it returns the result directly.
 
 ## Examples
 
@@ -59,12 +53,11 @@ Example 1:
 require 'sicuro'
 
 s = Sicuro.eval('puts "hi!"')
-s.stdin     # returns "puts \"hi!\""
+s.code      # returns "puts \"hi!\""
 s.stdout    # returns "hi!\n"
 s.stderr    # returns ""
 s.return    # returns nil, because that's the result of the last statement.
-s.exception # returns nil
-s.value     # returns "hi!\n", because it uses #stdout
+s.to_s      # returns "hi!\n", because it uses #stdout
 ```
 
 Example 2:
@@ -73,15 +66,25 @@ Example 2:
 require 'sicuro'
 
 s = Sicuro.eval('"hi!"')
-s.stdin     # returns "\"hi!\""
+s.code      # returns "\"hi!\""
 s.stdout    # returns ""
 s.stderr    # returns ""
-s.return    # returns "hi!" because that was the result of the last statement.
-s.exception # returns nil
-s.value     # returns "hi!\n", because it uses #stdout
+s.return    # returns "\"hi!\"" because that was the result of the last statement.
+s.to_s      # returns "\"hi!\"", because it uses #return
 ```
 
-I may make `#exception` default to an empty string, depending on feedback I get regarding that.
+# eval.so compatibility
+
+Sicuro is now API-compatible with the eval.so gem.
+
+```ruby
+require 'sicuro'
+
+p Sicuro.run(:ruby, "puts 'lawl'")
+
+# Example output:
+#   #<Sicuro::Eval code="puts 'lawl'" stdout="lawl\n" stderr="" return="nil" wall_time=36>
+```
 
 # License
 
