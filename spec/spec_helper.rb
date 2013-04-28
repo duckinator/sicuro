@@ -1,6 +1,3 @@
-require 'bundler/setup'
-require 'rspec'
-
 require 'simplecov'
 
 SimpleCov.configure do
@@ -13,5 +10,9 @@ SimpleCov.configure do
   add_group 'Runtime', 'runtime/'
 end
 SimpleCov.start unless ENV['TRAVIS']
+
+require 'bundler/setup'
+
+require 'rspec'
 
 require 'sicuro'
