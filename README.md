@@ -3,6 +3,7 @@
 Safe execution environment for untrusted ruby code.
 
 [![Build Status](https://travis-ci.org/duckinator/sicuro.png?branch=master)](https://travis-ci.org/duckinator/sicuro)
+[![Coverage Status](https://coveralls.io/repos/duckinator/sicuro/badge.png?branch=master)](https://coveralls.io/r/duckinator/sicuro)
 
 # Installation
 
