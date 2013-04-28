@@ -15,7 +15,7 @@ describe Sicuro do
     end
 
     context 'fatal sandbox_error' do
-      Sicuro.sandbox_error('test', true).should raise_exception(Sicuro::SandboxError, 'test')
+      expect { Sicuro.sandbox_error('test', true) }.to raise_exception(Sicuro::SandboxError, 'test')
     end
   end
 end
