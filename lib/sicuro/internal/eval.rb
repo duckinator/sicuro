@@ -14,18 +14,28 @@ class Sicuro
       @return = _return
       @wall_time = wall_time
 
+      # Check 1 is in sicuro/base.rb.
+      __running_check_2(pid, code)
+      __running_check_3(pid, @code)
+    end
+
+    def __running_check_2(pid, code)
       if Sicuro.process_running?(pid)
-        warn "[SICURO] Process ##{pid} still running in Eval#new."
+        $stderr.puts "[SICURO] Process ##{pid} still running in Eval#new."
         sleep 1
         Process.kill('KILL', pid) rescue nil
-        if Sicuro.process_running?(pid)
-          Sicuro.sandbox_error([
-            "Process ##{pid} could not be terminated. THIS IS A BUG. Code:",
-            *@code.split("\n")
-          ], true)
-        end
       end
     end
+
+    def __running_check_3(pid, code)
+      if Sicuro.process_running?(pid)
+        Sicuro.sandbox_error([
+          "Process ##{pid} could not be terminated. THIS IS A BUG. Code:",
+          *code.split("\n")
+        ], true)
+      end
+    end
+
 
     def running?
       Sicuro.process_running?(@pid)
