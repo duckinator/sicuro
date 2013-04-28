@@ -171,28 +171,21 @@ describe 'Sicuro' do
     end
   end
 
-  context 'returns the correct string when timing out' do
-    Sicuro.eval("sleep 6").to_s.should == timeout_error
+  context 'timeouts are enforced' do
+    ret = Sicuro.eval("sleep 6")
+    ret.running?.should == false
+    ret.to_s.should == timeout_error
 
     # The following crashed many safe eval systems, including many versions of
     # rubino, where sicuro was pulled from.
-    Sicuro.eval('def Exception.to_s;loop{};end;loop{}').to_s.should == timeout_error
+    ret = Sicuro.eval('def Exception.to_s;loop{};end;loop{}')
+    ret.running?.should == false
+    ret.to_s.should == timeout_error
 
     # The following used to create an endlessly-hanging process.
-    Sicuro.eval('sleep').to_s.should == timeout_error
-  end
-
-  context 'terminated code after the timeout' do
-    Sicuro.eval('sleep 6').running?.should == false
-
-    # The following crashed many safe eval systems, including many versions of
-    # rubino, where sicuro was pulled from.
-    Sicuro.eval('def Exception.to_s;loop{};end;loop{}').running?.should == false
-
-    # The following used to create an endlessly-hanging process. Not sure how to
-    # check for that automatically, but giving 'Timeout::Error: Code took longer than 5 seconds to terminate.' is a bit closer
-    # than hanging endlessly.
-    Sicuro.eval('sleep').running?.should == false
+    ret = Sicuro.eval('sleep')
+    ret.running?.should == false
+    ret.to_s.should == timeout_error
   end
 
   context 'removes unsafe methods' do
