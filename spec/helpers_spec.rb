@@ -3,17 +3,17 @@ describe Sicuro do
     Sicuro.assert('true', 'true').should == true
 
     context 'sandbox_error passed a string' do
-      Sicuro.should_receive(:warn).with("[SANDBOX WARNING] test\n")
+      $stderr.should_receive(:puts).with("[SANDBOX WARNING] test\n")
       Sicuro.sandbox_error('test')
     end
 
     context 'sandbox_error passed an array' do
-      Sicuro.should_receive(:warn).with("[SANDBOX WARNING] test\n")
+      $stderr.should_receive(:puts).with("[SANDBOX WARNING] test\n")
       Sicuro.sandbox_error(['test'])
     end
 
     context 'sandbox_error passed a number' do
-      Sicuro.should_receive(:warn).with("[SANDBOX WARNING] 1\n")
+      $stderr.should_receive(:puts).with("[SANDBOX WARNING] 1\n")
       Sicuro.sandbox_error(1)
     end
 
