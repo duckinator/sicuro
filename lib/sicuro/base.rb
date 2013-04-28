@@ -8,6 +8,8 @@ require 'enc/trans/single_byte' if RUBY_ENGINE == 'ruby'
 %w[
     constants
 
+    evalso
+
     trusted/constants
     trusted/methods
     trusted/globals
