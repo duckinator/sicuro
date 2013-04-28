@@ -11,7 +11,7 @@ describe Sicuro do
     end
 
     context 'sandbox_error passed a number' do
-      capture(:stder) { Sicuro.sandbox_error(1) }.should == "[SANDBOX WARNING] 1\n"
+      capture(:stderr) { Sicuro.sandbox_error(1) }.should == "[SANDBOX WARNING] 1\n"
     end
 
     context 'fatal sandbox_error' do
