@@ -2,7 +2,8 @@ describe 'Sicuro' do
   no_sandbox_impl = Sicuro::NO_SANDBOXED_IMPL
   frozen_array_error = "RuntimeError: can't modify frozen Array"
   load_error = "LoadError: cannot load such file -- dl"
-  timeout_error = 'Timeout::Error: Code took longer than 5 seconds to terminate.'
+  timeout_error = "Timeout::Error: Code took longer than 5 seconds to terminate."
+  name_error = "NameError: undefined local variable or method `%s' "
 
   it 'replaces constants' do
     Sicuro.eval('ENV').return.should == Sicuro::Runtime::Constants::ENV.inspect
@@ -35,6 +36,18 @@ describe 'Sicuro' do
 
       code = '$* << "/etc/passwd"; $<.to_io.class.ancestors[0]'
       Sicuro.eval(code).to_s.should_not == 'File'
+    end
+
+    it 'cannot access gem_original_require' do
+      Sicuro.eval('gem_original_require').to_s.should start_with(name_error % 'gem_original_require')
+    end
+
+    context 'file access' do
+      it 'cannot write a file to disk by modifying $* (ARGV) and $< (ARGF) to get an IO instance' do
+        code = '$* << "/etc/passwd"; io=$<.to_io.class; io.open("file-write-method-1", "w") {|f| f.puts "test" }'
+        Sicuro.eval(code)
+        File.exist?('file-write-method-1').should == false
+      end
     end
   end
 
