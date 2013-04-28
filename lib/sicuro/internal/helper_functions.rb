@@ -43,7 +43,7 @@ class Sicuro
 
     error_type = 'WARNING'
     error_type = 'ERROR  ' if _fatal
-    prefix ||= '[SANDBOX ERROR] '
+    prefix ||= "[SANDBOX #{error_type}] "
     separator = "\n" + (' ' * prefix.length)
 
     error = prefix + lines.join(separator)
