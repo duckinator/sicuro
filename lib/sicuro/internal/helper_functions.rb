@@ -47,7 +47,7 @@ class Sicuro
     separator = "\n" + (' ' * prefix.length)
 
     error = prefix + lines.join(separator)
-    warn error
+    $stderr.puts error
 
     raise ::Sicuro::SandboxError, lines[0] if _fatal
   end
