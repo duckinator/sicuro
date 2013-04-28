@@ -12,7 +12,7 @@ class Sicuro
   # => true
   #
   def assert(code, output, *args)
-    eval(code, *args).value == output
+    eval(code, *args).to_s == output
   end
 
   def self.assert(*args)
