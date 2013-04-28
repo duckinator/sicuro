@@ -57,7 +57,7 @@ class Sicuro
           self.exist?(file)
         end
 
-        def self.dir?(file)
+        def self.directory?(file)
           self.exist?(file)
         end
 
