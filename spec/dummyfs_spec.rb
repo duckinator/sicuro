@@ -6,7 +6,7 @@ describe Sicuro::Runtime::Constants::DummyFS do
   dfs.add_file('/x/y', 'z')
 
   dfs.has_file?('/x/y').should == true
-  dfs.find_file('/x').should   == ['/x/y']
+  dfs.find_file('y').should   == ['/x/y']
 
   dfs.get_file('/x/y').should == 'z'
 
