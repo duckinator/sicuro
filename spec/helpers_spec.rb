@@ -3,18 +3,15 @@ describe Sicuro do
     Sicuro.assert('true', 'true').should == true
 
     context 'sandbox_error passed a string' do
-      $stderr.should_receive(:puts).with("[SANDBOX WARNING] test\n")
-      Sicuro.sandbox_error('test')
+      capture(:stderr) { Sicuro.sandbox_error('test') }.should == "[SANDBOX WARNING] test\n"
     end
 
     context 'sandbox_error passed an array' do
-      $stderr.should_receive(:puts).with("[SANDBOX WARNING] test\n")
-      Sicuro.sandbox_error(['test'])
+      capture(:stderr) { Sicuro.sandbox_error(['test']) }.should == "[SANDBOX WARNING] test\n"
     end
 
     context 'sandbox_error passed a number' do
-      $stderr.should_receive(:puts).with("[SANDBOX WARNING] 1\n")
-      Sicuro.sandbox_error(1)
+      capture(:stder) { Sicuro.sandbox_error(1) }.should == "[SANDBOX WARNING] 1\n"
     end
 
     context 'fatal sandbox_error' do
