@@ -200,4 +200,7 @@ describe 'Sicuro' do
     end
   end
 
+  context 'inspect' do
+    Sicuro.new(1,2).inspect.should == "#<Sicuro memlimit=1 timelimit=2>"
+  end
 end
