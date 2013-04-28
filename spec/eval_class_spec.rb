@@ -7,5 +7,6 @@ describe Sicuro::Eval do
     eval.stderr.should    == 'stderr'
     eval.return.should    == 'return'
     eval.wall_time.should == 'wall_time'
+    eval.inspect.should   == '#<Sicuro::Eval code="code" stdout="stdout" stderr="stderr" return="return" wall_time="wall_time">'
   end
 end
