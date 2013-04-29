@@ -20,7 +20,9 @@ require 'enc/trans/single_byte' if RUBY_ENGINE == 'ruby'
 
     runtime/constants
     runtime/methods
-    runtime/dummyfs
+
+    runtime/dummyfs/dummyfs
+    runtime/dummyfs/file
 ].each do |x|
   require File.join(File.dirname(__FILE__), "#{x}.rb")
 end

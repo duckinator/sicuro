@@ -1,3 +1,5 @@
+require File.join(File.dirname(__FILE__), 'file.rb')
+
 class Sicuro
   class Runtime
     module Constants
@@ -43,32 +45,6 @@ class Sicuro
         end
       end
 
-      class File
-        def self.exist?(file)
-          ::DummyFS.has_file?(file)
-        end
-
-        def self.open(filename, mode = 'r', opt = nil)
-          raise ::NotImplementedError, "Sandboxed File.open() only supports reading files."
-          ::DummyFS.get_file(file)
-        end
-
-        def self.file?(file)
-          self.exist?(file)
-        end
-
-        def self.directory?(file)
-          self.exist?(file)
-        end
-
-        def self.dirname(path)
-          path.split('/')[0..-2].join('/')
-        end
-
-        def self.join(*args)
-          args.join('/')
-        end
-      end
     end
   end
 end
