@@ -6,9 +6,14 @@ describe Sicuro::Runtime::Constants::DummyFS do
   dfs.add_file('/x/y', 'z')
 
   dfs.has_file?('/x/y').should == true
-  dfs.find_file('y').should   == ['/x/y']
+  dfs.has_file?('/x/a').should == false
+  dfs.find_file('y').should    == ['/x/y']
 
   dfs.get_file('/x/y').should == 'z'
+
+  it 'can read a file' do
+    expect { dfs.get_file('/x/a') }.to raise_exception(::Errno::ENOENT)
+  end
 
   testfile = File.join(File.dirname(__FILE__), 'data', 'dummyfs-test.txt')
 
@@ -23,12 +28,14 @@ end
 describe Sicuro::Runtime::Constants::File do
   file = Sicuro::Runtime::Constants::File
 
-  # TODO:
-  #   .exist?(file)
-  #   .open(file, 'w')  # Requires the ability to write files.
-  #   .open(file, 'r')  # Probably requires the last file writing test to work.
-  #   .file?(file)      # Test on both a file (== true ) and a directory (== false)
-  #   .directory?(file) # Test on both a file (== false) and a directory (== true)
+  it 'can write a file' do
+    expect { file.open('a', 'w') {|f| f.puts "test" } }.to_not raise_exception
+  end
+  file.open('a', 'r') {|f| f.read }.should == "test\n"
+
+  file.exist?('a').should == true
+  flie.file?('a').should == true
+  file.directory?('a').should == false
 
   file.dirname('a/b').should == "a"
   file.join('a', 'b').should == "a/b"
