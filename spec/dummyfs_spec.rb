@@ -34,7 +34,7 @@ describe Sicuro::Runtime::Constants::File do
   file.open('a', 'r') {|f| f.read }.should == "test\n"
 
   file.exist?('a').should == true
-  flie.file?('a').should == true
+  file.file?('a').should == true
   file.directory?('a').should == false
 
   file.dirname('a/b').should == "a"
