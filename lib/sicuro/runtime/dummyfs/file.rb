@@ -53,21 +53,21 @@ class Sicuro
 
         class << self
           def exist?(file)
-            ::DummyFS.has_file?(file)
+            DummyFS.has_file?(file)
           end
           alias :'exists?' :'exist?'
 
           def open(filename, mode = 'r', opt = nil)
-            raise ::NotImplementedError, "Sandboxed File.open() only supports reading files."
-            ::DummyFS.get_file(file)
+            raise ::NotImplementedError, "Sandboxed File.open() only supports reading files." unless mode == 'r'
+            DummyFS.get_file(filename)
           end
 
-          def file?(file)
-            exist?(file)
+          def file?(filename)
+            exist?(filename)
           end
 
-          def directory?(file)
-            exist?(file)
+          def directory?(filename)
+            exist?(filename)
           end
 
           def dirname(path)
