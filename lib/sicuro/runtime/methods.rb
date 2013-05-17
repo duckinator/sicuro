@@ -21,20 +21,21 @@ class Sicuro
           raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'load'
         end
         
-        replace(Kernel, :require) do |file|
-
+        # TODO: Can this be done without the second argument? It should behave identically to MRI's require().
+        replace(Kernel, :require) do |file, __full_name = nil|
           $:.each do |dir|
-            f = file
+            f = __full_name || file
+
             f = File.join(dir, f) unless f.start_with?(dir)
 
             return false if $LOADED_FEATURES.include?(f)
 
             if f && File.file?(f)
               $LOADED_FEATURES << f
-              DummyFS.get_file(f)
+              DummyFS.get_file(f) # TODO: Actually execute the code in it.
               return true
-            elsif !file.end_with?('.rb')
-              return require("#{f}.rb")
+            elsif __full_name.nil?
+              return require(file, "#{file}.rb")
             end
           end
 
