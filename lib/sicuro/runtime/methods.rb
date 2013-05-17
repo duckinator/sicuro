@@ -14,13 +14,18 @@ class Sicuro
       end
       
       def self.replace_all!
+        $:.clear
+        $: << File.join(FAKE_GEM_DIR, 'sicuro', 'lib')
+
         replace(Kernel, :load) do |file, wrap = false|
-          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'require'
+          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'load'
         end
         
         replace(Kernel, :require) do |file|
+
           $:.each do |dir|
-            f = DummyFS.find_file(File.join(dir, file))[0]
+            f = file
+            f = File.join(dir, f) unless f.start_with?(dir)
 
             return false if $LOADED_FEATURES.include?(f)
 
@@ -28,6 +33,8 @@ class Sicuro
               $LOADED_FEATURES << f
               DummyFS.get_file(f)
               return true
+            elsif !file.end_with?('.rb')
+              return require("#{f}.rb")
             end
           end
 
@@ -35,7 +42,7 @@ class Sicuro
         end
         
         replace(Kernel, :require_relative) do |file|
-          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'require'
+          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'require_relative'
         end
       end
 

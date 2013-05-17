@@ -5,6 +5,8 @@ require 'stringio'
 
 require 'enc/trans/single_byte' if RUBY_ENGINE == 'ruby'
 
+require 'standalone'
+
 %w[
     constants
 
@@ -18,11 +20,8 @@ require 'enc/trans/single_byte' if RUBY_ENGINE == 'ruby'
     internal/helper_functions
     internal/exceptions
 
-    runtime/constants
     runtime/methods
-
-    runtime/dummyfs/dummyfs
-    runtime/dummyfs/file
+    runtime/dummyfs
 ].each do |x|
   require File.join(File.dirname(__FILE__), "#{x}.rb")
 end
@@ -35,6 +34,8 @@ class Sicuro
   def initialize(memlimit = 50, timelimit = 5)
     @memlimit  = memlimit
     @timelimit = timelimit
+
+    Sicuro.add_files_to_dummyfs
   end
 
   # This prepends the code that actually makes the evaluation safe.
@@ -126,8 +127,7 @@ class Sicuro
       exit!
     end
 
-    ::Sicuro::Runtime::Constants.reset!
-    ::Sicuro::Runtime::Constants::DummyFS.activate!
+    ::Standalone.enable!
     ::Sicuro::Runtime::Methods.replace_all!
 
     %w[constants methods dummyfs].each do |file|
@@ -176,6 +176,7 @@ class Sicuro
   ensure
     out = $stdout.string
     err = $stderr.string
+#out=err=''
 
     old_stdout.print out
     old_stdout.puts
