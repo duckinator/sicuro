@@ -2,11 +2,11 @@ describe 'Sicuro' do
   no_sandbox_impl = Sicuro::NO_SANDBOXED_IMPL
   frozen_array_error = "RuntimeError: can't modify frozen Array"
   load_error = "LoadError: cannot load such file -- dl"
-  timeout_error = "Timeout::Error: Code took longer than 5 seconds to terminate."
+  timeout_error = "Timeout::Error: Code took longer than %i seconds to terminate."
   name_error = "NameError: undefined local variable or method `%s' "
 
   it 'replaces constants' do
-    Sicuro.eval('ENV').return.should == Sicuro::Runtime::Constants::ENV.inspect
+    Sicuro.eval('ENV').return.should == Standalone::ENV.inspect
   end
 
   context 'sandbox integrity' do
@@ -172,20 +172,24 @@ describe 'Sicuro' do
   end
 
   context 'timeouts are enforced' do
-    ret = Sicuro.eval("sleep 6")
+    s = Sicuro.new
+    s.timelimit = 0.1
+    tmp_timeout_error = timeout_error % 0
+
+    ret = s.eval("sleep 6")
     ret.running?.should == false
-    ret.to_s.should == timeout_error
+    ret.to_s.should == tmp_timeout_error
 
     # The following crashed many safe eval systems, including many versions of
     # rubino, where sicuro was pulled from.
-    ret = Sicuro.eval('def Exception.to_s;loop{};end;loop{}')
+    ret = s.eval('def Exception.to_s;loop{};end;loop{}')
     ret.running?.should == false
-    ret.to_s.should == timeout_error
+    ret.to_s.should == tmp_timeout_error
 
     # The following used to create an endlessly-hanging process.
-    ret = Sicuro.eval('sleep')
+    ret = s.eval('sleep')
     ret.running?.should == false
-    ret.to_s.should == timeout_error
+    ret.to_s.should == tmp_timeout_error
   end
 
   context 'removes unsafe methods' do
