@@ -1,9 +1,11 @@
 # For eval.so compatibility
 
 class Sicuro
-  def self.run(lang, code)
-    raise ArgumentError, "Sicuro.run() can only run ruby code." if lang.to_s != "ruby"
+  def self.run(hash)
+    raise ArgumentError, "No language specified." if hash[:language].to_s.empty?
+    raise ArgumentError, "No code specified." unless hash[:code].is_a?(String)
+    raise ArgumentError, "Sicuro.run() can only run ruby code." if hash[:language].to_s != "ruby"
 
-    Sicuro.eval(code)
+    Sicuro.eval(hash[:code])
   end
 end
