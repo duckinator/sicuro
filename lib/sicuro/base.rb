@@ -152,25 +152,31 @@ class Sicuro
 
       if const.is_a?(Module)
         const.module_eval do
-          (const.methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
+          (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
             # FIXME: This is a hack because we need STDIN (the IO class) to be
             #        left alone for eval() to work.
-            next if constant == :STDIN
+            next if [:STDIN, :STDOUT, :STDERR].include?(constant)
 
-            eval("undef #{meth.to_sym.inspect}")
+            m = meth.to_sym.inspect
+
+            eval("public #{m}; undef #{m}")
           end
         end
-      end
+      else
+        const.instance_eval do
+          (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
+            next if [:STDIN, :STDOUT, :STDERR].include?(constant)
 
-      const.instance_eval do
-        (const.methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
-          #next unless method_defined?('define_method')
-          #define_method(meth) {}
+            m = meth.to_sym.inspect
 
-          #remove_method(meth) rescue nil
-          eval("undef #{meth.to_sym.inspect}") if respond_to?(meth)
-          #puts "Removing #{constant}.#{meth}"
-          #undef_method meth if respond_to?(meth)
+            #next unless method_defined?('define_method')
+            #define_method(meth) {}
+
+            #remove_method(meth) rescue nil
+            eval("public #{m}; undef #{m}")
+            #puts "Removing #{constant}.#{meth}"
+            #undef_method meth if respond_to?(meth)
+          end
         end
       end
     end

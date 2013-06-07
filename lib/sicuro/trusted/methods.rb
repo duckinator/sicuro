@@ -42,6 +42,12 @@ $TRUSTED_METHODS = {
   :Random => [
     :srand, :rand, :new_seed,
   ],
+  :Rational => [
+    :convert,
+  ],
+  :Complex => [
+    :convert,
+  ],
   :Fiber => [
     :yield, :untrust, :trust, :resume,
   ],
@@ -173,4 +179,8 @@ $TRUSTED_METHODS_ALL = [
   :exception,
 
   :[],
+
+
+  # Private methods
+  :append_features, :extend_object, :module_function,
 ]

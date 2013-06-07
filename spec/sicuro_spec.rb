@@ -4,6 +4,7 @@ describe 'Sicuro' do
   load_error = "LoadError: cannot load such file -- dl"
   timeout_error = "Timeout::Error: Code took longer than %i seconds to terminate."
   name_error = "NameError: undefined local variable or method `%s' "
+  no_method_error = "NoMethodError: undefined method `%s' "
 
   it 'replaces constants' do
     Sicuro.eval('ENV').return.should == Standalone::ENV.inspect
@@ -39,7 +40,7 @@ describe 'Sicuro' do
     end
 
     it 'cannot access gem_original_require' do
-      Sicuro.eval('gem_original_require').to_s.should start_with(name_error % 'gem_original_require')
+      Sicuro.eval('gem_original_require').to_s.should start_with(no_method_error % 'gem_original_require')
     end
 
     context 'file access' do
@@ -120,7 +121,12 @@ describe 'Sicuro' do
 
   context 'exceptions' do
     it "raises a NameError when referencing an undefined variable" do
-      Sicuro.eval('undefined').stderr.should start_with "NameError: undefined local variable or method `undefined' for main:Object"
+      valid_outputs = [
+        no_method_error % 'undefined',
+        name_error % 'undefined',
+      ]
+      ret = Sicuro.eval('undefined').stderr
+      valid_outputs.any? { |output| ret.start_with?(output) }
     end
 
     # Verify if there is a syntax error. Don't check more than the first word,
