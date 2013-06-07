@@ -141,15 +141,21 @@ class Sicuro
     end
 
     $TRUSTED_METHODS.each do |constant, methods|
+#    Object.constants.each do |constant|
       next unless Object.const_defined?(constant)
 
+      next if [:NIL, :TRUE, :FALSE, :NilClass].include?(constant)
+
       const = Object.const_get(constant)
+      const = const.class unless const.is_a?(Class)
 
       const.instance_eval do
-        (const.methods - methods).each do |meth|
-          define_method(meth) {}
+        (const.methods - $TRUSTED_METHODS_ALL).each do |meth|
+          #next unless method_defined?('define_method')
+          #define_method(meth) {}
 
-          eval("undef #{meth.to_sym}")
+          #remove_method(meth) rescue nil
+          eval("undef #{meth.to_sym.inspect}") if respond_to?(meth)
           #puts "Removing #{constant}.#{meth}"
           #undef_method meth if respond_to?(meth)
         end

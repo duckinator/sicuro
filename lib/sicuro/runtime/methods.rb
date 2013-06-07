@@ -32,7 +32,7 @@ class Sicuro
 
             if f && File.file?(f)
               $LOADED_FEATURES << f
-              DummyFS.get_file(f) # TODO: Actually execute the code in it.
+              File.open(f).read # TODO: Actually execute the code in it.
               return true
             elsif __full_name.nil?
               return require(file, "#{file}.rb")

@@ -1,6 +1,6 @@
 $TRUSTED_METHODS = {}
 
-$TRUSTED_METHODS[:Kernel] = [
+$TRUSTED_METHODS_ALL = [
   :sprintf, :format,
   
   # Classes/Modules
@@ -25,7 +25,10 @@ $TRUSTED_METHODS[:Kernel] = [
   :===, :==, :<=>, :<, :<=, :>, :>=, :nil?, :=~, :!~, :eql?,
   
   # Conversion
-  :to_s, :to_enum,
+  :to_i, :to_s, :to_a, :to_f, :to_r, :to_c, :to_enum,
+  
+  # Common operators
+  :&, :|, :^,
   
   :included_modules, :include?, :name, :ancestors,
   :instance_methods, :public_instance_methods, :protected_instance_methods,
@@ -55,9 +58,7 @@ $TRUSTED_METHODS[:Kernel] = [
 
   # Require/load functions. Redefined in sicuro/runtime/methods.
   :require, :require_relative, :load,
-]
 
-$TRUSTED_METHODS[:Object] = $TRUSTED_METHODS[:Kernel] + [
   :inherited, :initialize, :initialize_copy, :included, :extended,
   
   :method_added, :method_removed, :method_undefined,
@@ -81,4 +82,3 @@ $TRUSTED_METHODS[:Object] = $TRUSTED_METHODS[:Kernel] + [
   :allocate, :new, :superclass, :freeze, :frozen?,
   :autoload, :autoload?,
 ]
-
