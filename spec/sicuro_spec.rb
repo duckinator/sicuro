@@ -156,17 +156,13 @@ describe 'Sicuro' do
       ]
 
       it "cannot assign to #{var.to_s}" do
-        ret = Sicuro.eval("#{var.to_s} = nil").stderr.split("\n")[0]
-        valid_outputs.each do |x|
-          valid_outputs.any? { |output| ret.start_with? output }
-        end
+        ret = Sicuro.eval("#{var.to_s} = nil").stderr
+        valid_outputs.any? { |output| ret.start_with?(output) }
       end
 
       it "cannot append to #{var.to_s}" do
-        ret = Sicuro.eval("#{var.to_s} << #{var.to_s}").stderr.split("\n")[0]
-        valid_outputs.each do |x|
-          valid_outputs.any? { |output| ret.start_with? output }
-        end
+        ret = Sicuro.eval("#{var.to_s} << #{var.to_s}").stderr
+        valid_outputs.any? { |output| ret.start_with? output }
       end
     end
   end
