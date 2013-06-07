@@ -3,4 +3,5 @@ $TRUSTED_GLOBALS = [
   :$/, :$-0, :$\, :$_, :$stdin, :$stdout, :$stderr, :$>, :$<, :$.,
   :$-i, :$?, :$$, :$:, :$-I, :$",
   :$-v, :$-w, :$-W, :$-d, :$-p, :$-l, :$-a,
+  :$LOADED_FEATURES,
 ]

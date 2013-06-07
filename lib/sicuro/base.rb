@@ -162,6 +162,10 @@ class Sicuro
       end
     end
 
+    (global_variables - $TRUSTED_GLOBALS).each do |var|
+        ::Kernel.eval("#{var.to_s}.freeze") 
+    end
+
     $stdout = StringIO.new
     $stderr = StringIO.new
     $stdin  = StringIO.new
