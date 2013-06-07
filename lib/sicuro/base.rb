@@ -140,17 +140,30 @@ class Sicuro
       Object.instance_eval { remove_const x }
     end
 
-    $TRUSTED_METHODS.each do |constant, methods|
-#    Object.constants.each do |constant|
+    Object.constants.each do |constant|
       next unless Object.const_defined?(constant)
 
       next if [:NIL, :TRUE, :FALSE, :NilClass].include?(constant)
 
+      trusted = $TRUSTED_METHODS[constant] || []
+
       const = Object.const_get(constant)
-      const = const.class unless const.is_a?(Class)
+      const = const.class unless const.is_a?(Class) || const.is_a?(Module)
+
+      if const.is_a?(Module)
+        const.module_eval do
+          (const.methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
+            # FIXME: This is a hack because we need STDIN (the IO class) to be
+            #        left alone for eval() to work.
+            next if constant == :STDIN
+
+            eval("undef #{meth.to_sym.inspect}")
+          end
+        end
+      end
 
       const.instance_eval do
-        (const.methods - $TRUSTED_METHODS_ALL).each do |meth|
+        (const.methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
           #next unless method_defined?('define_method')
           #define_method(meth) {}
 

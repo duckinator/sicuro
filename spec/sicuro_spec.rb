@@ -194,11 +194,11 @@ describe 'Sicuro' do
 
   context 'removes unsafe methods' do
     $TRUSTED_METHODS.each do |const, methods|
-      methods_to_check =  ::Kernel.methods - ::Object.methods - methods
+      methods_to_check =  ::Kernel.methods - ::Object.methods - methods - $TRUSTED_METHODS_ALL
 
       methods_to_check.each do |meth|
         it "should remove #{const.to_s}.#{meth}" do
-          Sicuro.eval("#{const.to_s}.#{meth}").stderr.should start_with "NoMethodError: undefined method `#{meth}' for #{const.to_s}:"
+          Sicuro.eval("#{const.to_s}.#{meth}").stderr.should start_with "NoMethodError: undefined method `#{meth}' for "
         end
       end
     end

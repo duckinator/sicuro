@@ -1,4 +1,90 @@
-$TRUSTED_METHODS = {}
+$TRUSTED_METHODS = {
+  :Module => [
+    :nesting,
+  ],
+  :Encoding => [
+    :list, :name_list, :aliases, :find, :compatible?,
+    :_load, :default_external, :default_external=,
+    :default_internal, :default_internal=,
+    :locale_charmap
+  ],
+  :Symbol => [
+    :all_symbols,
+  ],
+  :Regexp => [
+    :compile, :quote, :escape, :union, :last_match,
+  ],
+  :StringIO => [
+    :reopen, :string, :string=, :lineno, :lineno=, :binmode, :close, :close_read,
+    :close_write, :closed?, :closed_read?, :closed_write?, :eof, :eof?, :fcntl,
+    :flush, :fsync, :pos, :pos=, :rewind, :seek, :sync, :sync=, :tell, :each,
+    :each_line, :lines, :each_byte, :bytes, :each_char, :chars, :each_codepoint,
+    :codepoints, :getc, :ungetc, :ungetbyte, :readchar, :getbyte, :readbyte,
+    :gets, :readline, :readlines, :read, :sysread, :readpartial, :read_nonblock,
+    :write, :<<, :print, :printf, :putc, :puts, :syswrite, :write_nonblock,
+    :isatty, :tty?, :pid, :fileno, :size, :length, :truncate, :external_encoding,
+    :internal_encoding, :set_encoding, :entries, :sort, :sort_by, :grep, :count,
+    :find, :detect, :find_index, :find_all, :select, :reject, :collect, :map,
+    :flat_map, :collect_concat, :inject, :reduce, :partition, :group_by, :first,
+    :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by, :max_by,
+    :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry,
+    :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop,
+    :drop_while, :cycle, :chunk, :slice_before, :open,
+  ],
+  :Time => [
+    :localtime, :gmtime, :utc, :getlocal, :getgm, :getutc, :ctime, :asctime, :+,
+    :-, :succ, :round, :sec, :min, :hour, :mday, :day, :mon, :month, :year, :wday,
+    :yday, :isdst, :dst?, :zone, :gmtoff, :gmt_offset, :utc_offset, :utc?, :gmt?,
+    :sunday?, :monday?, :tuesday?, :wednesday?, :thursday?, :friday?, :saturday?,
+    :tv_sec, :tv_usec, :usec, :tv_nsec, :nsec, :subsec, :strftime, :_dump,
+    :between?, :now, :at, :local, :mktime, :gm, :_load,
+  ],
+  :Random => [
+    :srand, :rand, :new_seed,
+  ],
+  :Fiber => [
+    :yield, :untrust, :trust, :resume,
+  ],
+  :Thread => [
+    :start, :fork, :main, :current, :stop, :kill, :pass, :list,
+    :abort_on_exception, :abort_on_exception=, :exclusive, :taint, :untaint,
+    :untrust, :trust, :join, :value, :terminate, :run, :wakeup, :[], :[]=,
+    :key?, :keys, :priority, :priority=, :status, :alive?, :stop?, :safe_level,
+    :group, :backtrace, :set_trace_func, :add_trace_func,
+  ],
+  :File => [
+    :directory?, :exist?, :exists?, :readable?, :readable_real?, :world_readable?,
+    :writable?, :writable_real?, :world_writable?, :executable?, :executable_real?,
+    :file?, :zero?, :size?, :size, :owned?, :grpowned?, :pipe?, :symlink?, :socket?,
+    :blockdev?, :chardev?, :setuid?, :setgid?, :sticky?, :identical?, :stat, :lstat,
+    :ftype, :atime, :mtime, :ctime, :utime, :chmod, :chown, :lchmod, :lchown, :link,
+    :symlink, :readlink, :unlink, :delete, :rename, :umask, :truncate, :expand_path,
+    :absolute_path, :realpath, :realdirpath, :basename, :dirname, :extname, :path,
+    :split, :join, :fnmatch, :fnmatch?, :open, :sysopen, :for_fd, :popen, :foreach,
+    :readlines, :read, :binread, :write, :binwrite, :select, :pipe, :copy_stream,
+    :taint, :untaint, :untrust, :trust, :flock, :to_path, :reopen, :each, :each_line,
+    :each_byte, :each_char, :each_codepoint, :lines, :bytes, :chars, :codepoints,
+    :syswrite, :sysread, :fileno, :fsync, :fdatasync, :sync, :sync=,
+    :lineno, :lineno=, :read_nonblock, :write_nonblock, :readpartial, :gets,
+    :readline, :getc, :getbyte, :readchar, :readbyte, :ungetbyte, :ungetc, :<<,
+    :flush, :tell, :seek, :rewind, :pos, :pos=, :eof, :eof?, :close_on_exec?,
+    :close_on_exec=, :close, :closed?, :close_read, :close_write, :isatty, :tty?,
+    :binmode, :binmode?, :sysseek, :advise, :ioctl, :fcntl, :pid, :external_encoding,
+    :internal_encoding, :set_encoding, :autoclose?, :autoclose=, :entries, :sort,
+    :sort_by, :grep, :count, :find, :detect, :find_index, :find_all, :reject,
+    :collect, :map, :flat_map, :collect_concat, :inject, :reduce, :partition,
+    :group_by, :first, :all?, :any?, :one?, :none?, :min, :max, :minmax, :min_by,
+    :max_by, :minmax_by, :member?, :each_with_index, :reverse_each, :each_entry,
+    :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop,
+    :drop_while, :cycle, :chunk, :slice_before,
+  ],
+  :DummyFS => [
+    :fs, :setup, :activate!, :has_file?, :find_file, :add_file, :add_real_file,
+    :add_directory, :get_file,
+  ],
+}
+
+$TRUSTED_METHODS[:Class] = $TRUSTED_METHODS[:Module]
 
 $TRUSTED_METHODS_ALL = [
   :sprintf, :format,
@@ -81,4 +167,10 @@ $TRUSTED_METHODS_ALL = [
 
   :allocate, :new, :superclass, :freeze, :frozen?,
   :autoload, :autoload?,
+
+  :try_convert,
+
+  :exception,
+
+  :[],
 ]
