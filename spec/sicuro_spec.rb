@@ -1,6 +1,6 @@
 describe 'Sicuro' do
   no_sandbox_impl = Sicuro::NO_SANDBOXED_IMPL
-  frozen_array_error = "RuntimeError: can't modify frozen Array"
+  frozen_error = "RuntimeError: can't modify frozen "
   load_error = "LoadError: cannot load such file -- dl"
   timeout_error = "Timeout::Error: Code took longer than %i seconds to terminate."
   name_error = "NameError: undefined local variable or method `%s' "
@@ -23,7 +23,7 @@ describe 'Sicuro' do
     end
 
     it 'cannot append a filename to $* (ARGV) and read the contents from $< (ARGF)' do
-      Sicuro.eval('$* << "Gemfile"; puts $<.read').to_s.should start_with(frozen_array_error)
+      Sicuro.eval('$* << "Gemfile"; puts $<.read').to_s.should start_with(frozen_error)
     end
 
     it 'cannot use $stdout to reference IO' do
