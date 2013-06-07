@@ -5,8 +5,8 @@ $TRUSTED_GLOBALS = [
   :$-v, :$-w, :$-W, :$-d, :$-p, :$-l, :$-a,
   :$LOADED_FEATURES,
 
-
-  :$VERBOSE, :$DEBUG, :$fileutils_rb_have_lchmod, :$fileutils_rb_have_lchown,
+  # Possibly $DEBUG? Seems iffy, since it modifies the interpreter's behavior.
+  :$VERBOSE, :$fileutils_rb_have_lchmod, :$fileutils_rb_have_lchown,
   :$CGI_ENV, :$_rspec_mocks_extensions_added,
   :$TRUSTED_CONSTANTS, :$TRUSTED_METHODS, :$TRUSTED_METHODS_ALL, :$TRUSTED_GLOBALS,
 ]
