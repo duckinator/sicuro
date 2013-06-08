@@ -1,3 +1,5 @@
+require 'json'
+
 class Sicuro
   # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
   class Eval
@@ -55,6 +57,15 @@ class Sicuro
       else
         @return
       end
+    end
+
+    def to_json
+      JSON.generate({
+        'stdout' => @stdout,
+        'stderr' => @stderr,
+        'return' => @return,
+        'wallTime' => @wall_time,
+      })
     end
 
     def inspect
