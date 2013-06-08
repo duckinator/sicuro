@@ -48,10 +48,8 @@ class Sicuro
       $0 = 'sicuro (#{identifier}#{Time.now.strftime("%r")})' if #{$DEBUG}
 
       require #{__FILE__.inspect}
-      code = #{code.inspect}
-      Standalone::DummyFS.add_file(File.join(Standalone::ENV['HOME'], 'code.rb'), code)
       s=Sicuro.new(#{@timelimit}, #{@memlimit})
-      print s._safe_eval(code)
+      print s._safe_eval(#{code.inspect})
     EOF
   end
 
@@ -114,6 +112,8 @@ class Sicuro
   # This does not provide a strict time limit.
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
   def _safe_eval(code)
+    Standalone::DummyFS.add_file(File.join(Standalone::ENV['HOME'], 'code.rb'), code)
+
     result = nil
     old_stdout = $stdout
     old_stderr = $stderr
