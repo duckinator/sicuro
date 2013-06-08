@@ -48,8 +48,10 @@ class Sicuro
       $0 = 'sicuro (#{identifier}#{Time.now.strftime("%r")})' if #{$DEBUG}
 
       require #{__FILE__.inspect}
+      code = #{code.inspect}
+      Standalone::DummyFS.add_file(File.join(Standalone::ENV['HOME'], 'code.rb'), code)
       s=Sicuro.new(#{@timelimit}, #{@memlimit})
-      print s._safe_eval(#{code.inspect})
+      print s._safe_eval(code)
     EOF
   end
 
