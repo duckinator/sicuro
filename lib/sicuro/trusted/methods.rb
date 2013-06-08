@@ -56,7 +56,7 @@ $TRUSTED_METHODS = {
     :abort_on_exception, :abort_on_exception=, :exclusive, :taint, :untaint,
     :untrust, :trust, :join, :value, :terminate, :run, :wakeup, :[], :[]=,
     :key?, :keys, :priority, :priority=, :status, :alive?, :stop?, :safe_level,
-    :group, :backtrace, :set_trace_func, :add_trace_func,
+    :group, :backtrace, :set_trace_func, :add_trace_func, :handle_interrupt,
   ],
   :File => [
     :directory?, :exist?, :exists?, :readable?, :readable_real?, :world_readable?,
