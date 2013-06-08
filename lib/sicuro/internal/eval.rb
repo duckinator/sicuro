@@ -58,12 +58,12 @@ class Sicuro
     end
 
     def to_json
-      '{
+      %[{
         "stdout": #{@stdout.inspect},
         "stderr": #{@stderr.inspect},
         "return": #{@return.inspect},
         "wallTime": #{@wall_time.inspect}
-      }'
+      }]
     end
 
     def inspect
