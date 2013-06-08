@@ -183,4 +183,5 @@ $TRUSTED_METHODS_ALL = [
 
   # Private methods
   :append_features, :extend_object, :module_function,
+  :prepended, :prepend_features, :prepend, :refine,
 ]
