@@ -112,7 +112,8 @@ class Sicuro
   # This does not provide a strict time limit.
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
   def _safe_eval(code)
-    Standalone::DummyFS.add_file(File.join(Standalone::ENV['HOME'], 'code.rb'), code)
+    file = File.join(Standalone::ENV['HOME'], 'code.rb')
+    Standalone::DummyFS.add_file(file, code)
 
     result = nil
     old_stdout = $stdout
@@ -199,7 +200,7 @@ class Sicuro
     Object.const_set(:STDIN,  $stdin)
 
     begin
-      result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING)
+      result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING, file)
     rescue Exception => e
       $stderr.puts "#{e.class}: #{e.message}"
       $stderr.puts e.backtrace.join("\n")
