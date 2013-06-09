@@ -1,3 +1,4 @@
+require 'sicuro/version'
 require 'timeout'
 require 'open3'
 require 'rbconfig'
