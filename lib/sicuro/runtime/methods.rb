@@ -18,7 +18,7 @@ class Sicuro
         $: << File.join(FAKE_GEM_DIR, 'sicuro', 'lib')
 
         replace(Kernel, :load) do |file, wrap = false|
-          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'load'
+          raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'load'
         end
         
         # TODO: Can this be done without the second argument? It should behave identically to MRI's require().
@@ -26,7 +26,7 @@ class Sicuro
           $:.each do |dir|
             f = __full_name || file
 
-            f = File.join(dir, f) unless f.start_with?(dir)
+            f = File.join(dir, f) unless f.start_with?(dir) || f.start_with?('/')
 
             return false if $LOADED_FEATURES.include?(f)
 
@@ -43,7 +43,7 @@ class Sicuro
         end
         
         replace(Kernel, :require_relative) do |file|
-          raise ::NotImplementedError, Sicuro::NO_SANDBOXED_IMPL % 'require_relative'
+          raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'require_relative'
         end
       end
 
