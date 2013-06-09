@@ -105,7 +105,7 @@ class Sicuro
       Process.kill('KILL', pid) rescue nil
     end
 
-    Eval.new(code, '', error, nil, wall_time, pid)
+    Eval.new(code, '', error, 'nil', wall_time, pid)
   end
 
   # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
