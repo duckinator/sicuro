@@ -1,39 +1,9 @@
 class Sicuro
-  # Same as eval, but get only stdout
-  def eval_stdout(*args)
-    eval(*args).stdout
-  end
-
-  # Same as eval, but get only stderr
-  def eval_stderr(*args)
-    eval(*args).stderr
-  end
-
-  # Same as eval, but get only return value
-  def eval_return(*args)
-    eval(*args).return
-  end
-
-  # Same as eval, but get only exceptions
-  def eval_exception(*args)
-    eval(*args).exception
-  end
-
-  # Same as eval, but run #value on it
-  def eval_value(*args)
-    eval(*args).value
-  end
-
-  # Same as eval, but run #inspect on it
-  # Yes, this one has NO use except testing.
-  def eval_inspect(*args)
-    eval(*args).inspect
-  end
-
-  # Same as eval, but run #running? on it
-  # Yes, this one has NO use except testing.
-  def eval_running?(*args)
-    eval(*args).running?
+  # Wrapper function for Sicuro.new.eval(*args).
+  # Originally for backwards-compatibility, kept because I (@duckinator) feel it
+  # is much nicer than the full Sicuro.new.eval(*args) version.
+  def self.eval(*args)
+    self.new.eval(*args)
   end
 
   # Simple testing abilities.
@@ -42,10 +12,43 @@ class Sicuro
   # => true
   #
   def assert(code, output, *args)
-    eval(code, *args).value == output
+    eval(code, *args).to_s == output
   end
 
   def self.assert(*args)
     Sicuro.new.assert(*args)
+  end
+
+  # Return true if PID is running, false otherwise.
+  def self.process_running?(pid)
+    # Process.kill(0, pid) returns true if it can kill the process,
+    # and raises an Errno::ESRCH exception when a process does not exist.
+    # If you have a saner approach (say, not using exceptions...) please share.
+    #
+    # Thank you, 'god' (https://github.com/mojombo/god) for reminding me about
+    # the `kill -0 PID` trick that translates perfectly to ruby.
+    !!(::Process.kill(0, pid) rescue false)
+  end
+
+  # Print an error that occurred in the sandbox.
+  def self.sandbox_error(x, _fatal = false)
+    lines =
+      if x.is_a?(String)
+        x.split("\n")
+      elsif x.is_a?(Array)
+        x
+      else
+        [x.inspect]
+      end
+
+    error_type = 'WARNING'
+    error_type = 'ERROR  ' if _fatal
+    prefix ||= "[SANDBOX #{error_type}] "
+    separator = "\n" + (' ' * prefix.length)
+
+    error = prefix + lines.join(separator)
+    $stderr.puts error
+
+    raise ::Sicuro::SandboxError, lines[0] if _fatal
   end
 end
