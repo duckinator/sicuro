@@ -1,53 +1,48 @@
 class Sicuro
   # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
   class Eval
-    attr_accessor :stdin, :stdout, :stderr, :return, :exception
+    attr_reader :code, :stdout, :stderr, :return, :wall_time
 
-    def initialize(hash, pid)
+    def initialize(code, stdout, stderr, _return, wall_time, pid)
       @inspect_for_value = false
       @running_error     = nil
+
+      @code   = code
+      @stdout = stdout
+      @stderr = stderr
       @pid    = pid
-      @stdin  = hash['stdin']
-      @stdout = hash['stdout']
-      @stderr = hash['stderr']
-      @return = hash['return']
-      @exception = hash['exception']
+      @return = _return
+      @wall_time = wall_time
 
-      if Sicuro.process_running?(pid)
-        sleep 1
-        Process.kill('KILL', pid) rescue nil
-        if Sicuro.process_running?(pid)
-          @running_error = "Process ##{pid} could not be terminated."
-          # Should we `exit 1` if we get here?
-        else
-          # Un-comment the following line if/when we figure out why
-          # Travis CI loves it so much.
-          #@running_error = "Process ##{pid} could not be terminated in Sicuro#eval, but was killed in Sicuro::Eval#new."
-        end
-      end
-
-      if @running_error
-        @running_error = "[SICURO ERROR] #{@running_error} THIS IS A BUG. Code:"
-
-        lines = @stdin.split("\n").map do |x|
-          x.rjust(error_prefix.length + x.length)
-        end
-        @running_error += "\n" + lines.join("\n")
-      end
-
-      warn @running_error if @running_error
-
-      @running = Sicuro.process_running?(pid)
+      # Check 1 is in sicuro/base.rb.
+      __running_check_2(pid, code)
+      __running_check_3(pid, @code)
     end
 
+    def __running_check_2(pid, code)
+      if Sicuro.process_running?(pid)
+        $stderr.puts "[SICURO] Process ##{pid} still running in Eval#new."
+        sleep 1
+        Process.kill('KILL', pid) rescue nil
+      end
+    end
+
+    def __running_check_3(pid, code)
+      if Sicuro.process_running?(pid)
+        Sicuro.sandbox_error([
+          "Process ##{pid} could not be terminated. THIS IS A BUG. Code:",
+          *code.split("\n")
+        ], true)
+      end
+    end
+
+
     def running?
-      @running
+      Sicuro.process_running?(@pid)
     end
 
     # Get a version suitable for printing.
-    # Main difference between #value and #_get_return_value: with #value,
-    # if you get @return, it called .inspect in base.rb.
-    def value
+    def to_s
       return @running_error if @running_error
 
       if !@stderr.nil? && ((!@stderr.is_a?(String)) ||
@@ -55,10 +50,6 @@ class Sicuro
 
         # @stderr is not nil and is not a String, or is a non-empty String
         @stderr
-      elsif (!@exception.nil? && !@exception.is_a?(String)) ||
-            (@exception.is_a?(String) && !@exception.empty?)
-        # @exception is not nil and is not a String, or is a non-empty String
-        @exception
       elsif !@stdout.nil? && (!@stdout.is_a?(String) || !@stdout.empty?)
         @stdout
       else
@@ -66,8 +57,17 @@ class Sicuro
       end
     end
 
+    def to_json
+      %[{
+        "stdout": #{@stdout.inspect},
+        "stderr": #{@stderr.inspect},
+        "return": #{@return.inspect},
+        "wallTime": #{@wall_time.inspect}
+      }]
+    end
+
     def inspect
-      "#<#{self.class} stdin=#{stdin.inspect} value=#{value.inspect}>"
+      "#<#{self.class} code=#{code.inspect} stdout=#{stdout.inspect} stderr=#{stderr.inspect} return=#{self.return.inspect} wall_time=#{wall_time.inspect}>"
     end
 
   end

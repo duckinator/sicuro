@@ -21,6 +21,6 @@ elsif ARGV.length > 1
   end
   exit (ret ? 0 : 1)
 else
-  puts Sicuro.eval(ARGV[0]).value
+  puts Sicuro.eval(ARGV[0]).to_s
 end
 

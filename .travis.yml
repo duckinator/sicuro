@@ -4,18 +4,18 @@ rvm:
   - 1.9.2
   - 1.9.3
   - 2.0.0
-  - rbx-18mode
-  - rbx-19mode
+#  - rbx-18mode
+#  - rbx-19mode
 #  - jruby
 #  - ruby-head
 #  - ree
 
-script: rake test
+script: bundle exec rake spec
 
 notifications:
   webhooks:
-    - http://rcmp.programble.co.cc/irc.tenthbit.net/programming
-    - http://rcmp.programble.co.cc/irc.freenode.net/sicuro
+    - http://rcmp.tenthbit.net
+    - http://rcmp.tenthbit.net/irc.freenode.net/sicuro
   
   email:
     on_success: change # default: change
