@@ -22,7 +22,13 @@ class Sicuro
         end
         
         # TODO: Can this be done without the second argument? It should behave identically to MRI's require().
-        replace(Kernel, :require) do |file, __full_name = nil|
+        replace(Kernel, :require) do |file|
+          # If we're 2 levels into require(), add .rb to the filename
+          __full_name =
+            if caller[0].include?("block (2 levels) ")
+              file + '.rb'
+            end
+
           $:.each do |dir|
             f = __full_name || file
 
@@ -35,7 +41,7 @@ class Sicuro
               File.open(f).read # TODO: Actually execute the code in it.
               return true
             elsif __full_name.nil?
-              return require(file, "#{file}.rb")
+              return require(file)#, "#{file}.rb")
             end
           end
 
