@@ -41,12 +41,10 @@ class Sicuro
 
   # This prepends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  def _code_prefix(code, identifier)
-    identifier += '; ' if identifier
-
+  def _code_prefix(code)
     <<-EOF
-      # Make it use "sicuro ([identifier; ]current_time)" as the process name.
-      $0 = 'sicuro (#{identifier}#{Time.now.strftime("%r")})' if #{$DEBUG}
+      # Make it use "sicuro (current_time)" as the process name.
+      $0 = 'sicuro (#{Time.now.strftime("%r")})' if #{$DEBUG}
 
       require #{__FILE__.inspect}
       s=Sicuro.new(#{@timelimit}, #{@memlimit})
@@ -63,7 +61,15 @@ class Sicuro
   # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
   # "sicuro (#{current_time})"
   #
-  def eval(code, identifier = nil)
+  # `new_stdin`:  a StringIO that is treated as $stdin.
+  # `new_stdout`: a StringIO that is treated as $stdout.
+  # `new_stderr`: a StringIO that is treated as $stderr.
+  def eval(code, new_stdin = nil, new_stdout = nil, new_stderr = nil)
+
+    new_stdin  ||= StringIO.new
+    new_stdout ||= StringIO.new
+    new_stderr ||= StringIO.new
+
     i, o, e, t, pid = nil
     out_reader, err_reader = nil
 
@@ -72,9 +78,20 @@ class Sicuro
     Timeout.timeout(@timelimit) do
       i, o, e, t = Open3.popen3(RUBY_USED)
       pid = t.pid
-      out_reader = Thread.new { o.read }
-      err_reader = Thread.new { e.read }
-      i.write _code_prefix(code, identifier)
+
+      out_reader = Thread.new do
+        ret = o.read
+        new_stdout.write ret
+        ret
+      end
+
+      err_reader = Thread.new do
+        ret = e.read
+        new_stderr.write ret
+        ret
+      end
+
+      i.write _code_prefix(code)
       i.close
 
       # Wait for stdout and stderr to close.
