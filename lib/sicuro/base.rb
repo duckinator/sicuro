@@ -130,6 +130,9 @@ class Sicuro
     Standalone::DummyFS.add_file(file, code)
 
     result = nil
+    old_stdout = $stdout
+    old_stderr = $stderr
+    old_stdin = $stdin
 
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, @memlimit * 1024 * 1024)
@@ -199,12 +202,47 @@ class Sicuro
       ::Kernel.eval("#{var.to_s}.freeze") 
     end
 
-    begin
-      result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING, file)
-    rescue Exception => e
-      $stderr.puts "#{e.class}: #{e.message}"
-      $stderr.puts e.backtrace.join("\n")
+    $stdout = StringIO.new
+    $stderr = StringIO.new
+    $stdin = StringIO.new
+
+    Object.instance_eval do
+      [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
     end
+    Object.const_set(:STDOUT, $stdout)
+    Object.const_set(:STDERR, $stderr)
+    Object.const_set(:STDIN, $stdin)
+
+    out_reader = Thread.new do
+      ret = ''
+      o = $stdout
+      until o.eof?
+        s = o.read(1)
+        ret += s
+        old_stdout.write s
+      end
+      ret
+    end
+
+    err_reader = Thread.new do
+      ret = ''
+      e = $stderr
+      until e.eof?
+        s = e.read(1)
+        ret += s
+        old_stderr.write s
+      end
+      ret
+    end
+
+    result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING, file)
+
+
+    out_reader.join
+    err_reader.join
+  rescue Exception => e
+    old_stderr.puts "#{e.class}: #{e.message}"
+    old_stderr.puts e.backtrace.join("\n")
   end
 
   def inspect
