@@ -7,7 +7,7 @@ describe 'Sicuro' do
   no_method_error = "NoMethodError: undefined method `%s' "
 
   it 'replaces constants' do
-    Sicuro.eval('ENV').return.should == Standalone::ENV.inspect
+    Sicuro.eval('p ENV').stdout.should == Standalone::ENV.inspect
   end
 
   context 'sandbox integrity' do
@@ -27,7 +27,7 @@ describe 'Sicuro' do
     end
 
     it 'cannot use $stdout to reference IO' do
-      code = 'Object.new.tap{|o|o.define_singleton_method(:inspect){ $stdout.class.read("/etc/passwd") } }'
+      code = 'puts Object.new.tap{|o|o.define_singleton_method(:inspect){ $stdout.class.read("/etc/passwd") } }'
       Sicuro.eval(code).to_s.should_not start_with("root:")
     end
 
@@ -35,7 +35,7 @@ describe 'Sicuro' do
       # If $<.to_io.class.ancestors[0] should return something from within Sicuro
       # (such as Sicuro::Runtime::Constants::File) or error, not return File.
 
-      code = '$* << "/etc/passwd"; $<.to_io.class.ancestors[0]'
+      code = '$* << "/etc/passwd"; puts $<.to_io.class.ancestors[0]'
       Sicuro.eval(code).to_s.should_not == 'File'
     end
 
@@ -78,25 +78,11 @@ describe 'Sicuro' do
   end
 
   context 'stringification' do
-    Sicuro.eval('"hi"').to_s.should == '"hi"'
-    Sicuro.eval("'hi'").to_s.should == '"hi"'
-    Sicuro.eval('1'   ).to_s.should == '1'
-
     it "should raise a RuntimeError when you call fail()" do
       Sicuro.eval('fail').to_s.should start_with "RuntimeError: "
     end
 
-    Sicuro.eval('nil'  ).to_s.should == 'nil'
-    Sicuro.eval('exit!').to_s.should == 'nil'
     Sicuro.eval('puts' ).to_s.should == "\n"
-  end
-
-  context 'return values' do
-    Sicuro.eval('nil'   ).return.should == 'nil'
-    Sicuro.eval('exit!' ).return.should == 'nil'
-    Sicuro.eval('puts'  ).return.should == 'nil'
-    Sicuro.eval('puts 1').return.should == 'nil'
-    Sicuro.eval('1'     ).return.should == '1'
   end
 
 =begin
