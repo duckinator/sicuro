@@ -48,7 +48,7 @@ class Sicuro
 
       require #{__FILE__.inspect}
       s=Sicuro.new(#{@timelimit}, #{@memlimit})
-      print s._safe_eval(#{code.inspect}, #{custom_stdout.inspect})
+      s._safe_eval(#{code.inspect}, #{custom_stdout.inspect})
     EOF
   end
 
