@@ -96,6 +96,8 @@ class Sicuro
 
       i.write _code_prefix(code, !!new_stdout)
       i.close
+      out_reader.join
+      err_reader.join
     end
 
     duration = Time.now - start
