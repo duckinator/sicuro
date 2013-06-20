@@ -7,7 +7,7 @@ describe 'Sicuro' do
   no_method_error = "NoMethodError: undefined method `%s' "
 
   it 'replaces constants' do
-    Sicuro.eval('p ENV').stdout.should == Standalone::ENV.inspect
+    Sicuro.eval('print ENV.inspect').stdout.should == Standalone::ENV.inspect
   end
 
   context 'sandbox integrity' do
