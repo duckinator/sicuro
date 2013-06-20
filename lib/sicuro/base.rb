@@ -80,41 +80,40 @@ class Sicuro
       pid = t.pid
 
       out_reader = Thread.new do
-        ret = o.read
-        new_stdout.write ret
+        ret = ''
+        until o.eof?
+          s = o.read(1)
+          ret += s
+          new_stdout.write s
+        end
         ret
       end
 
       err_reader = Thread.new do
-        ret = e.read
-        new_stderr.write ret
+        ret = ''
+        until e.eof?
+          s = e.read(1)
+          ret += s
+          new_stderr.write s
+        end
         ret
       end
 
       i.write _code_prefix(code, !!new_stdout)
       i.close
-
-      # Wait for stdout and stderr to close.
-      out_reader.join
-      err_reader.join
     end
 
     duration = Time.now - start
+
     # We aim to be API-compatible with eval.so, so we want to return the
     # wall time as milliseconds. Time-Time yields seconds, so multiply by 1000.
     # We then call .to_i because we want an int, not a float.
     wall_time = (duration * 1000).to_i
 
-    # Get the value of out_reader.
-    # The last line is the return value, rest is stdout.
-    lines   = out_reader.value.split("\n")
-    stdout  = lines[0..-2].join("\n")
-    _return = lines[-1] || 'nil'
+    stdout = out_reader.value
+    stderr = err_reader.value
 
-    # Get the value of err_reader. This is all stderr, unlike with stdout.
-    stderr  = err_reader.value
-
-    Eval.new(code, stdout, stderr, _return, wall_time, pid)
+    Eval.new(code, stdout, stderr, 'nil', wall_time, pid)
   rescue Timeout::Error
     error = "Timeout::Error: Code took longer than %i seconds to terminate." %
                 @timelimit
@@ -134,9 +133,6 @@ class Sicuro
     Standalone::DummyFS.add_file(file, code)
 
     result = nil
-    old_stdout = $stdout
-    old_stderr = $stderr
-    old_stdin  = $stdin
 
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, @memlimit * 1024 * 1024)
@@ -203,19 +199,8 @@ class Sicuro
     end
 
     (global_variables - $TRUSTED_GLOBALS).each do |var|
-        ::Kernel.eval("#{var.to_s}.freeze") 
+      ::Kernel.eval("#{var.to_s}.freeze") 
     end
-
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-    $stdin  = StringIO.new
-
-    Object.instance_eval do
-      [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
-    end
-    Object.const_set(:STDOUT, $stdout)
-    Object.const_set(:STDERR, $stderr)
-    Object.const_set(:STDIN,  $stdin)
 
     begin
       result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING, file)
@@ -223,17 +208,6 @@ class Sicuro
       $stderr.puts "#{e.class}: #{e.message}"
       $stderr.puts e.backtrace.join("\n")
     end
-  ensure
-    out = $stdout.string
-    err = $stderr.string
-#out=err=''
-
-    old_stdout.print out
-    unless custom_stdout
-      old_stdout.puts
-      old_stdout.puts result.inspect
-    end
-    old_stderr.print err
   end
 
   def inspect
