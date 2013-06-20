@@ -1,6 +1,6 @@
 describe Sicuro do
   context 'helpers' do
-    Sicuro.assert('puts true', 'true').should == true
+    Sicuro.assert('print true', 'true').should == true
 
     context 'sandbox_error passed a string' do
       capture(:stderr) { Sicuro.sandbox_error('test') }.should == "[SANDBOX WARNING] test\n"
