@@ -56,11 +56,6 @@ class Sicuro
   #
   # `code`: the code to run.
   #
-  # `identifier`: a unique identifier for this code (ie, if used an irc bot,
-  # the person's nickname). When specified, it tries setting the process name to
-  # "sicuro (#{identifier}, #{current_time})", otherwise it tries setting it to
-  # "sicuro (#{current_time})"
-  #
   # `new_stdin`:  a StringIO that is treated as $stdin.
   # `new_stdout`: a StringIO that is treated as $stdout.
   # `new_stderr`: a StringIO that is treated as $stderr.
