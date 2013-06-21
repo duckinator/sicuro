@@ -155,7 +155,7 @@ describe 'Sicuro' do
 
   %w[STDIN STDOUT STDERR $stdin $stdout $stderr].each do |x|
     it "changes #{x} to a StringIO" do
-      Sicuro.eval("#{x}.class").to_s.should == 'StringIO'
+      Sicuro.eval("print #{x}.class").stdout.should == 'StringIO'
     end
   end
 
