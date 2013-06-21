@@ -242,9 +242,9 @@ class Sicuro
       end
     end
 
-    out_reader = reader($stdout, old_stdout)
+    out_reader = reader.call($stdout, old_stdout)
 
-    err_reader = reader($stderr, old_stderr)
+    err_reader = reader.call($stderr, old_stderr)
 
     result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}; $done = true", TOPLEVEL_BINDING, file)
 
