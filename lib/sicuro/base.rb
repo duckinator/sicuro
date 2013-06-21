@@ -213,30 +213,40 @@ class Sicuro
     Object.const_set(:STDERR, $stderr)
     Object.const_set(:STDIN, $stdin)
 
-    out_reader = Thread.new do
-      ret = ''
-      o = $stdout
-      until o.eof?
-        s = o.read(1)
+    $done = false
+
+    reader = lambda do |from, to|
+      Thread.new do
+        ret = ''
+        pos = 0
+
+        from.rewind
+
+        loop do
+          s = from.read
+          ret += s
+          pos += s.length
+
+          to.write s
+
+          from.pos = pos
+
+          break if $done
+        end
+
+        s = from.read
         ret += s
-        old_stdout.write s
+        to.write s
+
+        ret
       end
-      ret
     end
 
-    err_reader = Thread.new do
-      ret = ''
-      e = $stderr
-      until e.eof?
-        s = e.read(1)
-        ret += s
-        old_stderr.write s
-      end
-      ret
-    end
+    out_reader = reader($stdout, old_stdout)
 
-    result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}", TOPLEVEL_BINDING, file)
+    err_reader = reader($stderr, old_stderr)
 
+    result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}; $done = true", TOPLEVEL_BINDING, file)
 
     out_reader.join
     err_reader.join
