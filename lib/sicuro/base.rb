@@ -31,8 +31,8 @@ class Sicuro
   attr_accessor :memlimit, :timelimit
 
   # Set the memory (in MBs) and time (in seconds) limits for Sicuro.
-  # Defaults are 50MB and 5 seconds.
-  def initialize(memlimit = 50, timelimit = 5)
+  # Defaults are 200MB and 5 seconds.
+  def initialize(memlimit = 200, timelimit = 5)
     @memlimit  = memlimit
     @timelimit = timelimit
 
