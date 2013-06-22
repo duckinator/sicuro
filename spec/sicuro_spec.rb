@@ -82,7 +82,7 @@ describe 'Sicuro' do
       Sicuro.eval('fail').to_s.should start_with "RuntimeError: "
     end
 
-    Sicuro.eval('puts' ).to_s.should == "\n"
+    Sicuro.eval('puts').to_s.should == "\n"
   end
 
 =begin
