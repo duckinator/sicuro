@@ -107,7 +107,7 @@ class Sicuro
     stdout = out_reader.value
     stderr = err_reader.value
 
-    Eval.new(code, stdout, stderr, 'nil', wall_time, pid)
+    Eval.new(code, stdout, stderr, wall_time, pid)
   rescue Timeout::Error
     error = "Timeout::Error: Code took longer than %i seconds to terminate." %
                 @timelimit
@@ -116,7 +116,7 @@ class Sicuro
       Process.kill('KILL', pid) rescue nil
     end
 
-    Eval.new(code, '', error, 'nil', wall_time, pid)
+    Eval.new(code, '', error, wall_time, pid)
   end
 
   # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
