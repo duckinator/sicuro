@@ -41,14 +41,11 @@ class Sicuro
 
   # This prepends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  def _code_prefix(code, custom_stdout)
+  def _code_prefix(code)
     <<-EOF
-      # Make it use "sicuro (current_time)" as the process name.
-      $0 = 'sicuro (#{Time.now.strftime("%r")})' if #{$DEBUG}
-
       require #{__FILE__.inspect}
       s=Sicuro.new(#{@memlimit}, #{@timelimit})
-      s._safe_eval(#{code.inspect}, #{custom_stdout.inspect})
+      s._safe_eval(#{code.inspect})
     EOF
   end
 
@@ -125,7 +122,7 @@ class Sicuro
   # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
   # This does not provide a strict time limit.
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
-  def _safe_eval(code, custom_stdout = false)
+  def _safe_eval(code)
     file = File.join(Standalone::ENV['HOME'], 'code.rb')
     Standalone::DummyFS.add_file(file, code)
 
