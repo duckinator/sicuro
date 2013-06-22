@@ -15,7 +15,11 @@ describe Sicuro do
     end
 
     it 'raises a Sicuro::SandboxError when passing true to sandbox_error' do
-      expect { Sicuro.sandbox_error('test', true) }.to raise_exception(Sicuro::SandboxError, 'test')
+      expect {
+        capture(:stderr) {
+          Sicuro.sandbox_error('test', true)
+        }
+      }.to raise_exception(Sicuro::SandboxError, 'test')
     end
   end
 end
