@@ -91,7 +91,7 @@ class Sicuro
         ret
       end
 
-      i.write _code_prefix(code, !!new_stdout)
+      i.write _code_prefix(code)
       i.close
       out_reader.join
       err_reader.join
