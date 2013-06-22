@@ -246,7 +246,9 @@ class Sicuro
 
     err_reader = reader.call($stderr, old_stderr)
 
-    result = ::Kernel.eval("require 'sicuro/runtime/whitelist'; #{code}; $done = true", TOPLEVEL_BINDING, file)
+    require 'sicuro/runtime/whitelist'
+    result = ::Kernel.eval(code, TOPLEVEL_BINDING, file)
+    $done = true
 
     out_reader.join
     err_reader.join
