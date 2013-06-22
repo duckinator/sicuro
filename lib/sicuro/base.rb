@@ -47,7 +47,7 @@ class Sicuro
       $0 = 'sicuro (#{Time.now.strftime("%r")})' if #{$DEBUG}
 
       require #{__FILE__.inspect}
-      s=Sicuro.new(#{@timelimit}, #{@memlimit})
+      s=Sicuro.new(#{@memlimit}, #{@timelimit})
       s._safe_eval(#{code.inspect}, #{custom_stdout.inspect})
     EOF
   end
