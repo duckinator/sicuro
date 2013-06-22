@@ -32,9 +32,9 @@ class Sicuro
 
   # Set the memory (in MBs) and time (in seconds) limits for Sicuro.
   # Defaults are 200MB and 5 seconds.
-  def initialize(memlimit = 200, timelimit = 5)
-    @memlimit  = memlimit
-    @timelimit = timelimit
+  def initialize(memlimit = nil, timelimit = nil)
+    @memlimit  = memlimit  || 200
+    @timelimit = timelimit || 5
 
     Sicuro.add_files_to_dummyfs
   end
@@ -132,10 +132,10 @@ class Sicuro
     old_stdin = $stdin
 
     # RAM limit
-    Process.setrlimit(Process::RLIMIT_AS, @memlimit * 1024 * 1024)
+    Process.setrlimit(Process::RLIMIT_AS, @memlimit * 1024 * 1024) unless @memlimit.zero?
 
     # CPU time limit. 5s means 5s of CPU time.
-    Process.setrlimit(Process::RLIMIT_CPU, @timelimit)
+    Process.setrlimit(Process::RLIMIT_CPU, @timelimit) unless @timelimit.zero?
     ::Kernel.trap(:XCPU) do # This should be triggered when you hit RLIMIT_CPU.
       raise Timeout::Error
       exit!
@@ -225,6 +225,7 @@ class Sicuro
           pos += s.length
 
           to.write s
+          to.flush
 
           from.pos = pos
 
