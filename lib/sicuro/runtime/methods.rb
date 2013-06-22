@@ -51,6 +51,10 @@ class Sicuro
         replace(Kernel, :require_relative) do |file|
           raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'require_relative'
         end
+
+        replace(Kernel, :open) do |*args|
+          File.open(*args)
+        end
       end
 
     end # Methods

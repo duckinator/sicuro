@@ -148,8 +148,8 @@ $TRUSTED_METHODS_ALL = [
   :pretty_print, :pretty_print_cycle,
   :pretty_print_inspect, :pretty_print_instance_variables,
 
-  # Require/load functions. Redefined in sicuro/runtime/methods.
-  :require, :require_relative, :load,
+  # Methods that are redefined in sicuro/runtime/methods.rb.
+  :require, :require_relative, :load, :open,
 
   :inherited, :initialize, :initialize_copy, :included, :extended,
   
@@ -179,7 +179,6 @@ $TRUSTED_METHODS_ALL = [
   :exception,
 
   :[],
-
 
   # Private methods
   :append_features, :extend_object, :module_function,
