@@ -53,8 +53,13 @@ describe 'Sicuro' do
   end
 
   context 'printing text' do
-    Sicuro.eval('puts "hi"' ).stdout.should == "hi\n"
-    Sicuro.eval('print "hi"').stdout.should == "hi"
+    it 'eval(\'puts "hi"\')' do
+      Sicuro.eval('puts "hi"' ).stdout.should == "hi\n"
+    end
+
+    it 'eval(\'puts "hi"\')' do
+      Sicuro.eval('print "hi"').stdout.should == "hi"
+    end
 
     context 'puts' do
       it "does not print to stderr" do
@@ -82,7 +87,9 @@ describe 'Sicuro' do
       Sicuro.eval('fail').to_s.should start_with "RuntimeError: "
     end
 
-    Sicuro.eval('puts').to_s.should == "\n"
+    it "defaults to STDOUT for eval('puts')" do
+      Sicuro.eval('puts').to_s.should == "\n"
+    end
   end
 
 =begin
@@ -159,7 +166,7 @@ describe 'Sicuro' do
     end
   end
 
-  context 'timeouts are enforced' do
+  it 'enforces timeouts' do
     s = Sicuro.new
     s.timelimit = 0.1
     tmp_timeout_error = timeout_error % 0
@@ -192,7 +199,7 @@ describe 'Sicuro' do
     end
   end
 
-  context 'inspect' do
+  it '#inspect' do
     Sicuro.new(1,2).inspect.should == "#<Sicuro memlimit=1 timelimit=2>"
   end
 end
