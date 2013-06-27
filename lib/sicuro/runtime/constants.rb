@@ -14,6 +14,8 @@ class Sicuro
         "TERM"    => "dumb"
       }
 
+      ARGV = []
+
       # This removes a constant (to avoid "already initialized constant"), then
       # defines it to the value specified in Sicuro::Runtime::Constants.
       def self.reset!
