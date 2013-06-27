@@ -1,16 +1,18 @@
 describe Sicuro do
   context 'helpers' do
-    Sicuro.assert('print true', 'true').should == true
+    it "assert('print true', 'true')" do
+      Sicuro.assert('print true', 'true').should == true
+    end
 
-    context 'sandbox_error passed a string' do
+    it "sandbox_error('test')" do
       capture(:stderr) { Sicuro.sandbox_error('test') }.should == "[SANDBOX WARNING] test\n"
     end
 
-    context 'sandbox_error passed an array' do
+    it "sandbox_error(['test'])" do
       capture(:stderr) { Sicuro.sandbox_error(['test']) }.should == "[SANDBOX WARNING] test\n"
     end
 
-    context 'sandbox_error passed a number' do
+    it "sandbox_error(1)" do
       capture(:stderr) { Sicuro.sandbox_error(1) }.should == "[SANDBOX WARNING] 1\n"
     end
 
