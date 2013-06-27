@@ -18,7 +18,8 @@ class Sicuro
         ::Standalone::DummyFS.enable!
 
         replace(Kernel, :load) do |file, wrap = false|
-          raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'load'
+          # TODO: Less hacky check.
+          eval(open(file).read, TOPLEVEL_BINDING) unless file.start_with?(FAKE_GEM_DIR)
         end
         
         # TODO: Can this be done without the second argument? It should behave identically to MRI's require().
@@ -38,7 +39,7 @@ class Sicuro
 
             if f && File.file?(f)
               $LOADED_FEATURES << f
-              File.open(f).read # TODO: Actually execute the code in it.
+              load f
               return true
             elsif __full_name.nil?
               return require(file)#, "#{file}.rb")
