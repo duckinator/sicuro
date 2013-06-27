@@ -85,8 +85,8 @@ $TRUSTED_METHODS = {
     :drop_while, :cycle, :chunk, :slice_before,
   ],
   :DummyFS => [
-    :fs, :setup, :activate!, :has_file?, :find_file, :add_file, :add_real_file,
-    :add_directory, :get_file,
+    :fs, :setup, :enable!, :has_file?, :find_file, :add_file, :add_real_file,
+    :add_directory, :get_file, :add_real_directory, :add_library,
   ],
 }
 
