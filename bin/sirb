@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+begin
+  require 'sicuro'
+rescue LoadError
+  require 'rubygems'
+  require 'sicuro'
+end
+
+require 'ripl'
+
+if ['--help', '-h'].include?(ARGV[0])
+  puts "Usage: #{$0}"
+  puts "Sicuro + irb."
+  # TODO: Better --help
+else
+  ripl_gem_root = Gem.loaded_specs['ripl'].full_gem_path
+  ripl_lib_dir = File.join(ripl_gem_root, 'lib')
+
+  Sicuro.new(0, 0).eval('
+    $stdin.rewind
+
+    require "ripl"
+
+    Ripl.start
+  ', $stdin, $stdout, $stderr, [ripl_lib_dir])
+end
+
