@@ -15,7 +15,7 @@ class Sicuro
       
       def self.replace_all!
         $:.clear
-        $: << File.join(FAKE_GEM_DIR, 'sicuro', 'lib')
+        ::Standalone::DummyFS.enable!
 
         replace(Kernel, :load) do |file, wrap = false|
           raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'load'
