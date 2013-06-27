@@ -159,7 +159,7 @@ $TRUSTED_METHODS_ALL = [
   
   :method_added, :method_removed, :method_undefined,
   :attr, :attr_reader, :attr_writer, :attr_accessor,
-  
+  :singleton_method_added,
   
   :remove_const, :include, :remove_method, :undef_method, :alias_method,
   
