@@ -1,4 +1,4 @@
-require 'sicuro/version'
+require File.join(File.dirname(__FILE__), 'version')
 require 'timeout'
 require 'open3'
 require 'rbconfig'
