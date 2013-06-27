@@ -41,11 +41,11 @@ class Sicuro
 
   # This prepends the code that actually makes the evaluation safe.
   # Odds are, you don't want this unless you're debugging Sicuro.
-  def _code_prefix(code)
+  def _code_prefix(code, lib_dirs)
     <<-EOF
       require #{__FILE__.inspect}
       s=Sicuro.new(#{@memlimit}, #{@timelimit})
-      s._safe_eval(#{code.inspect})
+      s._safe_eval(#{code.inspect}, #{lib_dirs.inspect})
     EOF
   end
 
@@ -56,7 +56,7 @@ class Sicuro
   # `new_stdin`:  a StringIO that is treated as $stdin.
   # `new_stdout`: a StringIO that is treated as $stdout.
   # `new_stderr`: a StringIO that is treated as $stderr.
-  def eval(code, new_stdin = nil, new_stdout = nil, new_stderr = nil)
+  def eval(code, new_stdin = nil, new_stdout = nil, new_stderr = nil, lib_dirs = [])
 
     new_stdin  ||= StringIO.new
     new_stdout ||= StringIO.new
@@ -91,7 +91,7 @@ class Sicuro
         ret
       end
 
-      i.write _code_prefix(code)
+      i.write _code_prefix(code, lib_dirs)
       i.close
       out_reader.join
       err_reader.join
@@ -122,9 +122,13 @@ class Sicuro
   # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
   # This does not provide a strict time limit.
   # TODO: Since _safe_eval itself cannot be tested, separate out what can.
-  def _safe_eval(code)
+  def _safe_eval(code, lib_dirs)
     file = File.join(Standalone::ENV['HOME'], 'code.rb')
     Standalone::DummyFS.add_file(file, code)
+
+    lib_dirs.each do |dir|
+      Standalone::DummyFS.add_real_directory(dir, '*.rb', true)
+    end
 
     result = nil
     old_stdout = $stdout
