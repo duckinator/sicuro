@@ -16,6 +16,20 @@ class Sicuro
 
       ARGV = []
 
+      # Our lovely dummy Monitor implementation!
+      class Monitor
+        [
+          :initialize, :try_enter, :enter, :exit, :mon_try_enter, :try_mon_enter,
+          :mon_enter, :mon_exit, :mon_synchronize, :synchronize, :new_cond
+        ].each do |name|
+          send(:define_instance_method, name) do
+            raise NotImplementedError, "Dummy Monitor implementation: #{name} not implemented."
+          end
+        end
+      end
+
+      RUBYGEMS_ACTIVATION_MONITOR = Monitor.new
+
       # This removes a constant (to avoid "already initialized constant"), then
       # defines it to the value specified in Sicuro::Runtime::Constants.
       def self.reset!
