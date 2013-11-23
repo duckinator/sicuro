@@ -1,5 +1,4 @@
 require File.join(File.dirname(__FILE__), 'version')
-require 'shellwords'
 require 'timeout'
 require 'open3'
 require 'rbconfig'
@@ -69,8 +68,7 @@ class Sicuro
     start = Time.now
 
     Timeout.timeout(@timelimit) do
-      cmd = "#{RUBY_USED} -e #{_code_prefix(code, lib_dirs).shellescape}"
-      i, o, e, t = Open3.popen3(cmd)
+      i, o, e, t = Open3.popen3(RUBY_USED, '-e', _code_prefix(code, lib_dirs))
       pid = t.pid
 
       out_reader = Thread.new do
