@@ -43,7 +43,7 @@ There is no way to alter the strength of the sandbox.
 
 ~~`Sicuro::Eval#return` is the returned value of the last statement.~~
 
-`Sicuro::Eval#to_s` intelligently returns one of `#stdout`, `#stderr`, or `#return`. If it uses `#return`, it will call `#inspect` on the result. Otherwise, it returns the result directly.
+`Sicuro::Eval#to_s` intelligently returns one of `#stdout` or `#stderr`.
 
 
 #### Notes on Sicuro::Eval#return
@@ -65,7 +65,6 @@ s = Sicuro.eval('puts "hi!"')
 s.code      # returns "puts \"hi!\""
 s.stdout    # returns "hi!\n"
 s.stderr    # returns ""
-s.return    # returns nil, because that's the result of the last statement.
 s.to_s      # returns "hi!\n", because it uses #stdout
 ```
 
@@ -78,7 +77,6 @@ s = Sicuro.eval('"hi!"')
 s.code      # returns "\"hi!\""
 s.stdout    # returns ""
 s.stderr    # returns ""
-s.return    # returns "\"hi!\"" because that was the result of the last statement.
 s.to_s      # returns "\"hi!\"", because it uses #return
 ```
 
@@ -92,7 +90,7 @@ require 'sicuro'
 p Sicuro.run(:ruby, "puts 'lawl'")
 
 # Example output:
-#   #<Sicuro::Eval code="puts 'lawl'" stdout="lawl\n" stderr="" return="nil" wall_time=36>
+#   #<Sicuro::Eval code="puts 'lawl'" stdout="lawl\n" stderr="" wall_time=36>
 ```
 
 # License
