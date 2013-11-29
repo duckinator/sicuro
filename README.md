@@ -41,9 +41,18 @@ There is no way to alter the strength of the sandbox.
 
 `Sicuro::Eval#stderr` is anything printed to stderr by the evaluated code (`warn`).
 
-`Sicuro::Eval#return` is the returned value of the last statement.
+~~`Sicuro::Eval#return` is the returned value of the last statement.~~
 
 `Sicuro::Eval#to_s` intelligently returns one of `#stdout`, `#stderr`, or `#return`. If it uses `#return`, it will call `#inspect` on the result. Otherwise, it returns the result directly.
+
+
+#### Notes on Sicuro::Eval#return
+
+Previously, Sicuro provided a `#return` method that would give the value returned by the last line of code it evaluated. It existed from v0.0.1 to v0.18.0 (inclusive), and was removed with v0.19.0.
+The way this was accomplished was by returning a JSON object from the child (sandboxed) process to the parent (non-sandboxed) process.
+However, this approach led to bugs with errors about encoding things to JSON being intermixed with the other results, which gave rather bizarre errors when reaching the parent process.
+
+I plan to eventually either reintroduce this exact functionality in a more robust form, or replace it with a better alternative later on.
 
 ## Examples
 
