@@ -1,3 +1,3 @@
 class Sicuro
-  class SandboxError < ::Exception; end
+  class SandboxError < ::StandardError; end
 end

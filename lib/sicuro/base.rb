@@ -39,16 +39,6 @@ class Sicuro
     Sicuro.add_files_to_dummyfs
   end
 
-  # This prepends the code that actually makes the evaluation safe.
-  # Odds are, you don't want this unless you're debugging Sicuro.
-  def _code_prefix(code, lib_dirs)
-    <<-EOF
-      require #{__FILE__.inspect}
-      s=Sicuro.new(#{@memlimit}, #{@timelimit})
-      s._safe_eval(#{code.inspect}, #{lib_dirs.inspect})
-    EOF
-  end
-
   # Runs the specified code, returns STDOUT and STDERR as a single string.
   #
   # `code`: the code to run.
@@ -68,7 +58,7 @@ class Sicuro
     start = Time.now
 
     Timeout.timeout(@timelimit) do
-      i, o, e, t = Open3.popen3(RUBY_USED, '-e', _code_prefix(code, lib_dirs))
+      i, o, e, t = Open3.popen3(RUBY_USED, '-e', prefix_code(code, lib_dirs))
       pid = t.pid
 
       out_reader = Thread.new do
@@ -118,10 +108,25 @@ class Sicuro
     Eval.new(code, '', error, wall_time, pid)
   end
 
-  # Used internally by Sicuro.eval. You should probably use Sicuro.eval instead.
-  # This does not provide a strict time limit.
-  # TODO: Since _safe_eval itself cannot be tested, separate out what can.
-  def _safe_eval(code, lib_dirs)
+  def inspect
+    "#<#{self.class} memlimit=#{@memlimit} timelimit=#{@timelimit}>"
+  end
+
+  private
+
+  # This prepends the code that actually makes the evaluation safe.
+  def prefix_code(code, lib_dirs)
+    <<-EOF
+      require #{__FILE__.inspect}
+      s=Sicuro.new(#{@memlimit}, #{@timelimit})
+      s.send(:safe_eval, #{code.inspect}, #{lib_dirs.inspect})
+    EOF
+  end
+
+  # Used internally by Sicuro.eval.
+  # This does not enforce the time limit.
+  # TODO: Since safe_eval itself cannot be tested, separate out what can.
+  def safe_eval(code, lib_dirs)
     file = File.join(Standalone::ENV['HOME'], 'code.rb')
     Standalone::DummyFS.add_file(file, code)
 
@@ -256,9 +261,5 @@ class Sicuro
   rescue Exception => e
     old_stderr.puts "#{e.class}: #{e.message}"
     old_stderr.puts e.backtrace.join("\n")
-  end
-
-  def inspect
-    "#<#{self.class} memlimit=#{@memlimit} timelimit=#{@timelimit}>"
   end
 end
