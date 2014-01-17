@@ -92,26 +92,6 @@ describe 'Sicuro' do
     end
   end
 
-=begin
-  context 'wrapper functions' do
-    asserts("Sicuro.eval('puts \"hi\"')") do
-      topic.Sicuro.eval('puts "hi"').to_s
-    end.equals("hi\n")
-
-    asserts(:eval_stdout, 'puts 1').equals("1\n")
-    asserts(:eval_stderr, 'warn 1').equals("1\n")
-    asserts(:eval_return, '1').equals('1')
-
-    asserts("raise prints to stderr") do
-      topic.Sicuro.eval('raise').stderr.start_with? "RuntimeError: "
-    end
-
-    asserts("Sicuro.eval('1').inspect") do
-      topic.Sicuro.eval('1').inspect =~ /#<Sicuro::Eval code="1" stdout="" stderr="" return="1" wall_time=\d+>/
-    end
-  end
-=end
-
   context 'exceptions' do
     it "raises a NameError when referencing an undefined variable" do
       valid_outputs = [
