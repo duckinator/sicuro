@@ -1,9 +1,12 @@
 # Sicuro
 
-Safe execution environment for untrusted ruby code.
+Safe execution environment for untrusted ruby code. If you want me to dedicate more time to working on this, please consider [giving a weekly donation](https://gittip.com/duckinator) to me on Gittip!
 
-[![Build Status](https://travis-ci.org/duckinator/sicuro.png?branch=master)](https://travis-ci.org/duckinator/sicuro)
-[![Coverage Status](https://coveralls.io/repos/duckinator/sicuro/badge.png?branch=master)](https://coveralls.io/r/duckinator/sicuro)
+[![Gittip](http://img.shields.io/gittip/duckinator)](https://gittip.com/duckinator)
+[![Build Status](http://img.shields.io/travis/duckinator/sicuro.svg)](https://travis-ci.org/duckinator/sicuro)
+[![Code Coverage](http://img.shields.io/coverals/duckinator/sicuro.svg)](https://coveralls.io/r/duckinator/sicuro)
+[![Dependencies](http://img.shields.io/gemnasium/duckinator/sicuro.svg)](https://gemnasium.com/duckinator/sicuro)
+[![](http://img.shields.io/gem/v/sicuro.svg)](http://rubygems.org/gems/sicuro)
 
 # Installation
 
