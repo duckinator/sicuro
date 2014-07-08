@@ -9,10 +9,11 @@ Gem::Specification.new do |s|
   s.authors     = ['Marie Markwell']
   s.email       = ['me@marie.so']
   s.homepage    = 'http://github.com/duckinator/sicuro'
-  s.summary     = %q{Safe ruby code execution.}
-  s.description = %q{Safe ruby code execution in a standard ruby environment. Does not use a chroot, jail, etc. No special permissions required.}
+  s.summary     = %q{The self-hosting Ruby interpreter.}
+  s.description = s.summary
 
   s.add_runtime_dependency 'standalone', '~> 0.5.0'
+  s.add_runtime_dependency 'parser',     '~> 2.1.9'
 
   s.add_development_dependency "rake",      '~> 10.2.2'
   s.add_development_dependency 'rspec',     '~> 2.14.0'

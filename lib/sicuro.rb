@@ -1,6 +1,5 @@
-begin
-  require 'sicuro/base'
-rescue LoadError
-  require 'rubygems'
-  require 'sicuro/base'
+require 'sicuro/version'
+require 'parser/current'
+
+module Sicuro
 end

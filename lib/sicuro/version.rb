@@ -1,3 +1,3 @@
-class Sicuro
-  VERSION = "0.20.0"
+module Sicuro
+  VERSION = "0.21.0"
 end
