@@ -13,16 +13,17 @@ module Sicuro
       eval_ast(parse(source), eval_instance)
     end
 
-    Contract Parser::AST, Evaluation => Evaluation
+    Contract ::Parser::AST, Evaluation => Evaluation
     def eval_ast(ast, eval_instance)
       # todo
+      p ast
 
       eval_instance
     end
 
-    Contract String => Parser::AST
+    Contract String => ::Parser::AST
     def parse(code)
-      Parser::CurrentRuby.parse(code)
+      ::Parser::CurrentRuby.parse(code)
     end
   end
 end
