@@ -2,14 +2,16 @@ require 'sicuro/version'
 require 'sicuro/evaluation'
 require 'parser/current'
 require 'contracts'
+require 'default'
 
 module Sicuro
   class << self
     include Contracts
 
-    Contract String, Evaluation => Evaluation
-    def eval(source,
-             eval_instance=Evaluation.new(source))
+    Contract String, Or[Evaluation, default] => Evaluation
+    def eval(source, eval_instance=default)
+      default_for(:eval_instance) { Evaluation.new(source) }
+
       eval_ast(parse(source), eval_instance)
     end
 
