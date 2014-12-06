@@ -179,6 +179,10 @@ describe 'Sicuro' do
     end
   end
 
+  it "assert('print true', 'true')" do
+    Sicuro.assert('print true', 'true').should == true
+  end
+
   it '#inspect' do
     Sicuro.new(1,2).inspect.should == "#<Sicuro memlimit=1 timelimit=2>"
   end
