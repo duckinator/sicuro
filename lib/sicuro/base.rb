@@ -28,17 +28,6 @@ require 'standalone'
 end
 
 class Sicuro
-  attr_accessor :memlimit, :timelimit
-
-  # Set the memory (in MBs) and time (in seconds) limits for Sicuro.
-  # Defaults are 200MB and 5 seconds.
-  def initialize(memlimit = nil, timelimit = nil)
-    @memlimit  = memlimit  || 200
-    @timelimit = timelimit || 5
-
-    Sicuro.add_files_to_dummyfs
-  end
-
   # Runs the specified code, returns STDOUT and STDERR as a single string.
   #
   # `code`: the code to run.
@@ -108,16 +97,13 @@ class Sicuro
     Eval.new(code, '', error, wall_time, pid)
   end
 
-  def inspect
-    "#<#{self.class} memlimit=#{@memlimit} timelimit=#{@timelimit}>"
-  end
-
   private
 
   # This prepends the code that actually makes the evaluation safe.
   def prefix_code(code, lib_dirs)
     <<-EOF
-      require #{__FILE__.inspect}
+      # FIXME: Make this less hacky after load paths are set reasonably.
+      require #{__FILE__.inspect.gsub('/base.rb', '.rb')}
       s=Sicuro.new(#{@memlimit}, #{@timelimit})
       s.send(:safe_eval, #{code.inspect}, #{lib_dirs.inspect})
     EOF
