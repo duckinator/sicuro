@@ -100,7 +100,7 @@ $TRUSTED_METHODS_ALL = [
   :warn, :raise, :fail,
   :global_variables, :__method__, :__callee__,
   :eval, :local_variables, :iterator?, :block_given?,
-  :catch, :throw, :loop, :caller,
+  :catch, :throw, :loop, :caller, :singleton_method?,
 
   # Printing    
   :printf, :print, :putc, :puts, :p,

@@ -172,33 +172,35 @@ class Sicuro
       const = Object.const_get(constant)
       const = const.class unless const.is_a?(Class) || const.is_a?(Module)
 
-      if const.is_a?(Module)
-        const.module_eval do
-          (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
-            # FIXME: This is a hack because we need STDIN (the IO class) to be
-            #        left alone for eval() to work.
-            next if [:STDIN, :STDOUT, :STDERR].include?(constant)
+      method_name = const.is_a?(Module) ? :module_eval : :instance_eval
 
-            m = meth.to_sym.inspect
+      const.module_eval do
+        (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |method_name|
+          # FIXME: This is a hack because we need STDIN (the IO class) to be
+          #        left alone for eval() to work.
+          next if [:STDIN, :STDOUT, :STDERR].include?(constant)
 
-            eval("public #{m}; undef #{m}")
-          end
-        end
-      else
-        const.instance_eval do
-          (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |meth|
-            next if [:STDIN, :STDOUT, :STDERR].include?(constant)
+          m = method_name.to_sym.inspect
 
-            m = meth.to_sym.inspect
+          # FIXME: Make this less horrifyingly gross.
+            begin
+              eval("public #{m}; undef #{m}")
+            rescue NameError => e
+              # Re-raise the error as long as it is not telling us
+              # the method we are trying to remove is undefined.
+              unless e.message.start_with?("undefined method `#{method_name.to_s}' ")
+                raise
+              end
+            end
 
-            #next unless method_defined?('define_method')
-            #define_method(meth) {}
 
-            #remove_method(meth) rescue nil
-            eval("public #{m}; undef #{m}")
-            #puts "Removing #{constant}.#{meth}"
-            #undef_method meth if respond_to?(meth)
-          end
+          #next unless method_defined?('define_method')
+          #define_method(meth) {}
+
+          #remove_method(meth) rescue nil
+          #eval("public #{m}; undef #{m}")
+          #puts "Removing #{constant}.#{meth}"
+          #undef_method meth if respond_to?(meth)
         end
       end
     end
