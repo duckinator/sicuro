@@ -19,7 +19,6 @@ require 'standalone'
 
     internal/eval
     internal/helper_functions
-    internal/exceptions
 
     runtime/methods
     runtime/dummyfs
