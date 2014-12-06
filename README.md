@@ -34,22 +34,22 @@ There is no way to alter the strength of the sandbox.
 
 ## Running code in the sandbox
 
-`Sicuro.eval(code)` is an alias for `Sicuro.new.eval(code)`, and returns a `Sicuro::Eval` instance.
+`Sicuro.eval(code)` is an alias for `Sicuro.new.eval(code)`, and returns a `Sicuro::Evaluation` instance.
 
-### Sicuro::Eval
+### Sicuro::Evaluation
 
-`Sicuro::Eval#code` is the code passed to `Sicuro#eval`.
+`Sicuro::Evaluation#code` is the code passed to `Sicuro#eval`.
 
-`Sicuro::Eval#stdout` is anything printed to stdout by the evaluated code (`puts`, `print`, etc).
+`Sicuro::Evaluation#stdout` is anything printed to stdout by the evaluated code (`puts`, `print`, etc).
 
-`Sicuro::Eval#stderr` is anything printed to stderr by the evaluated code (`warn`).
+`Sicuro::Evaluation#stderr` is anything printed to stderr by the evaluated code (`warn`).
 
-~~`Sicuro::Eval#return` is the returned value of the last statement.~~
+~~`Sicuro::Evaluation#return` is the returned value of the last statement.~~
 
-`Sicuro::Eval#to_s` intelligently returns one of `#stdout` or `#stderr`.
+`Sicuro::Evaluation#to_s` intelligently returns one of `#stdout` or `#stderr`.
 
 
-#### Notes on Sicuro::Eval#return
+#### Notes on Sicuro::Evaluation#return
 
 Previously, Sicuro provided a `#return` method that would give the value returned by the last line of code it evaluated. It existed from v0.0.1 to v0.18.0 (inclusive), and was removed with v0.19.0.
 The way this was accomplished was by returning a JSON object from the child (sandboxed) process to the parent (non-sandboxed) process.
@@ -93,7 +93,7 @@ require 'sicuro'
 p Sicuro.run(:ruby, "puts 'lawl'")
 
 # Example output:
-#   #<Sicuro::Eval code="puts 'lawl'" stdout="lawl\n" stderr="" wall_time=36>
+#   #<Sicuro::Evaluation code="puts 'lawl'" stdout="lawl\n" stderr="" wall_time=36>
 ```
 
 # License

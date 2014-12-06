@@ -18,8 +18,7 @@ require 'standalone'
     trusted/methods
     trusted/globals
 
-    internal/eval
-    internal/helper_functions
+    evaluation
 
     runtime/methods
     runtime/dummyfs
@@ -85,7 +84,7 @@ class Sicuro
     stdout = out_reader.value
     stderr = err_reader.value
 
-    Eval.new(code, stdout, stderr, wall_time, pid)
+    Evaluation.new(code, stdout, stderr, wall_time, pid)
   rescue Timeout::Error
     error = "Timeout::Error: Code took longer than %i seconds to terminate." %
                 @timelimit
@@ -94,7 +93,7 @@ class Sicuro
       Process.kill('KILL', pid) rescue nil
     end
 
-    Eval.new(code, '', error, wall_time, pid)
+    Evaluation.new(code, '', error, wall_time, pid)
   end
 
   private

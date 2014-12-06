@@ -1,6 +1,6 @@
 class Sicuro
-  # Sicuro::Eval is used to nicely handle stdout/stderr of evaluated code
-  class Eval
+  # Sicuro::Evaluation is used to nicely handle stdout/stderr of evaluated code
+  class Evaluation
     attr_reader :code, :stdout, :stderr, :wall_time
 
     def initialize(code, stdout, stderr, wall_time, pid)
@@ -49,7 +49,7 @@ class Sicuro
     private
     def running_check_2(code)
       if running?
-        $stderr.puts "[SICURO] Process ##{@pid} still running in Eval#new."
+        $stderr.puts "[SICURO] Process ##{@pid} still running in Evaluation#new."
         sleep 1
         Process.kill('KILL', @pid) rescue nil
       end
