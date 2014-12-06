@@ -10,6 +10,7 @@ require 'standalone'
 
 %w[
     constants
+    utils
 
     evalso
 
@@ -100,7 +101,7 @@ class Sicuro
     error = "Timeout::Error: Code took longer than %i seconds to terminate." %
                 @timelimit
 
-    if Sicuro.process_running?(pid)
+    if Sicuro::Utils.process_running?(pid)
       Process.kill('KILL', pid) rescue nil
     end
 

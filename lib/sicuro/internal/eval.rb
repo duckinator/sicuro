@@ -16,7 +16,7 @@ class Sicuro
     end
 
     def running?
-      Sicuro.process_running?(@pid)
+      Sicuro::Utils.process_running?(@pid)
     end
 
     # Get a version suitable for printing.
@@ -57,7 +57,7 @@ class Sicuro
 
     def running_check_3(code)
       if running?
-        Sicuro.sandbox_error([
+        Sicuro::Utils.sandbox_error([
           "Process ##{@pid} could not be terminated. THIS IS A BUG. Code:",
           *code.split("\n")
         ], true)
