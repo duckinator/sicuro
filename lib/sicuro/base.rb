@@ -27,13 +27,18 @@ require 'standalone'
 end
 
 class Sicuro
-  # Runs the specified code, returns STDOUT and STDERR as a single string.
+  # Executes +code+ in a sandboxed environment, and returns the
+  # resulting +Evaluation+.
   #
-  # `code`: the code to run.
+  # +code+::          the code to run.
+  # +[new_stdin]+::   a StringIO that is treated as $stdin.
+  # +[new_stdout]+::  a StringIO that is treated as $stdout.
+  # +[new_stderr]+::  a StringIO that is treated as $stderr.
+  # +[lib_dirs]+::    An Array of directories to be made available
+  #                   inside the sandbox. Note that this allows *any*
+  #                   code in these directories to be executed.
   #
-  # `new_stdin`:  a StringIO that is treated as $stdin.
-  # `new_stdout`: a StringIO that is treated as $stdout.
-  # `new_stderr`: a StringIO that is treated as $stderr.
+  # Returns an +Evaluation+ containing the results of executing +code+.
   def eval(code, new_stdin = nil, new_stdout = nil, new_stderr = nil, lib_dirs = [])
 
     new_stdin  ||= StringIO.new
@@ -46,7 +51,7 @@ class Sicuro
     start = Time.now
 
     Timeout.timeout(@timelimit) do
-      i, o, e, t = Open3.popen3(RUBY_USED, '-e', prefix_code(code, lib_dirs))
+      i, o, e, t = Open3.popen3(RUBY_USED, '-e', wrap_code(code, lib_dirs))
       pid = t.pid
 
       out_reader = reader(o, new_stdout)
@@ -80,18 +85,21 @@ class Sicuro
 
   private
 
-  # This prepends the code that actually makes the evaluation safe.
-  def prefix_code(code, lib_dirs)
+  # :nodoc:
+  # Wraps +code+ so that it will be executed with the sandbox constraints.
+  def wrap_code(code, lib_dirs)
     <<-EOF
       # FIXME: Make this less hacky after load paths are set reasonably.
       require #{__FILE__.inspect.gsub('/base.rb', '.rb')}
-      s=Sicuro.new(#{@memlimit}, #{@timelimit})
+      s=Sicuro.new(#{@memlimit}, #{@timelimit}, #{@virt_memlimit})
       s.send(:safe_eval, #{code.inspect}, #{lib_dirs.inspect})
     EOF
   end
 
-  # Used internally by Sicuro.eval.
-  # This does not enforce the time limit.
+  # :nodoc:
+  # The portion that actually enforces the majority of the sandbox
+  # constraints.
+  #
   # TODO: Since safe_eval itself cannot be tested, separate out what can.
   def safe_eval(code, lib_dirs)
     file = File.join(Standalone::ENV['HOME'], 'code.rb')
@@ -210,12 +218,15 @@ class Sicuro
     old_stderr.puts e.backtrace.join("\n")
   end
 
+  # :nodoc:
   # A recursive function to determine if a process has terminated,
   # attempts to terminate it if it has not.
   #
-  # If `attempt` is greater than 1, it will print a warning.
-  # If `attempt` is greater than 3, it will raise a SandboxError.
-  # (Both of these are done through Sicuro::Utils.sandbox_error.)
+  # Returns +true+ if the process is terminated in the first 3 attempts,
+  # or raises a +SandboxError+.
+  #
+  # If it takes more than 1 attempt to terminate the process,
+  # it will print a warning.
   def running_check(pid, code, attempt = 1)
     # If it's the second or later attempt, wait in case it was in the
     # process of terminating
@@ -239,7 +250,8 @@ class Sicuro
     !Sicuro::Utils.process_running?(pid) || running_check(pid, code, attempt + 1)
   end
 
-
+  # :nodoc:
+  # Copies data from one IO-like object to another.
   def reader(from, to)
     Thread.new(from, to) do |from, to|
       ret = ''
@@ -256,6 +268,11 @@ class Sicuro
     end
   end
 
+  # :nodoc:
+  # Copies data from one IO-like object to another, rewinding it first.
+  # Stops copying when $done is true.
+  #
+  # TODO: Make more generic? (Can this be merged into +reader+?)
   def rewinding_reader(from, to)
     Thread.new do
       ret = ''
