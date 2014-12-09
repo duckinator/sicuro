@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), 'sicuro', 'version')
 require File.join(File.dirname(__FILE__), 'sicuro', 'base')
 
 class Sicuro
-  attr_accessor :memlimit, :timelimit
+  attr_accessor :res_memlimit, :virt_memlimit, :timelimit
 
   # Initialize a new sandbox, with the defined constraints.
   #
