@@ -49,27 +49,11 @@ class Sicuro
       i, o, e, t = Open3.popen3(RUBY_USED, '-e', prefix_code(code, lib_dirs))
       pid = t.pid
 
-      out_reader = Thread.new do
-        ret = ''
-        until o.eof?
-          s = o.read(1)
-          ret += s
-          new_stdout.write s
-        end
-        ret
-      end
-
-      err_reader = Thread.new do
-        ret = ''
-        until e.eof?
-          s = e.read(1)
-          ret += s
-          new_stderr.write s
-        end
-        ret
-      end
+      out_reader = reader(o, new_stdout)
+      err_reader = reader(e, new_stderr)
 
       i.close
+
       out_reader.join
       err_reader.join
     end
@@ -120,7 +104,7 @@ class Sicuro
     result = nil
     old_stdout = $stdout
     old_stderr = $stderr
-    old_stdin = $stdin
+    old_stdin  = $stdin
 
     # RAM limit
     Process.setrlimit(Process::RLIMIT_AS, @memlimit * 1024 * 1024) unless @memlimit.zero?
@@ -194,7 +178,7 @@ class Sicuro
 
     $stdout = StringIO.new
     $stderr = StringIO.new
-    $stdin = StringIO.new
+    $stdin  = StringIO.new
 
     Object.instance_eval do
       [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
@@ -205,37 +189,9 @@ class Sicuro
 
     $done = false
 
-    reader = lambda do |from, to|
-      Thread.new do
-        ret = ''
-        pos = 0
-
-        from.rewind
-
-        loop do
-          s = from.read
-          ret += s
-          pos += s.length
-
-          to.write s
-          to.flush
-
-          from.pos = pos
-
-          break if $done
-        end
-
-        s = from.read
-        ret += s
-        to.write s
-
-        ret
-      end
-    end
-
-    out_reader = reader.call($stdout, old_stdout)
-
-    err_reader = reader.call($stderr, old_stderr)
+    out_reader = rewinding_reader($stdout, old_stdout)
+    err_reader = rewinding_reader($stderr, old_stderr)
+    in_reader  = reader($stdin,  old_stdin)
 
     require 'sicuro/runtime/whitelist'
     result = ::Kernel.eval(code, TOPLEVEL_BINDING, file)
@@ -275,5 +231,50 @@ class Sicuro
     end
 
     !Sicuro::Utils.process_running?(pid) || running_check(pid, code, attempt + 1)
+  end
+
+
+  def reader(from, to)
+    Thread.new(from, to) do |from, to|
+      ret = ''
+
+      until from.eof?
+        s = from.read
+        ret += s
+
+        to.write s
+        to.flush
+      end
+
+      ret
+    end
+  end
+
+  def rewinding_reader(from, to)
+    Thread.new do
+      ret = ''
+      pos = 0
+
+      from.rewind
+
+      loop do
+        s = from.read
+        ret += s
+        pos += s.length
+
+        to.write s
+        to.flush
+
+        from.pos = pos
+
+        break if $done
+      end
+
+      s = from.read
+      ret += s
+      to.write s
+
+      ret
+    end
   end
 end
