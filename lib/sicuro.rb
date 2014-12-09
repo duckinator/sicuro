@@ -15,7 +15,7 @@ class Sicuro
     @res_memlimit = res_memlimit  || 20
 
     # Virtual memory: how much is allocated (I think?), in megabytes.
-    @virt_memlimit = virt_memlimit || (memlimit * 20)
+    @virt_memlimit = virt_memlimit || (@res_memlimit * 20)
 
     # Execution time, in seconds.
     @timelimit = timelimit || 5

@@ -91,7 +91,7 @@ class Sicuro
     <<-EOF
       # FIXME: Make this less hacky after load paths are set reasonably.
       require #{__FILE__.inspect.gsub('/base.rb', '.rb')}
-      s=Sicuro.new(#{@memlimit}, #{@timelimit}, #{@virt_memlimit})
+      s=Sicuro.new(#{@res_memlimit}, #{@timelimit}, #{@virt_memlimit})
       s.send(:safe_eval, #{code.inspect}, #{lib_dirs.inspect})
     EOF
   end
@@ -115,9 +115,9 @@ class Sicuro
     old_stdin  = $stdin
 
     # RAM limit
-    unless @memlimit.zero?
+    unless @res_memlimit.zero?
       # Resident memory: how much RAM is being actively used (I think?).
-      Process.setrlimit(Process::RLIMIT_RSS, @memlimit * 1024 * 1024)
+      Process.setrlimit(Process::RLIMIT_RSS, @res_memlimit * 1024 * 1024)
 
       # Virtual memory: how much is allocated (I think?).
       Process.setrlimit(Process::RLIMIT_AS,  @virt_memlimit * 1024 * 1024)
