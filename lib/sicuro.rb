@@ -7,9 +7,9 @@ class Sicuro
   # Initialize a new sandbox, with the defined constraints.
   #
   # +res_memlimit+::  Maximum resident memory usage (in megabytes). Default: +20+.
-  # +timelimit+::     Maximum execution time (in seconds). Default: +5+.
   # +virt_memlimit+:: Maximum virtual memory usage (in megabytes). Default: +res_memlimit * 20+.
-  def initialize(res_memlimit = nil, timelimit = nil, virt_memlimit = nil)
+  # +timelimit+::     Maximum execution time (in seconds). Default: +5+.
+  def initialize(res_memlimit = nil, virt_memlimit = nil, timelimit = nil)
     # Resident memory: how much RAM can be actively used (I think?), in
     #   megabytes.
     @res_memlimit = res_memlimit  || 20
