@@ -11,11 +11,11 @@ describe Sicuro::Utils do
     capture(:stderr) { Sicuro::Utils.sandbox_error(1) }.should == "[SANDBOX WARNING] 1\n"
   end
 
-  it 'raises a Sicuro::SandboxError when passing true to sandbox_error' do
+  it 'raises a Sicuro::SandboxIntegrityError when passing true to sandbox_error' do
     expect {
       capture(:stderr) {
         Sicuro::Utils.sandbox_error('test', true)
       }
-    }.to raise_exception(Sicuro::SandboxError, 'test')
+    }.to raise_exception(Sicuro::SandboxIntegrityError, 'test')
   end
 end

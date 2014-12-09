@@ -1,7 +1,7 @@
 class Sicuro
   NO_SANDBOXED_IMPL = "a sandboxed version of \`%s' has not been implemented yet."
 
-  SandboxError = Class.new(::StandardError)
+  SandboxIntegrityError = Class.new(::StandardError)
 
   # Ruby executable used.
   RUBY_EXE = RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT']

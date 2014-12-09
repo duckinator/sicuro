@@ -223,7 +223,7 @@ class Sicuro
   # attempts to terminate it if it has not.
   #
   # Returns +true+ if the process is terminated in the first 3 attempts,
-  # or raises a +SandboxError+.
+  # or raises a +SandboxIntegrityError+.
   #
   # If it takes more than 1 attempt to terminate the process,
   # it will print a warning.
