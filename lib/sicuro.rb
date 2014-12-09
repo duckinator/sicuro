@@ -36,7 +36,7 @@ class Sicuro
   end
 
   def inspect
-    "#<#{self.class} memlimit=#{@memlimit} timelimit=#{@timelimit}>"
+    "#<#{self.class} res_memlimit=#{@res_memlimit} virt_memlimit=#{@virt_memlimit} timelimit=#{@timelimit}>"
   end
 
   class << self
