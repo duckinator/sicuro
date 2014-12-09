@@ -1,6 +1,12 @@
 describe 'Sicuro' do
   # Tests regarding the behavior of evaluations are in sicuro_evaluation_results_spec.rb.
 
+  context '#eval' do
+    it 'returns an Evaluation' do
+      Sicuro.new.eval('').should be_a Sicuro::Evaluation
+    end
+  end
+
   it 'defines res_memlimit, virt_memlimit, and timelimit correctly' do
     sandbox = Sicuro.new(1, 2, 3)
 
