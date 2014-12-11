@@ -17,6 +17,6 @@ describe 'Sicuro' do
 
   it '#inspect' do
     Sicuro.new(1, 2, 3).inspect.should == "#<Sicuro res_memlimit=1 virt_memlimit=2 timelimit=3>"
-    Sicuro.new(1, 2).inspect.should    == "#<Sicuro res_memlimit=1 virt_memlimit=20 timelimit=2>"
+    Sicuro.new(1, 2).inspect.should    == "#<Sicuro res_memlimit=1 virt_memlimit=2 timelimit=5>"
   end
 end
