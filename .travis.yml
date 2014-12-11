@@ -1,35 +1,19 @@
 language: ruby
 rvm:
-#  - 1.8.7
-  - 1.9.2
   - 1.9.3
   - 2.0.0
-#  - rbx-18mode
-#  - rbx-19mode
-#  - jruby
+  - rbx-19mode
+  - jruby
 #  - ruby-head
-#  - ree
 
 script: bundle exec rspec spec
 
 notifications:
-  webhooks:
-    - http://rcmp.tenthbit.net
-    - http://rcmp.tenthbit.net/irc.freenode.net/sicuro
-  
   email:
     on_success: change # default: change
     on_failure: change # default: always
 
-
-
-
-# Allowed failures
 matrix:
   allow_failures:
-    - rvm: 1.8.7
-    - rvm: rbx-18mode
     - rvm: rbx-19mode
     - rvm: jruby
-    - rvm: ree
-
