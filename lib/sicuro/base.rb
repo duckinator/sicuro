@@ -91,7 +91,7 @@ class Sicuro
     <<-EOF
       # FIXME: Make this less hacky after load paths are set reasonably.
       require #{__FILE__.inspect.gsub('/base.rb', '.rb')}
-      s=Sicuro.new(#{@res_memlimit}, #{@timelimit}, #{@virt_memlimit})
+      s=Sicuro.new(#{@res_memlimit}, #{@virt_memlimit}, #{@timelimit})
       s.send(:safe_eval, #{code.inspect}, #{lib_dirs.inspect})
     EOF
   end
