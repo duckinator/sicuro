@@ -9,17 +9,7 @@ class Sicuro
   # +res_memlimit+::  Maximum resident memory usage (in megabytes). Default: +20+.
   # +virt_memlimit+:: Maximum virtual memory usage (in megabytes). Default: +res_memlimit * 20+.
   # +timelimit+::     Maximum execution time (in seconds). Default: +5+.
-  def initialize(res_memlimit = nil, virt_memlimit = nil, timelimit = nil)
-    # Resident memory: how much RAM can be actively used (I think?), in
-    #   megabytes.
-    @res_memlimit = res_memlimit  || 20
-
-    # Virtual memory: how much is allocated (I think?), in megabytes.
-    @virt_memlimit = virt_memlimit || (@res_memlimit * 20)
-
-    # Execution time, in seconds.
-    @timelimit = timelimit || 5
-
+  def initialize(res_memlimit = 20, virt_memlimit = res_memlimit * 20, timelimit = 5)
     Sicuro.add_files_to_dummyfs
   end
 
