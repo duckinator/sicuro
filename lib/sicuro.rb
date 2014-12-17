@@ -10,6 +10,8 @@ class Sicuro
   # +virt_memlimit+:: Maximum virtual memory usage (in megabytes). Default: +res_memlimit * 20+.
   # +timelimit+::     Maximum execution time (in seconds). Default: +5+.
   def initialize(res_memlimit = 20, virt_memlimit = res_memlimit * 20, timelimit = 5)
+    @res_memlimit, @virt_memlimit, @timelimit = res_memlimit, virt_memlimit, timelimit
+
     Sicuro.add_files_to_dummyfs
   end
 
