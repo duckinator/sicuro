@@ -1,56 +1,45 @@
 class Sicuro
   # :nodoc:
-  # Copies data from one IO-like object to another.
+  # Copies data from one IO-like object to another until `from` is closed.
   class Reader < Thread
     def initialize(from, to)
       super(from, to) do |from, to|
-        ret = ''
-
-        until from.eof?
-          s = from.read
-          ret += s
-
-          to.write s
-          to.flush
-        end
-
-        ret
+        IO.copy_stream(from, to) until from.eof?
       end
     end
   end
 
   # :nodoc:
-  # Copies data from one IO-like object to another, rewinding it first.
-  # Stops copying when $done is true.
+  # Copies data from one IO-like object to another until `#close` is called.
   #
-  # TODO: Make more generic? (Can this be merged into +reader+?)
-  class RewindingReader < Thread
+  # I have no idea why calling `#close` on `from` doesn't work with this one.
+  #
+  # This works in a really gross fashion, because we can't use IO from inside of
+  # the sandbox.
+  class HorribleReader < Thread
     def initialize(from, to)
+      @done = false
+
       super(from, to) do
-        ret = ''
-        pos = 0
+        pos = from.pos
 
-        from.rewind
-
-        loop do
+        until @done
           s = from.read
-          ret += s
           pos += s.length
 
           to.write s
           to.flush
 
-          from.pos = pos
-
-          break if $done
+          from.pos = pos 
         end
 
         s = from.read
-        ret += s
         to.write s
-
-        ret
       end
+    end
+
+    def close
+      @done = true
     end
   end
 end

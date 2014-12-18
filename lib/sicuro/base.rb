@@ -20,6 +20,7 @@ require 'standalone'
 
     evaluation
 
+    runtime/whitelist
     runtime/methods
     runtime/file_system
 
@@ -72,10 +73,7 @@ class Sicuro
     # We then call .to_i because we want an int, not a float.
     wall_time = (duration * 1000).to_i
 
-    stdout = out_reader.value
-    stderr = err_reader.value
-
-    Evaluation.new(code, stdout, stderr, wall_time)
+    Evaluation.new(code, new_stdout.string, new_stderr.string, wall_time)
   rescue Timeout::Error
     error = "Timeout::Error: Code took longer than %i seconds to terminate." %
                 @timelimit
@@ -98,24 +96,28 @@ class Sicuro
     EOF
   end
 
-  # :nodoc:
-  # The portion that actually enforces the majority of the sandbox
-  # constraints.
-  #
-  # TODO: Since safe_eval itself cannot be tested, separate out what can.
-  def safe_eval(code, lib_dirs)
-    file = File.join(Standalone::ENV['HOME'], 'code.rb')
+  def add_to_filesystem(file, code, lib_dirs)
     Standalone::Runtime::FileSystem.add_file(file, code)
 
     lib_dirs.each do |dir|
       Standalone::Runtime::FileSystem.add_real_directory(dir, '*.rb', true)
     end
+  end
 
-    result = nil
-    old_stdout = $stdout
-    old_stderr = $stderr
-    old_stdin  = $stdin
+  def replace_io!
+    $stdout = StringIO.new
+    $stderr = StringIO.new
+    $stdin  = StringIO.new
 
+    Object.instance_eval do
+      [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
+    end
+    Object.const_set(:STDOUT, $stdout)
+    Object.const_set(:STDERR, $stderr)
+    Object.const_set(:STDIN, $stdin)
+  end
+
+  def enforce_constraints!
     # RAM limit
     unless @res_memlimit.zero?
       # Resident memory: how much RAM is being actively used (I think?).
@@ -131,7 +133,21 @@ class Sicuro
       raise Timeout::Error
       exit!
     end
+  end
 
+  # :nodoc:
+  # The portion that actually enforces the majority of the sandbox
+  # constraints.
+  #
+  # TODO: Since safe_eval itself cannot be tested, separate out what can.
+  def safe_eval(code, lib_dirs)
+    file = File.join(Standalone::ENV['HOME'], 'code.rb')
+    result = nil
+    old_stdout, old_stderr, old_stdin = $stdout, $stderr, $stdin
+
+    add_to_filesystem(file, code, lib_dirs)
+    replace_io!
+    enforce_constraints!
     ::Standalone.enable!
     ::Sicuro::Runtime::Methods.replace_all!
 
@@ -139,79 +155,18 @@ class Sicuro
       require "sicuro/runtime/#{file}"
     end
 
-    unsafe_constants = Object.constants - $TRUSTED_CONSTANTS
+    #::Sicuro::Runtime::Constants.replace_all!
+    ::Sicuro::Runtime.enforce_whitelist!
 
-    unsafe_constants.each do |x|
-      Object.instance_eval { remove_const x }
-    end
-
-    Object.constants.each do |constant|
-      next unless Object.const_defined?(constant)
-
-      next if [:NIL, :TRUE, :FALSE, :NilClass].include?(constant)
-
-      trusted = $TRUSTED_METHODS[constant] || []
-
-      const = Object.const_get(constant)
-      const = const.class unless const.is_a?(Class) || const.is_a?(Module)
-
-      method_name = const.is_a?(Module) ? :module_eval : :instance_eval
-
-      const.module_eval do
-        (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |method_name|
-          # FIXME: This is a hack because we need STDIN (the IO class) to be
-          #        left alone for eval() to work.
-          next if [:STDIN, :STDOUT, :STDERR].include?(constant)
-
-          m = method_name.to_sym.inspect
-
-          # FIXME: Make this less horrifyingly gross.
-            begin
-              eval("public #{m}; undef #{m}")
-            rescue NameError => e
-              # Re-raise the error as long as it is not telling us
-              # the method we are trying to remove is undefined.
-              unless e.message.start_with?("undefined method `#{method_name.to_s}' ")
-                raise
-              end
-            end
-
-
-          #next unless method_defined?('define_method')
-          #define_method(meth) {}
-
-          #remove_method(meth) rescue nil
-          #eval("public #{m}; undef #{m}")
-          #puts "Removing #{constant}.#{meth}"
-          #undef_method meth if respond_to?(meth)
-        end
-      end
-    end
-
-    (global_variables - $TRUSTED_GLOBALS).each do |var|
-      ::Kernel.eval("#{var.to_s}.freeze") 
-    end
-
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-    $stdin  = StringIO.new
-
-    Object.instance_eval do
-      [:STDOUT, :STDERR, :STDIN].each { |x| remove_const x }
-    end
-    Object.const_set(:STDOUT, $stdout)
-    Object.const_set(:STDERR, $stderr)
-    Object.const_set(:STDIN, $stdin)
-
-    $done = false
-
-    out_reader = RewindingReader.new($stdout, old_stdout)
-    err_reader = RewindingReader.new($stderr, old_stderr)
+    out_reader = HorribleReader.new($stdout, old_stdout)
+    err_reader = HorribleReader.new($stderr, old_stderr)
     in_reader  = Reader.new($stdin,  old_stdin)
 
     require 'sicuro/runtime/whitelist'
     result = ::Kernel.eval(code, TOPLEVEL_BINDING, file)
-    $done = true
+
+    out_reader.close
+    err_reader.close
 
     out_reader.join
     err_reader.join
