@@ -22,6 +22,8 @@ require 'standalone'
 
     runtime/methods
     runtime/file_system
+
+    reader
 ].each do |file|
   require "sicuro/#{file}"
 end
@@ -54,8 +56,8 @@ class Sicuro
       i, o, e, t = Open3.popen3(RUBY_USED, '-I', SICURO_LIB_DIR, '-e', wrap_code(code, lib_dirs))
       pid = t.pid
 
-      out_reader = reader(o, new_stdout)
-      err_reader = reader(e, new_stderr)
+      out_reader = Reader.new(o, new_stdout)
+      err_reader = Reader.new(e, new_stderr)
 
       i.close
 
@@ -203,9 +205,9 @@ class Sicuro
 
     $done = false
 
-    out_reader = rewinding_reader($stdout, old_stdout)
-    err_reader = rewinding_reader($stderr, old_stderr)
-    in_reader  = reader($stdin,  old_stdin)
+    out_reader = RewindingReader.new($stdout, old_stdout)
+    err_reader = RewindingReader.new($stderr, old_stderr)
+    in_reader  = Reader.new($stdin,  old_stdin)
 
     require 'sicuro/runtime/whitelist'
     result = ::Kernel.eval(code, TOPLEVEL_BINDING, file)
@@ -248,56 +250,5 @@ class Sicuro
     end
 
     !Sicuro::Utils.process_running?(pid) || running_check(pid, code, attempt + 1)
-  end
-
-  # :nodoc:
-  # Copies data from one IO-like object to another.
-  def reader(from, to)
-    Thread.new(from, to) do |from, to|
-      ret = ''
-
-      until from.eof?
-        s = from.read
-        ret += s
-
-        to.write s
-        to.flush
-      end
-
-      ret
-    end
-  end
-
-  # :nodoc:
-  # Copies data from one IO-like object to another, rewinding it first.
-  # Stops copying when $done is true.
-  #
-  # TODO: Make more generic? (Can this be merged into +reader+?)
-  def rewinding_reader(from, to)
-    Thread.new do
-      ret = ''
-      pos = 0
-
-      from.rewind
-
-      loop do
-        s = from.read
-        ret += s
-        pos += s.length
-
-        to.write s
-        to.flush
-
-        from.pos = pos
-
-        break if $done
-      end
-
-      s = from.read
-      ret += s
-      to.write s
-
-      ret
-    end
   end
 end
