@@ -1,7 +1,3 @@
-#BEGIN {
-#  Sicuro::Runtime::Methods.replace_all!
-#}
-
 class Sicuro
   class Runtime
     def self.enforce_whitelist!

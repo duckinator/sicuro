@@ -19,7 +19,7 @@ class Sicuro
       # Stub Monitor implementation.
       class Monitor
         [
-          :initialize, :try_enter, :enter, :exit, :mon_try_enter, :try_mon_enter,
+          :try_enter, :enter, :exit, :mon_try_enter, :try_mon_enter,
           :mon_enter, :mon_exit, :mon_synchronize, :synchronize, :new_cond
         ].each do |name|
           send(:define_method, name) do

@@ -21,6 +21,7 @@ require 'standalone'
     evaluation
 
     runtime/whitelist
+    runtime/constants
     runtime/methods
     runtime/file_system
 
@@ -150,11 +151,7 @@ class Sicuro
     enforce_constraints!
     ::Standalone.enable!
     ::Sicuro::Runtime::Methods.replace_all!
-
-    %w[constants methods file_system].each do |file|
-      require "sicuro/runtime/#{file}"
-    end
-
+    # FIXME: Make it so things don't blow up when the next line is un-commented.
     #::Sicuro::Runtime::Constants.replace_all!
     ::Sicuro::Runtime.enforce_whitelist!
 
@@ -162,7 +159,6 @@ class Sicuro
     err_reader = HorribleReader.new($stderr, old_stderr)
     in_reader  = Reader.new($stdin,  old_stdin)
 
-    require 'sicuro/runtime/whitelist'
     result = ::Kernel.eval(code, TOPLEVEL_BINDING, file)
 
     out_reader.close
