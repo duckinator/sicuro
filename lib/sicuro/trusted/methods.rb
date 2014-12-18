@@ -84,10 +84,6 @@ $TRUSTED_METHODS = {
     :each_slice, :each_cons, :each_with_object, :zip, :take, :take_while, :drop,
     :drop_while, :cycle, :chunk, :slice_before,
   ],
-  :DummyFS => [
-    :fs, :setup, :enable!, :has_file?, :find_file, :add_file, :add_real_file,
-    :add_directory, :get_file, :add_real_directory, :add_library,
-  ],
 }
 
 $TRUSTED_METHODS[:Class] = $TRUSTED_METHODS[:Module]

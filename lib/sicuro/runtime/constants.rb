@@ -16,14 +16,14 @@ class Sicuro
 
       ARGV = []
 
-      # Our lovely dummy Monitor implementation!
+      # Stub Monitor implementation.
       class Monitor
         [
           :initialize, :try_enter, :enter, :exit, :mon_try_enter, :try_mon_enter,
           :mon_enter, :mon_exit, :mon_synchronize, :synchronize, :new_cond
         ].each do |name|
           send(:define_instance_method, name) do
-            raise NotImplementedError, "Dummy Monitor implementation: #{name} not implemented."
+            raise NotImplementedError, "Monitor##{name} not implemented."
           end
         end
       end

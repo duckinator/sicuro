@@ -47,5 +47,5 @@ $TRUSTED_CONSTANTS = [
   :Errno,
 
   # Replaced in runtime/constants.rb
-  :ENV, :DummyFS, :File, :ARGV, :RUBYGEMS_ACTIVATION_MONITOR,
+  :ENV, :File, :ARGV, :RUBYGEMS_ACTIVATION_MONITOR,
 ]

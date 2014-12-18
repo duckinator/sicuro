@@ -21,7 +21,7 @@ require 'standalone'
     evaluation
 
     runtime/methods
-    runtime/dummyfs
+    runtime/file_system
 ].each do |file|
   require "sicuro/#{file}"
 end
@@ -103,10 +103,10 @@ class Sicuro
   # TODO: Since safe_eval itself cannot be tested, separate out what can.
   def safe_eval(code, lib_dirs)
     file = File.join(Standalone::ENV['HOME'], 'code.rb')
-    Standalone::DummyFS.add_file(file, code)
+    Standalone::Runtime::FileSystem.add_file(file, code)
 
     lib_dirs.each do |dir|
-      Standalone::DummyFS.add_real_directory(dir, '*.rb', true)
+      Standalone::Runtime::FileSystem.add_real_directory(dir, '*.rb', true)
     end
 
     result = nil
@@ -133,7 +133,7 @@ class Sicuro
     ::Standalone.enable!
     ::Sicuro::Runtime::Methods.replace_all!
 
-    %w[constants methods dummyfs].each do |file|
+    %w[constants methods file_system].each do |file|
       require "sicuro/runtime/#{file}"
     end
 

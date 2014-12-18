@@ -15,11 +15,11 @@ class Sicuro
       
       def self.replace_all!
         $:.clear
-        ::Standalone::DummyFS.enable!
+        ::Standalone::Runtime::FileSystem.enable!
 
         replace(Kernel, :load) do |file, wrap = false|
           # TODO: Less hacky check.
-          eval(open(file).read, TOPLEVEL_BINDING) unless file.start_with?(FAKE_GEM_DIR)
+          eval(open(file).read, TOPLEVEL_BINDING) unless file.start_with?(FileSystem::FAKE_GEM_DIR)
         end
         
         # TODO: Can this be done without the second argument? It should behave identically to MRI's require().
