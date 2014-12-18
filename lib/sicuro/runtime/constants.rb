@@ -35,8 +35,10 @@ class Sicuro
       # specified in Sicuro::Runtime::Constants.
       def self.replace_all!
         ::Sicuro::Runtime::Constants.constants.each do |x|
-          Object.instance_eval do
-            remove_const x if const_defined?(x)
+          obj = Kernel.constants(false).include?(x) ? Kernel : Object
+
+          obj.instance_eval do
+            remove_const(x) if const_defined?(x)
             const_set(x, ::Sicuro::Runtime::Constants.const_get(x))
           end
         end
