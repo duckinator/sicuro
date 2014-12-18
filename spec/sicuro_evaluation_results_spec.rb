@@ -179,6 +179,13 @@ describe 'Sicuro' do
     end
   end
 
+  it "has a working load()" do
+    filename = File.join(Sicuro::Runtime::Constants::ENV['HOME'], 'code.rb')
+    expected_output = [filename, filename].join("\n")
+
+    Sicuro.eval('puts __FILE__; load __FILE__').stdout.should start_with expected_output
+  end
+
   it "assert('print true', 'true')" do
     Sicuro.assert('print true', 'true').should == true
   end
