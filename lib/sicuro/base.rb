@@ -151,7 +151,6 @@ class Sicuro
     enforce_constraints!
     ::Standalone.enable!
     ::Sicuro::Runtime::Methods.replace_all!
-    # FIXME: Make it so things don't blow up when the next line is un-commented.
     ::Sicuro::Runtime::Constants.replace_all!
     ::Sicuro::Runtime.enforce_whitelist!
 
