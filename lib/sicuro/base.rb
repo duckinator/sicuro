@@ -49,7 +49,6 @@ class Sicuro
     new_stdout ||= StringIO.new
     new_stderr ||= StringIO.new
 
-    i, o, e, t, pid = nil
     out_reader, err_reader = nil
 
     start = Time.now
