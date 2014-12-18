@@ -1,5 +1,5 @@
-require File.join(File.dirname(__FILE__), 'sicuro', 'version')
-require File.join(File.dirname(__FILE__), 'sicuro', 'base')
+require 'sicuro/version'
+require 'sicuro/base'
 
 class Sicuro
   attr_accessor :res_memlimit, :virt_memlimit, :timelimit

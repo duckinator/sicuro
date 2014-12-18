@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'constants') # For access to Sicuro::SandboxIntegrityError.
+require 'sicuro/constants' # For access to Sicuro::SandboxIntegrityError.
 
 module Sicuro::Utils
   class << self

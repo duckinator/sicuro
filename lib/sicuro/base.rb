@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'version')
+require 'sicuro/version'
 require 'timeout'
 require 'open3'
 require 'rbconfig'
@@ -22,8 +22,8 @@ require 'standalone'
 
     runtime/methods
     runtime/dummyfs
-].each do |x|
-  require File.join(File.dirname(__FILE__), "#{x}.rb")
+].each do |file|
+  require "sicuro/#{file}"
 end
 
 class Sicuro
@@ -51,7 +51,7 @@ class Sicuro
     start = Time.now
 
     Timeout.timeout(@timelimit) do
-      i, o, e, t = Open3.popen3(RUBY_USED, '-e', wrap_code(code, lib_dirs))
+      i, o, e, t = Open3.popen3(RUBY_USED, '-I', SICURO_LIB_DIR, '-e', wrap_code(code, lib_dirs))
       pid = t.pid
 
       out_reader = reader(o, new_stdout)

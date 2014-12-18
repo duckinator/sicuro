@@ -6,4 +6,6 @@ class Sicuro
   # Ruby executable used.
   RUBY_EXE = RbConfig::CONFIG['ruby_install_name'] + RbConfig::CONFIG['EXEEXT']
   RUBY_USED = File.join(RbConfig::CONFIG['bindir'], RUBY_EXE)
+
+  SICURO_LIB_DIR = File.expand_path('..', File.dirname(__FILE__))
 end
