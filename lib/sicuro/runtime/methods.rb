@@ -18,8 +18,7 @@ class Sicuro
         ::Standalone::Runtime::FileSystem.enable!
 
         replace(Kernel, :load) do |file, wrap = false|
-          # TODO: Less hacky check.
-          eval(open(file).read, TOPLEVEL_BINDING) unless file.start_with?(FileSystem::FAKE_GEM_DIR)
+          eval(open(file).read, TOPLEVEL_BINDING, file)
         end
         
         # TODO: Can this be done without the second argument? It should behave identically to MRI's require().
