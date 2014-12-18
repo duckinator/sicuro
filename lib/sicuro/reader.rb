@@ -1,9 +1,9 @@
 class Sicuro
   # :nodoc:
   # Copies data from one IO-like object to another.
-  class Reader
-    def self.new(from, to)
-      Thread.new(from, to) do |from, to|
+  class Reader < Thread
+    def initialize(from, to)
+      super(from, to) do |from, to|
         ret = ''
 
         until from.eof?
@@ -24,9 +24,9 @@ class Sicuro
   # Stops copying when $done is true.
   #
   # TODO: Make more generic? (Can this be merged into +reader+?)
-  class RewindingReader
-    def self.new(from, to)
-      Thread.new(from, to) do
+  class RewindingReader < Thread
+    def initialize(from, to)
+      super(from, to) do
         ret = ''
         pos = 0
 
