@@ -23,25 +23,9 @@ class Sicuro
           (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |method_name|
             m = method_name.to_sym.inspect
 
-            # FIXME: Make this less horrifyingly gross.
-              begin
-                eval("public #{m}; undef #{m}")
-              rescue NameError => e
-                # Re-raise the error as long as it is not telling us
-                # the method we are trying to remove is undefined.
-                unless e.message.start_with?("undefined method `#{method_name.to_s}' ")
-                  raise
-                end
-              end
+            next unless method_defined?(method_name) || public_method_defined?(method_name) || private_method_defined?(method_name)
 
-
-            #next unless method_defined?('define_method')
-            #define_method(meth) {}
-
-            #remove_method(meth) rescue nil
-            #eval("public #{m}; undef #{m}")
-            #puts "Removing #{constant}.#{meth}"
-            #undef_method meth if respond_to?(meth)
+            undef_method method_name
           end
         end
       end
