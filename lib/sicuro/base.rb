@@ -140,7 +140,7 @@ class Sicuro
   # The portion that actually enforces the majority of the sandbox
   # constraints.
   #
-  # TODO: Since safe_eval itself cannot be tested, separate out what can.
+  # TODO: safe_eval() itself cannot be tested, so test the portions that can.
   def safe_eval(code, lib_dirs)
     file = File.join(Standalone::ENV['HOME'], 'code.rb')
     result = nil
