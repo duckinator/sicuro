@@ -20,34 +20,38 @@ class Sicuro
         replace(Kernel, :load) do |file, wrap = false|
           eval(open(file).read, TOPLEVEL_BINDING, file)
         end
-        
-        # TODO: Can this be done without the second argument? It should behave identically to MRI's require().
+
         replace(Kernel, :require) do |file|
-          # If we're 2 levels into require(), add .rb to the filename
-          __full_name =
-            if caller[0].include?("block (2 levels) ")
-              file + '.rb'
-            end
+          resolve = lambda do |dir, file|
+            file =
+              if file.start_with?(dir) || file.start_with?('/') || file.start_with?('./')
+                file
+              else
+                File.join(dir, file)
+              end
+
+            file += ".rb" if !File.file?(file) && File.file?(file + ".rb")
+
+            return false unless File.file?(file)
+
+            file
+          end
 
           $:.each do |dir|
-            f = __full_name || file
+            resolved = resolve.(dir, file)
 
-            f = File.join(dir, f) unless f.start_with?(dir) || f.start_with?('/')
+            next unless resolved
 
-            return false if $LOADED_FEATURES.include?(f)
+            return false if $LOADED_FEATURES.include?(resolved)
 
-            if f && File.file?(f)
-              $LOADED_FEATURES << f
-              load f
-              return true
-            elsif __full_name.nil?
-              return require(file)#, "#{file}.rb")
-            end
+            $LOADED_FEATURES << resolved
+            load resolved
+            return true
           end
 
           raise ::LoadError, "cannot load such file -- #{file}"
         end
-        
+
         replace(Kernel, :require_relative) do |file|
           raise ::NotImplementedError, NO_SANDBOXED_IMPL % 'require_relative'
         end

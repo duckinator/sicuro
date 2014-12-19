@@ -186,6 +186,10 @@ describe 'Sicuro' do
     Sicuro.eval('puts __FILE__; load __FILE__').stdout.should start_with expected_output
   end
 
+  it "has a working require()" do
+    Sicuro.eval("puts(require(__FILE__))").stdout.should == "false\ntrue\n"
+  end
+
   it "assert('print true', 'true')" do
     Sicuro.assert('print true', 'true').should == true
   end
