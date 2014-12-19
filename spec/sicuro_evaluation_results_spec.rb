@@ -181,9 +181,20 @@ describe 'Sicuro' do
 
   it "has a working load()" do
     filename = File.join(Sicuro::Runtime::Constants::ENV['HOME'], 'code.rb')
-    expected_output = [filename, filename].join("\n")
+    expected_output = [filename, filename, ''].join("\n")
 
-    Sicuro.eval('puts __FILE__; load __FILE__').stdout.should start_with expected_output
+    code = <<-EOF
+      $i ||= -1
+      $i += 1
+
+      exit if $i >= 2
+
+      puts __FILE__
+      load __FILE__
+
+    EOF
+
+    Sicuro.eval(code).stdout.should == expected_output
   end
 
   it "has a working require()" do
