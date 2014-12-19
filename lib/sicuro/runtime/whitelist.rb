@@ -21,10 +21,6 @@ class Sicuro
 
         const.module_eval do
           (const.methods + const.private_methods - $TRUSTED_METHODS_ALL - trusted).each do |method_name|
-            # FIXME: This is a hack because we need STDIN (the IO class) to be
-            #        left alone for eval() to work.
-            next if [:STDIN, :STDOUT, :STDERR].include?(constant)
-
             m = method_name.to_sym.inspect
 
             # FIXME: Make this less horrifyingly gross.
