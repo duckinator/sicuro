@@ -7,6 +7,11 @@ Coveralls.wear!
 require 'simplecov'
 
 SimpleCov.configure do
+  formatter SimpleCov::Formatter::MultiFormatter[
+    SimpleCov::Formatter::HTMLFormatter,
+    CodeClimate::TestReporter::Formatter
+  ]
+
   add_filter 'spec/'
 
   add_group 'Sandbox' do |src|
