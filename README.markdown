@@ -2,9 +2,9 @@
 
 Safe execution environment for untrusted ruby code. If you want me to dedicate more time to working on this, please consider [giving a weekly donation](https://gittip.com/duckinator) to me on Gittip!
 
-[![Gittip](http://img.shields.io/gittip/duckinator.svg)](https://gittip.com/duckinator)
 [![Build Status](http://img.shields.io/travis/duckinator/sicuro.svg)](https://travis-ci.org/duckinator/sicuro)
 [![Code Coverage](http://img.shields.io/coveralls/duckinator/sicuro.svg)](https://coveralls.io/r/duckinator/sicuro)
+[![Code Climate](https://codeclimate.com/github/duckinator/sicuro/badges/gpa.svg)](https://codeclimate.com/github/duckinator/sicuro)
 [![Dependencies](http://img.shields.io/gemnasium/duckinator/sicuro.svg)](https://gemnasium.com/duckinator/sicuro)
 [![](http://img.shields.io/gem/v/sicuro.svg)](http://rubygems.org/gems/sicuro)
 
