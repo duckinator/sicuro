@@ -18,3 +18,8 @@ matrix:
   allow_failures:
     - rvm: rbx-19mode
     - rvm: jruby
+
+
+addons:
+  code_climate:
+    repo_token: be53da0769cdd4da62aba7de451308d4c650985635365ca783b98893225f2927
