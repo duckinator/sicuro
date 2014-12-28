@@ -1,6 +1,6 @@
 # Sicuro
 
-Safe execution environment for untrusted ruby code. If you want me to dedicate more time to working on this, please consider [giving a weekly donation](https://gittip.com/duckinator) to me on Gittip!
+Safe execution environment for untrusted Ruby code.
 
 [![Build Status](http://img.shields.io/travis/duckinator/sicuro.svg)](https://travis-ci.org/duckinator/sicuro)
 [![Code Coverage](http://img.shields.io/coveralls/duckinator/sicuro.svg)](https://coveralls.io/r/duckinator/sicuro)
