@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/duckinator/sicuro.png?label=ready&title=Ready)](https://waffle.io/duckinator/sicuro)
 # Sicuro
 
 Safe execution environment for untrusted Ruby code.
