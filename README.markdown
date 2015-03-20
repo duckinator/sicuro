@@ -1,4 +1,3 @@
-[![Stories in Ready](https://badge.waffle.io/duckinator/sicuro.png?label=ready&title=Ready)](https://waffle.io/duckinator/sicuro)
 # Sicuro
 
 Safe execution environment for untrusted Ruby code.
@@ -8,6 +7,7 @@ Safe execution environment for untrusted Ruby code.
 [![Code Climate](https://codeclimate.com/github/duckinator/sicuro/badges/gpa.svg)](https://codeclimate.com/github/duckinator/sicuro)
 [![Dependencies](http://img.shields.io/gemnasium/duckinator/sicuro.svg)](https://gemnasium.com/duckinator/sicuro)
 [![](http://img.shields.io/gem/v/sicuro.svg)](http://rubygems.org/gems/sicuro)
+[![Stories in Ready](https://badge.waffle.io/duckinator/sicuro.png?label=ready&title=Ready)](https://waffle.io/duckinator/sicuro)
 
 # Installation
 
