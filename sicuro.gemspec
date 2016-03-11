@@ -6,8 +6,8 @@ Gem::Specification.new do |s|
   s.name        = 'sicuro'
   s.version     = Sicuro::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ['Marie Markwell']
-  s.email       = ['me@marie.so']
+  s.authors     = ['Ellen Marie Dash']
+  s.email       = ['me@duckie.co']
   s.homepage    = 'http://github.com/duckinator/sicuro'
   s.summary     = %q{Safe ruby code execution.}
   s.description = %q{Safe ruby code execution in a standard ruby environment. Does not use a chroot, jail, etc. No special permissions required.}
