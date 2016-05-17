@@ -54,7 +54,7 @@ class Sicuro
 
     start = Time.now
 
-    Timeout.timeout(@timelimit) do
+    Timeout::Error.timeout(@timelimit) do
       i, o, e, t = Open3.popen3(RUBY_USED, '-I', SICURO_LIB_DIR, '-e', wrap_code(code, lib_dirs))
       pid = t.pid
 
