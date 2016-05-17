@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake',      '~> 10.3.2'
   s.add_development_dependency 'rspec',     '~> 2.14.0'
   s.add_development_dependency 'simplecov', '~> 0.8.2'
-  s.add_development_dependency 'bundler',   '~> 1.7.0'
+  s.add_development_dependency 'bundler',   '~> 1.12.0'
   s.add_development_dependency 'coveralls'
 
   s.files         = `git ls-files`.split("\n")

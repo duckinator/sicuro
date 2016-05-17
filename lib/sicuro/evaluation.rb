@@ -9,6 +9,7 @@ class Sicuro
       @stderr = stderr
       @wall_time = wall_time
     end
+   
 
     def running?
       Sicuro::Utils.process_running?(@pid)

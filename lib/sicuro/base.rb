@@ -54,7 +54,7 @@ class Sicuro
 
     start = Time.now
 
-    Timeout::Error.timeout(@timelimit) do
+    Timeout.timeout(@timelimit) do
       i, o, e, t = Open3.popen3(RUBY_USED, '-I', SICURO_LIB_DIR, '-e', wrap_code(code, lib_dirs))
       pid = t.pid
 
@@ -121,11 +121,12 @@ class Sicuro
   def enforce_constraints!
     # RAM limit
     unless @res_memlimit.zero?
+      # Virtual memory: how much is allocated (I think?).
+      Process.setrlimit(Process::RLIMIT_AS,  @virt_memlimit * 1024 * 1024)
+      
       # Resident memory: how much RAM is being actively used (I think?).
       Process.setrlimit(Process::RLIMIT_RSS, @res_memlimit * 1024 * 1024)
 
-      # Virtual memory: how much is allocated (I think?).
-      Process.setrlimit(Process::RLIMIT_AS,  @virt_memlimit * 1024 * 1024)
     end
 
     # CPU time limit. 5s means 5s of CPU time.

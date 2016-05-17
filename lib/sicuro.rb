@@ -9,7 +9,7 @@ class Sicuro
   # +res_memlimit+::  Maximum resident memory usage (in megabytes). Default: +50+.
   # +virt_memlimit+:: Maximum virtual memory usage (in megabytes). Default: +res_memlimit * 20+.
   # +timelimit+::     Maximum execution time (in seconds). Default: +5+.
-  def initialize(res_memlimit = 50, virt_memlimit = res_memlimit * 20, timelimit = 5)
+  def initialize(res_memlimit = 50, virt_memlimit = res_memlimit * 20, timelimit = 10)
     @res_memlimit, @virt_memlimit, @timelimit = res_memlimit, virt_memlimit, timelimit
 
     Sicuro::FileSystem.setup!
