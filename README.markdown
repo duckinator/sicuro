@@ -6,7 +6,7 @@ And remember, blacklists are always ineffective &mdash; use whitelists instead.
 
 ---
 
-A Ruby sandbox.
+An attempt at creating a Ruby sandbox in pure Ruby.
 
 [![Build Status](http://img.shields.io/travis/duckinator/sicuro.svg)](https://travis-ci.org/duckinator/sicuro)
 [![Code Coverage](http://img.shields.io/coveralls/duckinator/sicuro.svg)](https://coveralls.io/r/duckinator/sicuro)
