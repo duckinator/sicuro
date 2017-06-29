@@ -1,6 +1,6 @@
 # Sicuro
 
-**Do not rely on this for security.** It is a research experiment, and I have minimal security experience. If you need to run untrusted Ruby code, please get the assistance of somebody who _actually knows security_ and understands sandboxing.
+**Do not rely on this for security.** It is a research experiment, and I have minimal security experience. If you need to run untrusted code, please get the assistance of somebody who _actually knows security_ and understands sandboxing.
 
 And remember, blacklists are always ineffective &mdash; use whitelists instead.
 
