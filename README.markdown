@@ -1,6 +1,12 @@
 # Sicuro
 
-Safe execution environment for untrusted Ruby code.
+**Do not rely on this for security.** It is a research experiment, and I have minimal security experience. If you need to run untrusted Ruby code, please get the assistance of somebody who _actually knows security_ and understands sandboxing.
+
+And remember, blacklists are always ineffective &mdash; use whitelists instead.
+
+---
+
+A Ruby sandbox.
 
 [![Build Status](http://img.shields.io/travis/duckinator/sicuro.svg)](https://travis-ci.org/duckinator/sicuro)
 [![Code Coverage](http://img.shields.io/coveralls/duckinator/sicuro.svg)](https://coveralls.io/r/duckinator/sicuro)
@@ -14,9 +20,6 @@ Safe execution environment for untrusted Ruby code.
     gem install sicuro
 
 # Usage
-
-Sicuro safely executes untrusted ruby code without any complex configuration,
-unjustifiable permissions (such as passwordless sudo), chroots, or BSD Jails.
 
 ## Configuration
 
@@ -101,4 +104,3 @@ p Sicuro.run(:ruby, "puts 'lawl'")
 
 Sicuro is released under the ISC license. See the LICENSE file which should have
 been distributed with this for more information.
-
